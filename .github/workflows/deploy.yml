@@ -1,0 +1,41 @@
+name: Deploy Alomar Odoo
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    name: Deploy to Production Server
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT || 22 }}
+          script_stop: true
+          script: |
+            echo "=== [1/5] Navigating to project directory ==="
+            cd /opt/alomar
+
+            echo "=== [2/5] Fetching and pulling latest changes ==="
+            git fetch origin main
+            git reset --hard origin/main
+
+            echo "=== [3/5] Setting script execution permissions ==="
+            chmod +x scripts/*.sh
+
+            echo "=== [4/5] Pulling and deploying Docker containers ==="
+            docker compose pull || true
+            docker compose up -d --remove-orphans
+
+            echo "=== [5/5] Checking container status ==="
+            docker compose ps
+
+            echo "=== Deployment finished successfully! ==="
