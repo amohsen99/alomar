@@ -1,0 +1,21 @@
+# ==============================================================================
+# Python Dependencies for Alomar Custom and Community Addons
+# Uncomment or add libraries as required by your modules.
+# ==============================================================================
+
+# Common reporting & export tools
+# xlsxwriter
+# openpyxl
+# pandas
+
+# Number to words (frequently used in Arabic / invoice templates)
+# num2words
+
+# Phone number formatting & validation
+# phonenumbers
+
+# Security & Web Services
+# pyOpenSSL
+# paramiko
+# zeep
+# requests

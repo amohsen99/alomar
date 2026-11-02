@@ -1,0 +1,83 @@
+services:
+  # ---------------------------------------------------------------------------
+  # PostgreSQL Database Service
+  # Dedicated to Alomar instance, fully isolated from other DB containers
+  # ---------------------------------------------------------------------------
+  db:
+    image: postgres:${POSTGRES_IMAGE_TAG:-15-alpine}
+    container_name: ${COMPOSE_PROJECT_NAME:-alomar}-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-postgres}
+      POSTGRES_USER: ${POSTGRES_USER:-alomar_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-alomar_secure_db_pass_2026}
+      PGDATA: /var/lib/postgresql/data/pgdata
+    volumes:
+      - db_data:/var/lib/postgresql/data/pgdata
+    networks:
+      - internal_net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-alomar_user} -d ${POSTGRES_DB:-postgres}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    # Keep port unexposed to host for security and to avoid port conflicts with other Postgres instances.
+    # If host access is strictly required (e.g. pgAdmin/DBeaver), uncomment below:
+    # ports:
+    #   - "127.0.0.1:${HOST_DB_PORT:-5434}:5432"
+
+  # ---------------------------------------------------------------------------
+  # Odoo Community Web Application
+  # ---------------------------------------------------------------------------
+  web:
+    # Option A (Default): Use official Community Docker Hub image
+    image: odoo:${ODOO_IMAGE_TAG:-18.0}
+    # Option B: Use custom Dockerfile to install python/system dependencies
+    # build:
+    #   context: .
+    #   dockerfile: Dockerfile
+    #   args:
+    #     ODOO_VERSION: ${ODOO_IMAGE_TAG:-18.0}
+    container_name: ${COMPOSE_PROJECT_NAME:-alomar}-web
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    ports:
+      # HTTP Web interface
+      - "${HOST_ODOO_PORT:-8029}:8069"
+      # Livechat / WebSocket / Longpolling interface
+      - "${HOST_CHAT_PORT:-8032}:8072"
+    environment:
+      HOST: db
+      PORT: 5432
+      USER: ${POSTGRES_USER:-alomar_user}
+      PASSWORD: ${POSTGRES_PASSWORD:-alomar_secure_db_pass_2026}
+    volumes:
+      # Odoo Configuration
+      - ./config/odoo.conf:/etc/odoo/odoo.conf:ro
+      # Custom addons developed for Alomar
+      - ./addons/custom:/mnt/extra-addons/custom
+      # Third-party / Community / OCA addons
+      - ./addons/third_party:/mnt/extra-addons/third_party
+      # Filestore persistence (attachments, binary fields, sessions)
+      - filestore_data:/var/lib/odoo
+      # Optional: Bind-mount logs directory
+      # - ./logs:/var/log/odoo
+    networks:
+      - internal_net
+      # Optional: connect to a shared reverse proxy network (e.g., nginx-proxy / traefik)
+      # - web_gateway
+
+networks:
+  internal_net:
+    name: ${COMPOSE_PROJECT_NAME:-alomar}_network
+    driver: bridge
+  # web_gateway:
+  #   external: true
+
+volumes:
+  db_data:
+    name: ${COMPOSE_PROJECT_NAME:-alomar}_db_data
+  filestore_data:
+    name: ${COMPOSE_PROJECT_NAME:-alomar}_filestore_data

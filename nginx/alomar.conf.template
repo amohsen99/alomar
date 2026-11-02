@@ -1,0 +1,102 @@
+# ==============================================================================
+# Nginx Reverse Proxy Configuration for Alomar Odoo Community Instance
+# Copy or include this configuration in /etc/nginx/sites-available/alomar.conf
+# ==============================================================================
+
+# Odoo Backend Upstreams (Matching HOST_ODOO_PORT=8029 & HOST_CHAT_PORT=8032 in .env)
+upstream alomar_odoo {
+    server 127.0.0.1:8029;
+}
+
+upstream alomar_odoo_chat {
+    server 127.0.0.1:8032;
+}
+
+# Redirect HTTP to HTTPS
+server {
+    listen 80;
+    server_name alomar.yourdomain.com; # <-- Replace with your domain
+
+    # ACME challenge for Let's Encrypt / Certbot
+    location /.well-known/acme-challenge/ {
+        root /var/www/html;
+    }
+
+    location / {
+        return 301 https://$host$request_uri;
+    }
+}
+
+# HTTPS Configuration
+server {
+    listen 443 ssl http2;
+    server_name alomar.yourdomain.com; # <-- Replace with your domain
+
+    # SSL Certificates (managed via Certbot: certbot --nginx -d alomar.yourdomain.com)
+    # ssl_certificate /etc/letsencrypt/live/alomar.yourdomain.com/fullchain.pem;
+    # ssl_certificate_key /etc/letsencrypt/live/alomar.yourdomain.com/privkey.pem;
+
+    # SSL hardening
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers HIGH:!aNULL:!MD5;
+    ssl_prefer_server_ciphers on;
+    ssl_session_cache shared:SSL:10m;
+    ssl_session_timeout 1d;
+
+    # Security headers
+    add_header X-Content-Type-Options nosniff;
+    add_header X-XSS-Protection "1; mode=block";
+    add_header X-Frame-Options SAMEORIGIN;
+
+    # Log files dedicated to Alomar
+    access_log /var/log/nginx/alomar_access.log;
+    error_log /var/log/nginx/alomar_error.log;
+
+    # Maximum file upload size (database restore, attachments, heavy imports)
+    client_max_body_size 128M;
+
+    # Increase timeouts for long-running Odoo operations (reports, imports)
+    proxy_read_timeout 900s;
+    proxy_connect_timeout 900s;
+    proxy_send_timeout 900s;
+
+    # Common Proxy Headers
+    proxy_set_header X-Forwarded-Host $host;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+    proxy_set_header X-Real-IP $remote_addr;
+
+    # WebSocket / Longpolling / Livechat (Port 8032 -> 8072)
+    location /websocket {
+        proxy_pass http://alomar_odoo_chat;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header X-Forwarded-Host $host;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+
+    # Legacy longpolling endpoint (for older Odoo versions)
+    location /longpolling {
+        proxy_pass http://alomar_odoo_chat;
+    }
+
+    # Web Client & API
+    location / {
+        proxy_pass http://alomar_odoo;
+        proxy_redirect off;
+    }
+
+    # Static assets caching
+    location ~* /web/static/ {
+        proxy_pass http://alomar_odoo;
+        proxy_cache_valid 200 90m;
+        proxy_buffering on;
+        expires 864000;
+    }
+
+    # Gzip compression
+    gzip on;
+    gzip_types text/css text/less text/plain text/xml application/xml application/json application/javascript;
+}

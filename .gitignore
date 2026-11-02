@@ -1,0 +1,32 @@
+# Environment and credentials
+.env
+
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Odoo filestore and runtime
+filestore/
+sessions/
+*.log
+logs/
+
+# Database dumps and backups
+backups/
+*.dump
+*.sql
+*.tar.gz
+*.zip
+
+# Editors and IDEs
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+.DS_Store
+
+# Temporary files
+tmp/
+*.tmp
