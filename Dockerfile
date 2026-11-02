@@ -2,7 +2,7 @@
 # Alomar Custom Odoo Community Dockerfile
 # Use this when your custom/third-party modules require external Python libraries
 # ==============================================================================
-ARG ODOO_VERSION=18.0
+ARG ODOO_VERSION=19.0
 FROM odoo:${ODOO_VERSION}
 
 USER root
