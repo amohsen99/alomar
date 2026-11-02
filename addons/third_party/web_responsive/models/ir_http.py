@@ -13,7 +13,8 @@ class IrHttp(models.AbstractModel):
         return {
             **session,
             "apps_menu": {
-                "search_type": user.apps_menu_search_type,
-                "theme": user.apps_menu_theme,
+                "search_type": user.apps_menu_search_type or "canonical",
+                "theme": user.apps_menu_theme or "enterprise",
+                "is_redirect_home": getattr(user, "is_redirect_home", True),
             },
         }

@@ -6,7 +6,7 @@
  * Copyright 2023 Taras Shabaranskyi
  * License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl). */
 
-import {Component, onWillStart, useState} from "@odoo/owl";
+import {Component, useState} from "@odoo/owl";
 import {useBus, useService} from "@web/core/utils/hooks";
 import {AppMenuItem} from "@web_responsive/components/apps_menu_item/apps_menu_item.esm";
 import {AppsMenuSearchBar} from "@web_responsive/components/menu_searchbar/searchbar.esm";
@@ -18,9 +18,10 @@ import {router} from "@web/core/browser/router";
 import {session} from "@web/session";
 import {useHotkey} from "@web/core/hotkeys/hotkey_hook";
 import {user} from "@web/core/user";
+import {cookie} from "@web/core/browser/cookie";
 import {BurgerMenu} from "@web/webclient/burger_menu/burger_menu";
 
-// Patch WebClient to show AppsMenu instead of default app
+// Patch WebClient to show AppsMenu instead of default app (Discuss/Inbox)
 patch(WebClient.prototype, {
     setup() {
         super.setup();
@@ -28,20 +29,16 @@ patch(WebClient.prototype, {
             document.body.classList.toggle("o_apps_menu_opened", state);
         });
         this.user = user;
-        onWillStart(async () => {
-            const is_redirect_home = await this.orm.searchRead(
-                "res.users",
-                [["id", "=", this.user.userId]],
-                ["is_redirect_home"]
-            );
-            user.updateContext({
-                is_redirect_to_home: is_redirect_home[0]?.is_redirect_home,
-            });
+        const is_redirect_home = session.apps_menu?.is_redirect_home !== false;
+        user.updateContext({
+            is_redirect_to_home: is_redirect_home,
         });
         this.redirect = false;
     },
     _loadDefaultApp() {
-        if (user.context.is_redirect_to_home) {
+        const hasHashAction = Boolean(router.current.action || router.current.menu_id);
+        const shouldRedirectHome = user.context.is_redirect_to_home !== false;
+        if (!hasHashAction && shouldRedirectHome) {
             this.env.bus.trigger("APPS_MENU:STATE_CHANGED", true);
         } else {
             super._loadDefaultApp();
@@ -52,17 +49,30 @@ patch(WebClient.prototype, {
 export class AppsMenu extends Component {
     setup() {
         super.setup();
-        this.state = useState({open: false});
-        this.theme = session.apps_menu.theme || "milk";
-        this.menuService = useService("menu");
-        browser.localStorage.setItem("redirect_menuId", "");
-        if (user.context.is_redirect_to_home) {
-            this.router = router;
-            const menuId = Number(this.router.current.menu_id || 0);
-            this.state = useState({open: menuId === 0});
+        const configuredTheme = session.apps_menu?.theme || "enterprise";
+        const isDarkScheme = cookie.get("color_scheme") === "dark";
+        if (configuredTheme === "enterprise" && isDarkScheme) {
+            this.theme = "enterprise_dark";
+        } else {
+            this.theme = configuredTheme;
         }
+        this.menuService = useService("menu");
+        this.router = router;
+
+        const hasHashAction = Boolean(this.router.current.action || this.router.current.menu_id);
+        const shouldOpenHome = !hasHashAction && (user.context.is_redirect_to_home !== false);
+        this.state = useState({open: shouldOpenHome});
+        if (shouldOpenHome) {
+            document.body.classList.add("o_apps_menu_opened");
+        }
+
         useBus(this.env.bus, "ACTION_MANAGER:UI-UPDATED", () => {
             this.setOpenState(false);
+        });
+        useBus(this.env.bus, "APPS_MENU:STATE_CHANGED", ({detail: state}) => {
+            if (this.state.open !== state) {
+                this.state.open = state;
+            }
         });
         this._setupKeyNavigation();
     }
@@ -108,7 +118,7 @@ export class AppsMenu extends Component {
             repeatable
         );
         useHotkey("Escape", () => {
-            this.env.bus.trigger("ACTION_MANAGER:UI-UPDATED");
+            this.setOpenState(false);
         });
     }
 
@@ -136,29 +146,7 @@ export class AppsMenu extends Component {
     }
 
     onMenuClick() {
-        if (!user.context.is_redirect_to_home) {
-            this.setOpenState(!this.state.open);
-        } else {
-            const redirect_menuId =
-                browser.localStorage.getItem("redirect_menuId") || "";
-            if (!redirect_menuId) {
-                this.setOpenState(true);
-            } else {
-                this.setOpenState(!this.state.open);
-            }
-            const {href, hash} = location;
-            const menuId = this.router.current.menu_id;
-            if (menuId && menuId !== redirect_menuId) {
-                browser.localStorage.setItem(
-                    "redirect_menuId",
-                    this.router.current.menu_id
-                );
-            }
-
-            if (href.includes(hash)) {
-                window.history.replaceState(null, "", href.replace(hash, ""));
-            }
-        }
+        this.setOpenState(!this.state.open);
     }
 }
 

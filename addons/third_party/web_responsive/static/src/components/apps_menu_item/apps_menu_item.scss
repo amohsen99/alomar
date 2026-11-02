@@ -3,74 +3,97 @@
  * Copyright 2023 Taras Shabaranskyi
  * License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl). */
 
-:root {
-    .o_grid_apps_menu[data-theme="milk"] {
-        --app-menu-text-color: #{$app-menu-text-color};
-        --app-menu-text-shadow: 1px 1px 1px #{rgba($white, 0.4)};
-        --app-menu-hover-background: #{rgba(white, 0.4)};
-    }
-
-    .o_grid_apps_menu[data-theme="community"] {
-        --app-menu-text-color: white;
-        --app-menu-text-shadow: 1px 1px 1px #{rgba(black, 0.4)};
-        --app-menu-hover-background: #{rgba(white, 0.2)};
-    }
-}
-
 .o-app-menu-item {
     display: flex;
     flex-direction: column;
-    border-radius: 4px;
-    gap: 0.25rem;
+    border-radius: 16px;
+    gap: 0.35rem;
     transition:
-        ease box-shadow,
-        transform,
-        0.3s;
-    background: unset;
-    outline: unset;
-    border: unset;
-    padding: 0.75rem 0.5rem;
+        box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+        transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    background: transparent;
+    outline: none;
+    border: none;
+    padding: 0.5rem 0.25rem;
     justify-content: flex-start;
     align-items: center;
     white-space: normal;
     user-select: none;
-    height: -moz-available;
     height: max-content;
+    text-decoration: none !important;
+    cursor: pointer;
 
     &__name {
         display: -webkit-box;
-        -webkit-line-clamp: 3;
+        -webkit-line-clamp: 2;
         -webkit-box-orient: vertical;
         overflow: hidden;
-        font-size: 1em;
+        font-size: 0.85rem;
+        font-weight: 500;
+        line-height: 1.25;
+        letter-spacing: 0.01em;
         text-shadow: var(--app-menu-text-shadow);
         color: var(--app-menu-text-color);
         text-align: center;
+        max-width: 100px;
+        word-break: break-word;
+        transition: color 0.2s ease, font-weight 0.2s ease;
     }
 
     &__icon {
-        height: auto;
-        max-width: 64px;
-        width: 64px;
+        height: 72px;
+        max-width: 72px;
+        width: 72px;
         aspect-ratio: 1;
-        padding: 10px;
-        background-color: white;
-        box-shadow: $app-menu-box-shadow;
+        object-fit: contain;
+        padding: 8px;
+        background-color: var(--app-menu-icon-bg, #ffffff);
+        border-radius: 18px !important;
+        box-shadow: var(--app-menu-icon-shadow, 
+            inset 0 0 0 1px rgba(0, 0, 0, 0.08),
+            0 2px 4px rgba(0, 0, 0, 0.04),
+            0 6px 12px rgba(0, 0, 0, 0.08)
+        );
+        transition:
+            transform 0.25s cubic-bezier(0.16, 1, 0.3, 1),
+            box-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
     &__active {
         position: absolute;
-        bottom: 2px;
-        right: 2px;
-        text-shadow: 0 0 2px rgba(250, 250, 250, 0.6);
-        color: $app-menu-text-color;
+        top: -3px;
+        right: -3px;
+        width: 18px;
+        height: 18px;
+        background-color: #017e84;
+        color: #ffffff;
+        border-radius: 50%;
+        border: 2px solid #ffffff;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 9px;
     }
 
     &:focus,
     &:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 6px 12px -8px transparentize($app-menu-text-color, 0.6);
-        background-color: var(--app-menu-hover-background) !important;
-        backdrop-filter: blur(2px);
+        outline: none;
+        background-color: transparent !important;
+        backdrop-filter: none;
+
+        .o-app-menu-item__icon {
+            transform: translateY(-4px) scale(1.03);
+            box-shadow: var(--app-menu-icon-hover-shadow,
+                inset 0 0 0 1px rgba(0, 0, 0, 0.12),
+                0 8px 16px rgba(0, 0, 0, 0.12),
+                0 16px 28px rgba(0, 0, 0, 0.08)
+            );
+        }
+
+        .o-app-menu-item__name {
+            color: var(--app-menu-text-hover-color, var(--app-menu-text-color));
+            font-weight: 600;
+        }
     }
 }

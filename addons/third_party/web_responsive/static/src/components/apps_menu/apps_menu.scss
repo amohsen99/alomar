@@ -4,14 +4,44 @@
  * License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl). */
 
 :root {
+    .o_grid_apps_menu[data-theme="enterprise"],
+    .o_grid_apps_menu:not([data-theme]),
     .o_grid_apps_menu[data-theme="milk"] {
         --app-menu-background:
-            url("../../img/home-menu-bg-overlay.svg"),
-            linear-gradient(
-                to bottom,
-                #{$app-menu-background-color},
-                #{desaturate(lighten($app-menu-background-color, 20%), 15)}
-            );
+            url("../../img/background-light.svg"),
+            linear-gradient(180deg, #f8fafc 0%, #e2e8f0 100%);
+        --app-menu-text-color: #1e293b;
+        --app-menu-text-hover-color: #0f172a;
+        --app-menu-text-shadow: 0 1px 2px rgba(255, 255, 255, 0.85);
+        --app-menu-hover-background: rgba(255, 255, 255, 0.45);
+        --app-menu-icon-bg: #ffffff;
+        --app-menu-icon-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.08),
+            0 2px 4px rgba(0, 0, 0, 0.04),
+            0 6px 12px rgba(0, 0, 0, 0.08);
+        --app-menu-icon-hover-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.12),
+            0 8px 16px rgba(0, 0, 0, 0.12),
+            0 16px 28px rgba(0, 0, 0, 0.08);
+        --apps-menu-scrollbar-background: rgba(100, 116, 139, 0.4);
+        --apps-menu-empty-search-color: #475569;
+    }
+
+    .o_grid_apps_menu[data-theme="enterprise_dark"] {
+        --app-menu-background:
+            url("../../img/background-dark.jpg"),
+            #000511;
+        --app-menu-text-color: #f8fafc;
+        --app-menu-text-hover-color: #ffffff;
+        --app-menu-text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9);
+        --app-menu-hover-background: rgba(255, 255, 255, 0.08);
+        --app-menu-icon-bg: #1e293b;
+        --app-menu-icon-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.15),
+            0 2px 6px rgba(0, 0, 0, 0.5),
+            0 8px 16px rgba(0, 0, 0, 0.4);
+        --app-menu-icon-hover-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.25),
+            0 6px 16px rgba(0, 0, 0, 0.6),
+            0 16px 32px rgba(0, 0, 0, 0.5);
+        --apps-menu-scrollbar-background: rgba(148, 163, 184, 0.3);
+        --apps-menu-empty-search-color: #94a3b8;
     }
 
     .o_grid_apps_menu[data-theme="community"] {
@@ -22,6 +52,15 @@
                 #{$o-brand-primary},
                 #{desaturate(lighten($o-brand-primary, 20%), 15)}
             );
+        --app-menu-text-color: #ffffff;
+        --app-menu-text-hover-color: #ffffff;
+        --app-menu-text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
+        --app-menu-hover-background: rgba(255, 255, 255, 0.2);
+        --app-menu-icon-bg: #ffffff;
+        --app-menu-icon-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+        --app-menu-icon-hover-shadow: 0 8px 16px rgba(0, 0, 0, 0.25);
+        --apps-menu-scrollbar-background: rgba(255, 255, 255, 0.4);
+        --apps-menu-empty-search-color: #ffffff;
     }
 }
 
@@ -39,6 +78,10 @@
 }
 
 .o_apps_menu_opened .o_main_navbar {
+    background: transparent !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
+    backdrop-filter: blur(8px);
+
     .o_menu_brand,
     .o_menu_sections {
         display: none !important;
@@ -62,56 +105,62 @@
         height: $o-navbar-height;
         width: $o-navbar-height;
         color: $o-navbar-brand-color;
+        border-radius: 8px;
+        transition: background 0.15s ease, transform 0.1s ease;
 
         &:hover,
         &:focus {
             background: $o-navbar-entry-bg--hover;
+            transform: scale(1.05);
         }
     }
 
     .o-app-menu-list {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(105px, 1fr));
         width: 100%;
-        gap: 0.25rem;
+        max-width: 900px;
+        margin: 0 auto;
+        gap: 1.5rem 0.75rem;
+        justify-items: center;
+        align-content: start;
+        padding: 1.5rem 0.5rem;
 
-        @include media-breakpoint-up(sm) {
-            grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
+        @include media-breakpoint-up(md) {
+            grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+            gap: 2rem 1rem;
         }
     }
 }
 
 .app-menu-container {
     @include full-screen-dropdown();
-    overflow: auto;
+    overflow-y: auto;
+    overflow-x: hidden;
     background-clip: border-box;
-    padding: 1rem 0.5rem;
+    padding: 2.5rem 1rem 3rem 1rem;
     gap: 1rem;
     background: var(--app-menu-background);
     background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
     border-radius: 0;
-    // Display apps in a grid
     align-content: flex-start;
     display: flex !important;
     z-index: 1024 !important;
-    flex-direction: row;
-    flex-wrap: wrap;
+    flex-direction: column;
+    align-items: center;
     justify-content: flex-start;
 
-    // Hide app icons when searching
-    .has-results ~ .o-app-menu-list {
-        display: none;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(120, 120, 120, 0.4) transparent;
+
+    &::-webkit-scrollbar {
+        width: 6px;
     }
 
-    @include media-breakpoint-up(lg) {
-        padding: {
-            left: calc((100vw - 850px) / 2);
-            right: calc((100vw - 850px) / 2);
-        }
+    &::-webkit-scrollbar-thumb {
+        background-color: rgba(120, 120, 120, 0.4);
+        border-radius: 10px;
     }
-}
-
-// Sidebar positioning
-.o_app_menu_sidebar {
-    transform: translateX(-100%);
 }

@@ -1,7 +1,7 @@
 # Copyright 2023 Taras Shabaranskyi
 # License LGPL-3.0 or later (http://www.gnu.org/licenses/lgpl.html).
 
-from odoo import api, fields, models
+from odoo import fields, models
 
 
 class ResUsers(models.Model):
@@ -18,25 +18,16 @@ class ResUsers(models.Model):
     )
     apps_menu_theme = fields.Selection(
         [
+            ("enterprise", "Enterprise Light"),
+            ("enterprise_dark", "Enterprise Dark"),
             ("milk", "Milk"),
             ("community", "Community"),
         ],
-        default="milk",
+        default="enterprise",
         required=True,
     )
     is_redirect_home = fields.Boolean(
-        string="Redirect to Home",
-        help="Redirect to dashboard after signing in",
-        compute="_compute_redirect_home",
-        store=True,
-        readonly=False,
+        string="Open Apps by Default",
+        help="Open the Apps Menu (Home Menu) by default instead of Discuss upon signing in",
+        default=True,
     )
-
-    @api.depends("action_id")
-    def _compute_redirect_home(self):
-        """
-        Set is_redirect_home to False
-        when action_id has a value.
-        :return:
-        """
-        self.filtered("action_id").is_redirect_home = False
