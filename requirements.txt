@@ -3,10 +3,11 @@
 # Uncomment or add libraries as required by your modules.
 # ==============================================================================
 
-# Common reporting & export tools
-# xlsxwriter
-# openpyxl
-# pandas
+# Required by base_accounting_kit and dynamic_accounts_report
+qifparse
+ofxparse
+openpyxl
+xlsxwriter
 
 # Number to words (frequently used in Arabic / invoice templates)
 # num2words
