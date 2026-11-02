@@ -1,18 +1,74 @@
-name: Deploy Alomar Odoo
+name: CI/CD Pipeline - Alomar Odoo
 
 on:
   push:
     branches:
       - main
+  pull_request:
+    branches:
+      - main
   workflow_dispatch:
 
 jobs:
-  deploy:
-    name: Deploy to Production Server
+  # ============================================================================
+  # Stage 1: Continuous Integration (CI) - Validation & Linting
+  # Runs on GitHub runner to catch syntax errors BEFORE deploying to production
+  # ============================================================================
+  validate:
+    name: "CI: Lint & Validate Code"
     runs-on: ubuntu-latest
 
     steps:
-      - name: Deploy via SSH
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Validate Docker Compose Configuration
+        run: |
+          echo "Verifying docker-compose.yml syntax..."
+          cp .env.example .env
+          docker compose config
+
+      - name: Validate Python Syntax in Addons
+        run: |
+          echo "Compiling Python files to check for syntax errors..."
+          python -m py_compile $(find addons -name "*.py")
+          echo "All Python files compiled successfully!"
+
+      - name: Validate XML Views Syntax
+        run: |
+          echo "Validating XML views and data files..."
+          python -c "
+          import xml.etree.ElementTree as ET, glob, sys
+          xml_files = glob.glob('addons/**/*.xml', recursive=True)
+          errors = 0
+          for f in xml_files:
+              try:
+                  ET.parse(f)
+              except Exception as e:
+                  print(f'Error in {f}: {e}', file=sys.stderr)
+                  errors += 1
+          if errors:
+              sys.exit(1)
+          print(f'Successfully validated {len(xml_files)} XML files.')
+          "
+
+  # ============================================================================
+  # Stage 2: Continuous Deployment (CD) - Deploy to Server
+  # Runs ONLY if Stage 1 (Validation) passes successfully!
+  # ============================================================================
+  deploy:
+    name: "CD: Deploy to Server"
+    needs: validate
+    if: github.ref == 'refs/heads/main' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch')
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Execute Deployment via SSH
         uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.SSH_HOST }}
@@ -21,21 +77,32 @@ jobs:
           port: ${{ secrets.SSH_PORT || 22 }}
           script_stop: true
           script: |
-            echo "=== [1/5] Navigating to project directory ==="
+            echo "=========================================================="
+            echo " Starting Deployment on Server (72.61.186.1)"
+            echo "=========================================================="
+
+            # 1. الانتقال لمجلد المشروع
             cd /opt/alomar
 
-            echo "=== [2/5] Fetching and pulling latest changes ==="
+            # 2. سحب آخر التعديلات من GitHub
+            echo "[1/4] Pulling latest changes from Git..."
             git fetch origin main
             git reset --hard origin/main
 
-            echo "=== [3/5] Setting script execution permissions ==="
+            # 3. التأكد من صلاحيات السكربتات
+            echo "[2/4] Setting execution permissions..."
             chmod +x scripts/*.sh
 
-            echo "=== [4/5] Pulling and deploying Docker containers ==="
+            # 4. تحديث الحاويات وإعادة تشغيلها
+            echo "[3/4] Pulling images & applying container changes..."
             docker compose pull || true
             docker compose up -d --remove-orphans
 
-            echo "=== [5/5] Checking container status ==="
+            # 5. التحقق من سلامة تشغيل الحاويات
+            echo "[4/4] Verifying container health..."
             docker compose ps
 
-            echo "=== Deployment finished successfully! ==="
+            echo "=========================================================="
+            echo " Deployment Finished Successfully!"
+            echo " Live at: http://72.61.186.1:8029"
+            echo "=========================================================="
