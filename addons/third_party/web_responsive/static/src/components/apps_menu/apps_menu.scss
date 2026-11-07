@@ -67,24 +67,42 @@
 @mixin full-screen-dropdown {
     border: none;
     box-shadow: none;
-    height: 100%;
-    max-height: calc(var(--vh100, 100vh) - #{$o-navbar-height});
-    max-height: calc(100dvh - #{$o-navbar-height});
     position: fixed;
-    margin: 0;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
     width: 100vw;
-    z-index: 1000;
-    left: 0 !important;
+    height: 100vh;
+    height: 100dvh;
+    margin: 0;
+    z-index: 1000 !important;
 }
 
-.o_apps_menu_opened .o_main_navbar {
-    background: transparent !important;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
-    backdrop-filter: blur(8px);
-
-    .o_menu_brand,
-    .o_menu_sections {
+.o_apps_menu_opened {
+    // Hide action manager completely so it never covers the apps menu or bleeds through
+    > .o_action_manager,
+    .o_action_manager {
         display: none !important;
+    }
+
+    .o_main_navbar {
+        position: relative;
+        z-index: 1005;
+        background: transparent !important;
+        border-bottom: none !important;
+        box-shadow: none !important;
+
+        .o_menu_brand,
+        .o_menu_sections {
+            display: none !important;
+        }
+
+        .o_grid_apps_menu__button,
+        .o_nav_entry,
+        .dropdown-toggle:not(.btn) {
+            color: var(--app-menu-text-color) !important;
+        }
     }
 }
 
@@ -124,7 +142,7 @@
         gap: 1.5rem 0.75rem;
         justify-items: center;
         align-content: start;
-        padding: 1.5rem 0.5rem;
+        padding: 0.5rem;
 
         @include media-breakpoint-up(md) {
             grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
@@ -138,8 +156,11 @@
     overflow-y: auto;
     overflow-x: hidden;
     background-clip: border-box;
-    padding: 2.5rem 1rem 3rem 1rem;
-    gap: 1rem;
+    padding-top: calc(#{$o-navbar-height} + 1.5rem);
+    padding-bottom: 3rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    gap: 1.5rem;
     background: var(--app-menu-background);
     background-size: cover;
     background-position: center;
@@ -147,20 +168,24 @@
     border-radius: 0;
     align-content: flex-start;
     display: flex !important;
-    z-index: 1024 !important;
     flex-direction: column;
     align-items: center;
     justify-content: flex-start;
 
+    // Hide app icons when searching
+    .has-results ~ .o-app-menu-list {
+        display: none !important;
+    }
+
     scrollbar-width: thin;
-    scrollbar-color: rgba(120, 120, 120, 0.4) transparent;
+    scrollbar-color: var(--apps-menu-scrollbar-background, rgba(120, 120, 120, 0.4)) transparent;
 
     &::-webkit-scrollbar {
         width: 6px;
     }
 
     &::-webkit-scrollbar-thumb {
-        background-color: rgba(120, 120, 120, 0.4);
+        background-color: var(--apps-menu-scrollbar-background, rgba(120, 120, 120, 0.4));
         border-radius: 10px;
     }
 }
