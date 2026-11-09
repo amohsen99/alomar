@@ -1,179 +1,208 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!--    Report Template for trial balance-->
-    <template id="trial_balance">
-        <t t-call="web.html_container">
-            <t t-call="web.external_layout">
-                <t t-set="data_report_margin_top" t-value="12"/>
-                <t t-set="data_report_header_spacing" t-value="9"/>
-                <t t-set="data_report_dpi" t-value="110"/>
-                <div class="page">
-                    <h3>
-                        <center>
-                            <b>
-                                <span t-esc="report_name"/>
-                            </b>
-                        </center>
-                    </h3>
-                    <br/>
-                    <br/>
-                    <div class="filters">
-                        <table class="table table-sm table-reports">
-                            <thead class="filter_table"
-                                   style="background:#808080;">
-                                <tr>
-                                    <th>Date Range</th>
-                                    <th>Comparison</th>
-                                    <th>Account</th>
-                                    <th>Journal</th>
-                                    <th>Options</th>
-                                </tr>
-                            </thead>
-                            <tbody style="font-size:11px;font-weight:100;">
-                                <tr>
-                                    <th>
-                                        <t t-if="filters['start_date']"
-                                           t-out="filters['start_date']"/>
-                                        <t t-if="filters['end_date']">
-                                            to
-                                            <t t-out="filters['end_date']"/>
-                                        </t>
-                                    </th>
-                                    <th>
-                                        <t t-if="filters['comparison_number_range']">
-                                            <t t-out="filters['comparison_type']"/>
-                                            :
-                                            <t t-out="filters['comparison_number_range']"/>
-                                        </t>
-                                    </th>
-                                    <th>
-                                        <t t-foreach="filters['journal']"
-                                           t-as="selected_journal"
-                                           t-key="journal_index">
-                                            <t t-out="selected_journal"/>
-                                            ,
-                                        </t>
-                                    </th>
-                                    <th>
-                                        <t t-foreach="filters['account']"
-                                           t-as="selected_account"
-                                           t-key="account_index">
-                                            <t t-out="selected_account['display_name']"/>
-                                            ,
-                                        </t>
-                                    </th>
-                                    <th>
-                                        <t t-foreach="filters['options']"
-                                           t-as="selected_options"
-                                           t-key="options_index">
-                                            <t t-out="selected_options"/>,
-                                        </t>
-                                    </th>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <br/>
-                    <br/>
-                    <br/>
-                    <table class="table table-sm table-reports"
-                           style="width: fit-content;">
-                        <thead style="background:#808080;">
-                            <tr>
-                                <th colspan="6"/>
-                                <th colspan="2">Initial Balance</th>
-                                <t t-foreach="date_viewed" t-as="date_view"
-                                   t-key="date_view_index">
-                                    <th colspan="2">
-                                        <t t-esc="date_view"/>
-                                    </th>
-                                </t>
-                                <t t-if="apply_comparison == true">
-                                    <t t-foreach="data[0][0]['dynamic_date_num'].items()" t-as="item" t-key="item[0]">
-                                        <th colspan="2">
-                                            <t t-esc="item[1]"/>
-                                        </th>
-                                    </t>
-                                </t>
-                                <th colspan="2">End Balance</th>
-                            </tr>
-                            <tr class="o_heading" style="text-align:center;background:#D3D3D3;">
-                                <th colspan="6"/>
-                                <th>Debit</th>
-                                <th>Credit</th>
-                                <th>Debit</th>
-                                <th>Credit</th>
-                                <th>Debit</th>
-                                <th>Credit</th>
-                                <t t-if="apply_comparison == true">
-                                    <t t-set="number_of_periods"
-                                       t-value="comparison_number_range"/>
-                                    <t t-foreach="number_of_periods"
-                                       t-as="number" t-key="number">
-                                        <th>Debit</th>
-                                        <th>Credit</th>
-                                    </t>
-                                </t>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <t t-if="data">
-                                <t t-set="i" t-value="0"/>
-                                <t t-foreach="data[0]"
-                                   t-as="move_line"
-                                   t-key="move_line_index">
-                                    <t t-set="i" t-value="i + 1"/>
-                                    <tr class="border-bottom"
-                                        style="border-spacing: 0 10px;">
-                                        <th colspan="6">
-                                            <t t-esc="move_line['account']"/>
-                                        </th>
-                                        <th style="text-align:center;">
-                                            <t t-if="move_line['initial_total_debit']"
-                                               t-esc="move_line['initial_total_debit']"/>
-                                        </th>
-                                        <th style="text-align:center;">
-                                            <t t-if="move_line['initial_total_credit']"
-                                               t-esc="move_line['initial_total_credit']"/>
-                                        </th>
-                                        <t t-if="apply_comparison == true">
-                                            <t t-set="number_of_periods"
-                                               t-value="comparison_number_range"/>
-                                            <t t-foreach="number_of_periods"
-                                               t-as="num" t-key="num">
-                                                <th style="text-align:center;">
-                                                    <t t-if="move_line['dynamic_total_debit_' + str(num)]"
-                                                       t-esc="move_line['dynamic_total_debit_' + str(num)]"/>
-                                                </th>
-                                                <th style="text-align:center;">
-                                                    <t t-if="move_line['dynamic_total_credit_' + str(num)]"
-                                                       t-esc="move_line['dynamic_total_credit_' + str(num)]"/>
-                                                </th>
-                                            </t>
-                                        </t>
-                                        <th style="text-align:center;">
-                                            <t t-if="move_line['total_debit']"
-                                               t-esc="move_line['total_debit']"/>
-                                        </th>
-                                        <th style="text-align:center;">
-                                            <t t-if="move_line['total_credit']"
-                                               t-esc="move_line['total_credit']"/>
-                                        </th>
-                                        <th style="text-align:center;">
-                                            <t t-if="move_line['end_total_debit']"
-                                               t-esc="move_line['end_total_debit']"/>
-                                        </th>
-                                        <th style="text-align:center;">
-                                            <t t-if="move_line['end_total_credit']"
-                                               t-esc="move_line['end_total_credit']"/>
-                                        </th>
-                                    </tr>
-                                </t>
-                            </t>
-                        </tbody>
-                    </table>
-                </div>
+    <!-- Cell template for numeric Trial Balance data -->
+    <template id="trial_balance_cell">
+        <td class="o_pdf_num" style="padding: 3px 8px; font-variant-numeric: tabular-nums; font-size: 9px; border-bottom: 1px solid #f1f5f9;">
+            <t t-set="_n" t-value="float(str(amount).replace(',', '')) if amount else 0.0"/>
+            <t t-if="abs(_n) &gt;= 0.005">
+                <span t-attf-style="{{ 'color: #dc2626; font-weight: 600;' if _n &lt; 0 else 'color: #1e293b;' }}">
+                    <t t-esc="'{:,.2f}'.format(_n)"/>
+                </span>
             </t>
+            <t t-else="">
+                <span style="color: #cbd5e1;">-</span>
+            </t>
+        </td>
+    </template>
+
+    <!-- Header Cell template for Grand Totals -->
+    <template id="trial_balance_total_cell">
+        <th class="o_pdf_num" style="padding: 7px 8px; color: #ffffff; font-size: 10.5px; font-weight: 800; font-variant-numeric: tabular-nums; border-top: 2px solid #0f172a; border-bottom: 3px double #0f172a; background-color: #0f172a !important;">
+            <t t-set="_n" t-value="float(str(amount).replace(',', '')) if amount else 0.0"/>
+            <t t-if="abs(_n) &gt;= 0.005">
+                <t t-esc="'{:,.2f}'.format(_n)"/>
+            </t>
+            <t t-else="">
+                <span style="color: #94a3b8;">0.00</span>
+            </t>
+        </th>
+    </template>
+
+    <!-- Master Trial Balance Report Template -->
+    <template id="trial_balance">
+        <t t-call="dynamic_accounts_report.report_master_layout">
+            <t t-set="report_title">Trial Balance</t>
+            <t t-set="report_subtitle">ميزان المراجعة بالأرصدة والحركات</t>
+
+            <!-- Main Financial Table -->
+            <table class="o_pdf_table o_ignore_layout_styling" style="width: 100%; border-collapse: collapse; margin-top: 6px; border: none;">
+                <thead>
+                    <!-- Level 1 Super Header -->
+                    <tr class="o_pdf_sec_header">
+                        <th rowspan="2" style="width: 34%; vertical-align: middle; text-align: left; padding: 7px 10px; border-right: 1px solid rgba(255,255,255,0.2);">
+                            Account / الحساب
+                        </th>
+                        <th colspan="2" style="text-align: center; border-right: 1px solid rgba(255,255,255,0.2); padding: 5px 6px;">
+                            Initial Balance / رصيد افتتاحي
+                        </th>
+                        <t t-if="apply_comparison and comparison_number_range">
+                            <t t-foreach="comparison_number_range" t-as="num">
+                                <th colspan="2" style="text-align: center; border-right: 1px solid rgba(255,255,255,0.2); padding: 5px 6px;">
+                                    <t t-esc="date_viewed[num] if date_viewed and len(date_viewed) &gt; num else ('Period -' + str(num))"/>
+                                </th>
+                            </t>
+                        </t>
+                        <th colspan="2" style="text-align: center; border-right: 1px solid rgba(255,255,255,0.2); padding: 5px 6px;">
+                            <t t-esc="date_viewed[0] if date_viewed and len(date_viewed) &gt; 0 else 'Period Movement / حركة الفترة'"/>
+                        </th>
+                        <th colspan="2" style="text-align: center; padding: 5px 6px;">
+                            Ending Balance / رصيد ختامي
+                        </th>
+                    </tr>
+                    <!-- Level 2 Sub Header (Debit / Credit) -->
+                    <tr style="background-color: #334155; color: #ffffff; font-size: 9.5px; font-weight: 700; text-transform: uppercase;">
+                        <th style="text-align: right; width: 11%; padding: 4px 8px; border-right: 1px solid rgba(255,255,255,0.15);">Debit (مدين)</th>
+                        <th style="text-align: right; width: 11%; padding: 4px 8px; border-right: 1px solid rgba(255,255,255,0.2);">Credit (دائن)</th>
+                        <t t-if="apply_comparison and comparison_number_range">
+                            <t t-foreach="comparison_number_range" t-as="num">
+                                <th style="text-align: right; padding: 4px 8px; border-right: 1px solid rgba(255,255,255,0.15);">Debit (مدين)</th>
+                                <th style="text-align: right; padding: 4px 8px; border-right: 1px solid rgba(255,255,255,0.2);">Credit (دائن)</th>
+                            </t>
+                        </t>
+                        <th style="text-align: right; width: 11%; padding: 4px 8px; border-right: 1px solid rgba(255,255,255,0.15);">Debit (مدين)</th>
+                        <th style="text-align: right; width: 11%; padding: 4px 8px; border-right: 1px solid rgba(255,255,255,0.2);">Credit (دائن)</th>
+                        <th style="text-align: right; width: 11%; padding: 4px 8px; border-right: 1px solid rgba(255,255,255,0.15);">Debit (مدين)</th>
+                        <th style="text-align: right; width: 11%; padding: 4px 8px;">Credit (دائن)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <t t-if="data and len(data) &gt; 0">
+                        <t t-foreach="data" t-as="move_line">
+                            <t t-set="acc_code" t-value="move_line.get('account_code') or (move_line['account'].split(' ')[0] if move_line.get('account') else '')"/>
+                            <t t-set="raw_name" t-value="move_line.get('account_name') or move_line.get('account') or ''"/>
+                            <t t-set="acc_name" t-value="raw_name[len(acc_code):].strip() if acc_code and raw_name.startswith(acc_code) else raw_name"/>
+
+                            <tr class="o_pdf_account_row" style="page-break-inside: avoid;">
+                                <td style="text-align: left; vertical-align: middle; padding: 3px 8px; border-bottom: 1px solid #f1f5f9; border-right: 1px solid #e2e8f0;">
+                                    <span class="o_acc_code_badge" style="display: inline-block; font-family: monospace; font-weight: 700; color: #4f46e5; background: #eef2ff; border: 1px solid #c7d2fe; border-radius: 3px; padding: 1px 4px; margin-right: 5px; font-size: 9px;">
+                                        <t t-esc="acc_code"/>
+                                    </span>
+                                    <span style="font-weight: 600; color: #1e293b; font-size: 9.5px;">
+                                        <t t-esc="acc_name"/>
+                                    </span>
+                                </td>
+                                <!-- Initial Balance -->
+                                <t t-call="dynamic_accounts_report.trial_balance_cell">
+                                    <t t-set="amount" t-value="move_line.get('initial_total_debit')"/>
+                                </t>
+                                <t t-call="dynamic_accounts_report.trial_balance_cell">
+                                    <t t-set="amount" t-value="move_line.get('initial_total_credit')"/>
+                                </t>
+                                <!-- Comparison Periods -->
+                                <t t-if="apply_comparison and comparison_number_range">
+                                    <t t-foreach="comparison_number_range" t-as="num">
+                                        <t t-call="dynamic_accounts_report.trial_balance_cell">
+                                            <t t-set="amount" t-value="move_line.get('dynamic_total_debit_' + str(num))"/>
+                                        </t>
+                                        <t t-call="dynamic_accounts_report.trial_balance_cell">
+                                            <t t-set="amount" t-value="move_line.get('dynamic_total_credit_' + str(num))"/>
+                                        </t>
+                                    </t>
+                                </t>
+                                <!-- Current Period Movement -->
+                                <t t-call="dynamic_accounts_report.trial_balance_cell">
+                                    <t t-set="amount" t-value="move_line.get('total_debit')"/>
+                                </t>
+                                <t t-call="dynamic_accounts_report.trial_balance_cell">
+                                    <t t-set="amount" t-value="move_line.get('total_credit')"/>
+                                </t>
+                                <!-- End Balance -->
+                                <t t-call="dynamic_accounts_report.trial_balance_cell">
+                                    <t t-set="amount" t-value="move_line.get('end_total_debit')"/>
+                                </t>
+                                <t t-call="dynamic_accounts_report.trial_balance_cell">
+                                    <t t-set="amount" t-value="move_line.get('end_total_credit')"/>
+                                </t>
+                            </tr>
+                        </t>
+
+                        <!-- Grand Totals Row -->
+                        <t t-if="totals">
+                            <tr class="o_pdf_grand_total" style="page-break-inside: avoid;">
+                                <th style="text-align: left; padding: 7px 10px; color: #ffffff; font-size: 11px; font-weight: 800; border-top: 2px solid #0f172a; border-bottom: 3px double #0f172a; background-color: #0f172a !important; border-right: 1px solid rgba(255,255,255,0.2);">
+                                    <span>TOTAL / الإجمالي العام</span>
+                                </th>
+                                <t t-call="dynamic_accounts_report.trial_balance_total_cell">
+                                    <t t-set="amount" t-value="totals.get('initial_total_debit')"/>
+                                </t>
+                                <t t-call="dynamic_accounts_report.trial_balance_total_cell">
+                                    <t t-set="amount" t-value="totals.get('initial_total_credit')"/>
+                                </t>
+                                <t t-if="apply_comparison and comparison_number_range">
+                                    <t t-foreach="comparison_number_range" t-as="nb">
+                                        <t t-call="dynamic_accounts_report.trial_balance_total_cell">
+                                            <t t-set="amount" t-value="totals.get('dynamic_total_debit_' + str(nb))"/>
+                                        </t>
+                                        <t t-call="dynamic_accounts_report.trial_balance_total_cell">
+                                            <t t-set="amount" t-value="totals.get('dynamic_total_credit_' + str(nb))"/>
+                                        </t>
+                                    </t>
+                                </t>
+                                <t t-call="dynamic_accounts_report.trial_balance_total_cell">
+                                    <t t-set="amount" t-value="totals.get('total_debit')"/>
+                                </t>
+                                <t t-call="dynamic_accounts_report.trial_balance_total_cell">
+                                    <t t-set="amount" t-value="totals.get('total_credit')"/>
+                                </t>
+                                <t t-call="dynamic_accounts_report.trial_balance_total_cell">
+                                    <t t-set="amount" t-value="totals.get('end_total_debit')"/>
+                                </t>
+                                <t t-call="dynamic_accounts_report.trial_balance_total_cell">
+                                    <t t-set="amount" t-value="totals.get('end_total_credit')"/>
+                                </t>
+                            </tr>
+                        </t>
+                    </t>
+                    <t t-else="">
+                        <tr>
+                            <td colspan="7" style="text-align: center; padding: 24px; color: #94a3b8; font-weight: 500;">
+                                No account transactions found for the selected period.
+                            </td>
+                        </tr>
+                    </t>
+                </tbody>
+            </table>
+
+            <!-- Executive Audit Seal / Summary Banner (Div-based, zero table borders) -->
+            <div style="margin-top: 14px; page-break-inside: avoid; width: 100%; box-sizing: border-box; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 8px 14px; overflow: hidden;">
+                <div style="float: left; width: 62%;">
+                    <t t-set="_p_deb" t-value="float(str(totals.get('total_debit', 0)).replace(',', '')) if totals else 0.0"/>
+                    <t t-set="_p_crd" t-value="float(str(totals.get('total_credit', 0)).replace(',', '')) if totals else 0.0"/>
+                    <t t-set="_e_deb" t-value="float(str(totals.get('end_total_debit', 0)).replace(',', '')) if totals else 0.0"/>
+                    <t t-set="_e_crd" t-value="float(str(totals.get('end_total_credit', 0)).replace(',', '')) if totals else 0.0"/>
+                    <t t-if="abs(_p_deb - _p_crd) &lt; 0.05 and abs(_e_deb - _e_crd) &lt; 0.05">
+                        <span style="display: inline-block; background-color: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; font-weight: 700; font-size: 11px; padding: 3px 8px; border-radius: 4px;">
+                            ✓ BALANCED / ميزان المراجعة متزن تماماً
+                        </span>
+                        <span style="font-size: 10px; color: #475569; margin-left: 8px;">
+                            All debit movements equal credit movements (Movement: <strong style="color: #0f172a;"><t t-esc="'{:,.2f}'.format(_p_deb)"/></strong> <t t-esc="(res_company.currency_id.name if res_company and res_company.currency_id else 'EGP')"/>)
+                        </span>
+                    </t>
+                    <t t-else="">
+                        <span style="display: inline-block; background-color: #fee2e2; color: #b91c1c; border: 1px solid #fecaca; font-weight: 700; font-size: 11px; padding: 3px 8px; border-radius: 4px;">
+                            ⚠ UNBALANCED / يوجد فرق في الميزان
+                        </span>
+                        <span style="font-size: 10px; color: #dc2626; margin-left: 8px;">
+                            Difference: <t t-esc="'{:,.2f}'.format(abs(_p_deb - _p_crd))"/>
+                        </span>
+                    </t>
+                </div>
+                <div style="float: right; width: 38%; text-align: right; font-size: 10px; color: #64748b; padding-top: 2px;">
+                    <span>Total Accounts: <strong style="color: #0f172a;"><t t-esc="len(data) if data else 0"/></strong></span>
+                    | <span>Currency: <strong style="color: #0f172a;"><t t-esc="(res_company.currency_id.name if res_company and res_company.currency_id else 'EGP')"/></strong></span>
+                </div>
+                <div style="clear: both;"/>
+            </div>
         </t>
     </template>
 </odoo>

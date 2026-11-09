@@ -1,15 +1,14 @@
 /** @odoo-module **/
-const { Component } = owl;
 const now = new Date();
 import { registry } from "@web/core/registry";
 import { useService } from "@web/core/utils/hooks";
-import { useRef, useState } from "@odoo/owl";
+import { Component, useRef, useState, onWillStart } from "@odoo/owl";
 import { BlockUI } from "@web/core/ui/block_ui";
 import { download } from "@web/core/network/download";
 const actionRegistry = registry.category("actions");
 
-class BalanceSheet extends owl.Component {
-    async setup() {
+class BalanceSheet extends Component {
+    setup() {
         super.setup(...arguments);
         this.initial_render = true;
         this.orm = useService('orm');
@@ -21,267 +20,289 @@ class BalanceSheet extends owl.Component {
         this.draft = useRef('draft');
         this.state = useState({
             data: null,
-            filter_data: null,
-            year : [now.getFullYear()],
+            datas: [],
+            filter_data: {
+                journal: [],
+                journals: [],
+                account: [],
+                accounts: [],
+                analytic: [],
+                analytics: [],
+            },
+            year: [now.getFullYear()],
             comparison: false,
             comparison_type: null,
+            title: this.props.action?.display_name || 'Balance Sheet',
+            is_unfolded_all: false,
+            expanded_groups: {},
         });
-        this.wizard_id = await this.orm.call("dynamic.balance.sheet.report", "create", [{}]) | null;
-        this.load_data(self.initial_render = true);
+
+        onWillStart(async () => {
+            try {
+                this.wizard_id = await this.orm.call("dynamic.balance.sheet.report", "create", [{}]);
+                await this.load_data(true);
+            } catch (err) {
+                console.error("Error initializing BalanceSheet:", err);
+            }
+        });
     }
-    async load_data() {
-    /**
-     * Loads the data for the balance sheet report.
-     */
-        var self = this;
-        var action_title = self.props.action.display_name;
+
+    async load_data(initial = true) {
+        /**
+         * Loads the data for the balance sheet report.
+         */
+        var action_title = this.props.action?.display_name || 'Balance Sheet';
         try {
-            var self = this;
-            let data = await self.orm.call("dynamic.balance.sheet.report", "view_report", [this.wizard_id,this.state.comparison,this.state.comparison_type]);
-            self.state.data = data[0]
-            self.state.datas = data[2]
-            self.state.filter_data = data[1]
-            self.state.title = action_title
-        }
-        catch (el) {
-            window.location.href
+            let data = await this.orm.call("dynamic.balance.sheet.report", "view_report", [
+                this.wizard_id,
+                this.state.comparison,
+                this.state.comparison_type
+            ]);
+            this.state.data = data[0];
+            const filterData = data[1] || {};
+            // Provide aliases for journals, accounts, analytics
+            filterData.journals = filterData.journals || filterData.journal || [];
+            filterData.journal = filterData.journals;
+            filterData.accounts = filterData.accounts || filterData.account || [];
+            filterData.account = filterData.accounts;
+            filterData.analytics = filterData.analytics || filterData.analytic || [];
+            filterData.analytic = filterData.analytics;
+
+            this.state.filter_data = filterData;
+            this.state.filters = filterData;
+            this.state.datas = data[2] || [];
+            this.state.title = action_title;
+        } catch (el) {
+            console.error("Error loading balance sheet data:", el);
         }
     }
+
     async show_gl(ev) {
-    /**
-        * Shows the General Ledger view by triggering an action.
-        *
-        * @param {Event} ev - The event object triggered by the action.
-        * @returns {Promise} - A promise that resolves to the result of the action.
-        */
+        /**
+         * Shows the General Ledger view by triggering an action.
+         */
         return this.action.doAction({
             type: 'ir.actions.client',
             name: 'General Ledger',
             tag: 'gen_l',
         });
     }
+
     async print_pdf(ev) {
-        /**
-        * Print PDF Method
-        * This method is triggered when the "Print PDF" button is clicked.
-        * It retrieves the report data and performs an action to generate and download a PDF report.
-        */
         ev.preventDefault();
-        var self = this;
-        let data = await self.orm.call("dynamic.balance.sheet.report", "view_report", [this.wizard_id,this.state.comparison,this.state.comparison_type]);
-        self.state.data = data[0]
-        self.state.datas = data[2]
-        return self.action.doAction({
+        let data = await this.orm.call("dynamic.balance.sheet.report", "view_report", [
+            this.wizard_id,
+            this.state.comparison,
+            this.state.comparison_type
+        ]);
+        this.state.data = data[0];
+        const filterData = data[1] || {};
+        this.state.filter_data = filterData;
+        this.state.filters = filterData;
+        this.state.datas = data[2];
+        return this.action.doAction({
             'type': 'ir.actions.report',
             'report_type': 'qweb-pdf',
             'report_name': 'dynamic_accounts_report.balance_sheet',
             'report_file': 'dynamic_accounts_report.balance_sheet',
             'data': {
-                'data': self.state,
-                'report_name': self.props.action.display_name
+                'data': this.state,
+                'report_name': this.props.action?.display_name || 'Balance Sheet'
             },
-            'display_name': self.props.action.display_name,
+            'display_name': this.props.action?.display_name || 'Balance Sheet',
         });
     }
+
     async print_xlsx(ev) {
-         /**
-         * Generates and downloads an XLSX report based on the profit and loss data.
-         *
-         * @param {Event} ev - The event object triggered by the action.
-         */
-        var self = this;
-        let data = await self.orm.call("dynamic.balance.sheet.report", "view_report", [this.wizard_id,this.state.comparison,this.state.comparison_type]);
-        self.state.data = data[0]
-        self.state.datas = data[2]
+        let data = await this.orm.call("dynamic.balance.sheet.report", "view_report", [
+            this.wizard_id,
+            this.state.comparison,
+            this.state.comparison_type
+        ]);
+        this.state.data = data[0];
+        this.state.datas = data[2];
         var action = {
             'data': {
                 'model': 'dynamic.balance.sheet.report',
-                'data': JSON.stringify(self.state),
+                'data': JSON.stringify(this.state),
                 'output_format': 'xlsx',
-                'report_name': self.props.action.display_name,
-                'report_action': self.props.action.xml_id,
+                'report_name': this.props.action?.display_name || 'Balance Sheet',
+                'report_action': this.props.action?.xml_id,
             },
         };
-        BlockUI;
         await download({
-            url: '/dynamic_accounts_report/xlsx_report',
+            url: '/xlsx_report',
             data: action.data,
-            complete: () => unblockUI,
-            error: (error) => self.call('crash_manager', 'rpc_error', error),
+            error: (error) => console.error('Error downloading xlsx:', error),
         });
     }
+
     async apply_journal(ev) {
-     /**
-        * Applies journal filtering based on the selected option in an event target.
-        *
-        * @param {Event} ev - The event object triggered by the action.
-        */
-        self = this
-        if (ev.target.classList.contains("selected-filter")) {
-            ev.target.classList.remove('selected-filter')
+        const btn = ev.currentTarget || ev.target;
+        btn.classList.toggle('selected-filter');
+        const idSpan = btn.querySelector('span');
+        if (!idSpan) return;
+        this.filter = {
+            'journal_ids': idSpan.textContent.trim(),
+        };
+        let res = await this.orm.call("dynamic.balance.sheet.report", "filter", [this.wizard_id, this.filter]);
+        const dropdown = btn.closest('.dropdown');
+        const label = dropdown ? dropdown.querySelector('.code') : null;
+        if (label && res && res[0]) {
+            label.textContent = Array.isArray(res[0].journal_ids) ? (res[0].journal_ids.join(', ') || 'Journals') : (res[0].journal_ids || 'Journals');
         }
-        else {
-            ev.target.classList.add('selected-filter')
-        }
-        this.filter = ({
-            'journal_ids': ev.target.querySelector('span').textContent,
-        })
-        let res = await self.orm.call("dynamic.balance.sheet.report", "filter", [this.wizard_id, this.filter,]);
-        ev.delegateTarget.querySelector('.code').innerHTML = res[0].journal_ids;
-        self.initial_render = false;
-        self.load_data(self.initial_render);
-    }
-    async apply_account(ev) {
-     /**
-        * Applies account filtering based on the selected option in an event target.
-        *
-        * @param {Event} ev - The event object triggered by the action.
-        */
-        self = this
-        if (ev.target.classList.contains("selected-filter")) {
-            ev.target.classList.remove('selected-filter')
-        }
-        else {
-            ev.target.classList.add('selected-filter')
-        }
-        this.filter = ({
-            'account_ids': ev.target.querySelector('span').textContent,
-        })
-        let res = await self.orm.call("dynamic.balance.sheet.report", "filter", [this.wizard_id, this.filter,]);
-        ev.delegateTarget.querySelector('.account').innerHTML = res[0].account_ids;
-        self.initial_render = false;
-        self.load_data(self.initial_render);
-    }
-    async apply_analytic_accounts(ev) {
-    /**
-     * Applies analytic accounts filtering based on the selected option in an event target.
-     *
-     * @param {Event} ev - The event object triggered by the action.
-     */
-        self = this
-        if (ev.target.classList.contains("selected-filter")) {
-            ev.target.classList.remove('selected-filter')
-        }
-        else {
-            ev.target.classList.add('selected-filter')
-        }
-        this.filter = ({
-            'analytic_ids': ev.target.querySelector('span').textContent,
-        })
-        let res = await self.orm.call("dynamic.balance.sheet.report", "filter", [this.wizard_id, this.filter,]);
-        ev.delegateTarget.querySelector('.analytic').innerHTML = res[0].analytic_ids;
-        self.initial_render = false;
-        self.load_data(self.initial_render);
-    }
-    async apply_entries(ev) {
-    /**
-     * Applies the selected entries filter and triggers data loading based on the selected filter class.
-     * @param {Event} ev - The event object triggered by the entries filter selection.
-     * @returns {Promise<void>} - A promise that resolves when the data is loaded.
-     */
-        self = this;
-        ev.target.classList.add('selected-filter')
-        if (ev.target.value == 'draft') {
-            this.posted.el.classList.remove('selected-filter')
-        } else {
-            this.draft.el.classList.remove('selected-filter')
-        }
-        this.filter = ({
-            'target': ev.target.value
-        })
-        let res = await self.orm.call("dynamic.balance.sheet.report", "filter", [this.wizard_id, this.filter,]);
-        ev.delegateTarget.querySelector('.target').innerHTML = res[0].target_move;
-        self.initial_render = false;
-        self.load_data(self.initial_render);
-    }
-    async unfoldAll(ev) {
-    /**
-     * Unfolds or collapses all table rows based on the selected filter class.
-     * @param {Event} ev - The event object triggered by the unfolding action.
-     * @returns {void}
-     */
-        if (!ev.target.classList.contains("selected-filter")) {
-            for (var length = 0; length < this.tbody.el.children.length; length++) {
-                  this.tbody.el.children[length].classList.add('show')
-            }
-            ev.target.classList.add("selected-filter");
-        } else {
-            for (var length = 0; length < this.tbody.el.children.length; length++) {
-                this.tbody.el.children[length].classList.remove('show')
-            }
-            ev.target.classList.remove("selected-filter");
-        }
-    }
-    async apply_date(ev){
-    /**
-     * Applies the selected date filter and triggers data loading based on the selected filter value.
-     * @param {Event} ev - The event object triggered by the date selection.
-     * @returns {Promise<void>} - A promise that resolves when the data is loaded.
-     */
-        self = this
-        if (ev.target.name === 'start_date') {
-                this.filter = {
-                    ...this.filter,
-                    date_from: ev.target.value
-                };
-        } else if (ev.target.name === 'end_date') {
-                this.filter = {
-                    ...this.filter,
-                    date_to: ev.target.value
-                };
-        } else if (ev.target.attributes["data-value"].value == 'month') {
-                this.filter = ev.target.attributes["data-value"].value
-        } else if (ev.target.attributes["data-value"].value == 'year') {
-                this.filter = ev.target.attributes["data-value"].value
-        } else if (ev.target.attributes["data-value"].value == 'quarter') {
-            this.filter = ev.target.attributes["data-value"].value
-        } else if (ev.target.attributes["data-value"].value == 'last-month') {
-            this.filter = ev.target.attributes["data-value"].value
-        } else if (ev.target.attributes["data-value"].value == 'last-year') {
-            this.filter = ev.target.attributes["data-value"].value
-        } else if (ev.target.attributes["data-value"].value == 'last-quarter') {
-            this.filter = ev.target.attributes["data-value"].value
-        }
-        let res = await self.orm.call("dynamic.balance.sheet.report", "filter", [this.wizard_id, this.filter]);
-        self.initial_render = false;
-        self.load_data(self.initial_render);
-        this.load_data(this.initial_render);
-    }
-    onPeriodChange(ev){
-        this.period_year.el.value = ev.target.value
-    }
-    onPeriodYearChange(ev){
-        this.period.el.value = ev.target.value
-    }
-    async applyComparisonPeriod(){
-        this.state.comparison  = this.period.el.value
-        this.state.comparison_type = "month"
-        let monthNamesShort = [ "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" ]
-        let res = await this.orm.call("dynamic.balance.sheet.report", "comparison_filter", [this.wizard_id, this.state.comparison]);
-        this.state.year = [monthNamesShort[now.getMonth()]+'  ' + now.getFullYear()]
-        for (var length = 0; length < res.length; length++) {
-                const dateObject = new Date(res[length]['date_to']);
-                this.state.year.push(monthNamesShort[dateObject.getMonth()]+'  ' + dateObject.getFullYear())
-            }
-        this.load_data(self.initial_render);
-    }
-    async applyComparisonYear(){
-        this.state.comparison = this.period_year.el.value
-        this.state.comparison_type = "year"
-        let res = await this.orm.call("dynamic.balance.sheet.report", "comparison_filter_year", [this.wizard_id, this.state.comparison]);
-        this.state.year = [now.getFullYear()]
-        for (var length = 0; length < res.length; length++) {
-                const dateObject = new Date(res[length]['date_to']);
-                this.state.year.push(dateObject.getFullYear())
-            }
-        this.load_data(self.initial_render);
-    }
-    apply_comparison() {
-        this.state.comparison = false
-        this.state.comparison_type = null
-        this.state.year = [now.getFullYear()]
+        await this.load_data(false);
     }
 
+    async apply_account(ev) {
+        const btn = ev.currentTarget || ev.target;
+        btn.classList.toggle('selected-filter');
+        const idSpan = btn.querySelector('span');
+        if (!idSpan) return;
+        this.filter = {
+            'account_ids': idSpan.textContent.trim(),
+        };
+        let res = await this.orm.call("dynamic.balance.sheet.report", "filter", [this.wizard_id, this.filter]);
+        const dropdown = btn.closest('.dropdown');
+        const label = dropdown ? dropdown.querySelector('.account') : null;
+        if (label && res && res[0]) {
+            label.textContent = Array.isArray(res[0].account_ids) ? (res[0].account_ids.join(', ') || 'Accounts') : (res[0].account_ids || 'Accounts');
+        }
+        await this.load_data(false);
+    }
+
+    async apply_analytic_accounts(ev) {
+        const btn = ev.currentTarget || ev.target;
+        btn.classList.toggle('selected-filter');
+        const idSpan = btn.querySelector('span');
+        if (!idSpan) return;
+        this.filter = {
+            'analytic_ids': idSpan.textContent.trim(),
+        };
+        let res = await this.orm.call("dynamic.balance.sheet.report", "filter", [this.wizard_id, this.filter]);
+        const dropdown = btn.closest('.dropdown');
+        const label = dropdown ? dropdown.querySelector('.analytic') : null;
+        if (label && res && res[0]) {
+            label.textContent = Array.isArray(res[0].analytic_ids) ? (res[0].analytic_ids.join(', ') || 'Analytic') : (res[0].analytic_ids || 'Analytic');
+        }
+        await this.load_data(false);
+    }
+
+    async apply_entries(ev) {
+        const btn = ev.currentTarget || ev.target;
+        const val = btn.getAttribute('value') || btn.value;
+        if (this.posted?.el && this.draft?.el) {
+            if (val === 'draft') {
+                this.posted.el.classList.remove('selected-filter');
+                this.draft.el.classList.add('selected-filter');
+            } else {
+                this.draft.el.classList.remove('selected-filter');
+                this.posted.el.classList.add('selected-filter');
+            }
+        }
+        this.filter = {
+            'target': val,
+        };
+        let res = await this.orm.call("dynamic.balance.sheet.report", "filter", [this.wizard_id, this.filter]);
+        const dropdown = btn.closest('.dropdown');
+        const label = dropdown ? dropdown.querySelector('.target') : null;
+        if (label && res && res[0]) {
+            label.textContent = res[0].target_move === 'draft' ? 'Include Draft Entries' : 'Posted Entries Only';
+        }
+        await this.load_data(false);
+    }
+
+    toggleGroup(groupKey) {
+        const current = this.isGroupExpanded(groupKey);
+        this.state.expanded_groups = {
+            ...this.state.expanded_groups,
+            [groupKey]: !current,
+        };
+    }
+
+    isGroupExpanded(groupKey) {
+        if (this.state.expanded_groups[groupKey] !== undefined) {
+            return !!this.state.expanded_groups[groupKey];
+        }
+        return !!this.state.is_unfolded_all;
+    }
+
+    unfoldAll(ev) {
+        if (ev && ev.preventDefault) ev.preventDefault();
+        this.state.is_unfolded_all = !this.state.is_unfolded_all;
+        this.state.expanded_groups = {};
+    }
+
+    async apply_date(ev) {
+        const target = ev.currentTarget || ev.target;
+        if (target.name === 'start_date') {
+            this.filter = {
+                ...this.filter,
+                date_from: target.value
+            };
+        } else if (target.name === 'end_date') {
+            this.filter = {
+                ...this.filter,
+                date_to: target.value
+            };
+        } else {
+            const dataVal = target.getAttribute('data-value') || target.dataset.value;
+            if (dataVal) {
+                this.filter = dataVal;
+            }
+        }
+        await this.orm.call("dynamic.balance.sheet.report", "filter", [this.wizard_id, this.filter]);
+        await this.load_data(false);
+    }
+
+    onPeriodChange(ev) {
+        if (this.period_year?.el) {
+            this.period_year.el.value = ev.target.value;
+        }
+    }
+
+    onPeriodYearChange(ev) {
+        if (this.period?.el) {
+            this.period.el.value = ev.target.value;
+        }
+    }
+
+    async applyComparisonPeriod() {
+        if (!this.period?.el?.value) return;
+        this.state.comparison = this.period.el.value;
+        this.state.comparison_type = "month";
+        let monthNamesShort = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        let res = await this.orm.call("dynamic.balance.sheet.report", "comparison_filter", [this.wizard_id, this.state.comparison]);
+        this.state.year = [monthNamesShort[now.getMonth()] + '  ' + now.getFullYear()];
+        for (var i = 0; i < res.length; i++) {
+            const dateObject = new Date(res[i]['date_to']);
+            this.state.year.push(monthNamesShort[dateObject.getMonth()] + '  ' + dateObject.getFullYear());
+        }
+        await this.load_data(false);
+    }
+
+    async applyComparisonYear() {
+        if (!this.period_year?.el?.value) return;
+        this.state.comparison = this.period_year.el.value;
+        this.state.comparison_type = "year";
+        let res = await this.orm.call("dynamic.balance.sheet.report", "comparison_filter_year", [this.wizard_id, this.state.comparison]);
+        this.state.year = [now.getFullYear()];
+        for (var i = 0; i < res.length; i++) {
+            const dateObject = new Date(res[i]['date_to']);
+            this.state.year.push(dateObject.getFullYear());
+        }
+        await this.load_data(false);
+    }
+
+    async apply_comparison() {
+        this.state.comparison = false;
+        this.state.comparison_type = null;
+        this.state.year = [now.getFullYear()];
+        await this.load_data(false);
+    }
 }
 BalanceSheet.template = 'bls_template_new';
+//BalanceSheet.components = {
+//    FinancialReportControlPanel
+//}
 actionRegistry.add("bl_s", BalanceSheet);

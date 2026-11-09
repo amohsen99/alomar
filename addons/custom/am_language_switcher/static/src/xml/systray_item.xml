@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+
+    <t t-name="am_language_switcher.LanguageSwitcher">
+        <div class="dropdown d-flex align-items-center o_quick_lang_container">
+            <button class="btn nav-link d-flex align-items-center gap-2 px-2 py-1 rounded o_quick_lang_btn"
+                    type="button"
+                    id="dropdownMenuButton"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+                    title="Switch Language / تغيير اللغة">
+                <i class="fa fa-globe fa-lg text-white o_quick_lang_icon"/>
+                <span class="fw-bold text-uppercase small text-white o_quick_lang_code" t-esc="currentLangShort"/>
+                <i class="fa fa-chevron-down ms-1 text-white-50" style="font-size: 0.7rem;"/>
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end o_quick_lang_menu" aria-labelledby="dropdownMenuButton">
+                <t t-foreach="state.languages" t-as="lang" t-key="lang[0]">
+                    <li class="dropdown-item cursor-pointer d-flex align-items-center justify-content-between py-2 px-3"
+                        t-att-class="{'active fw-bold': lang[0] == state.lang_code}"
+                        t-on-click="() => this.onChangeLanguage(lang[0])">
+                        <span>
+                            <i class="fa fa-language me-2 opacity-75"/>
+                            <t t-esc="lang[1]"/>
+                        </span>
+                        <i class="fa fa-check ms-3 text-success" t-if="lang[0] == state.lang_code"/>
+                    </li>
+                </t>
+            </ul>
+        </div>
+    </t>
+
+</templates>
+

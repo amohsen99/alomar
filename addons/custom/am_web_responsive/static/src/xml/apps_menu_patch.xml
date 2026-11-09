@@ -1,0 +1,282 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<templates>
+    <!-- Extend web.NavBar for Mobile App Title & Bottom Sheet Submenu Navigation -->
+    <t t-inherit="web.NavBar" t-inherit-mode="extension">
+        <!-- Option 1: Mobile Secondary App Bar (attached below main navbar) -->
+        <xpath expr="//nav[hasclass('o_main_navbar')]" position="after">
+            <t t-if="this.ui.isSmall and currentApp and currentAppSections.length">
+                <div class="o_mobile_secondary_navbar d-flex align-items-center px-2 gap-2 border-bottom">
+                    <!-- 1. App Title Button (Opens All Sections Bottom Sheet) -->
+                    <button type="button" 
+                            class="btn btn-sm o_mobile_app_title_btn d-inline-flex align-items-center gap-1 text-truncate flex-shrink-0"
+                            t-on-click="() => this.toggleMobileSubmenu(null)"
+                            t-att-aria-expanded="state.isMobileSubmenuOpen and !state.activeMobileSection ? 'true' : 'false'">
+                        <img t-if="currentApp.webIconData" class="o_app_icon flex-shrink-0" style="width: 18px; height: 18px; object-fit: contain;" t-attf-src="{{currentApp.webIconData}}"/>
+                        <span class="o_mobile_app_title_text text-truncate fw-bold">
+                            <t t-esc="currentApp.name"/>
+                        </span>
+                        <i class="oi oi-chevron-down fs-8 o_mobile_app_chevron" t-att-class="{'o_chevron_rotated': state.isMobileSubmenuOpen and !state.activeMobileSection}"/>
+                    </button>
+
+                    <!-- Divider -->
+                    <div class="o_mobile_sec_divider flex-shrink-0"/>
+
+                    <!-- 2. Horizontal Scrollable Quick Section Pills -->
+                    <div class="o_mobile_sec_pills_container d-flex align-items-center gap-1 overflow-x-auto flex-grow-1 py-1">
+                        <t t-foreach="currentAppSections" t-as="section" t-key="section.id">
+                            <t t-if="!section.childrenTree or !section.childrenTree.length">
+                                <a class="btn btn-sm o_mobile_sec_pill flex-shrink-0 text-nowrap"
+                                   t-att-href="getMenuItemHref(section)"
+                                   t-on-click.prevent="() => this.onMobileSubmenuItemClick(section)">
+                                    <t t-esc="section.name"/>
+                                </a>
+                            </t>
+                            <t t-else="">
+                                <button type="button" 
+                                        class="btn btn-sm o_mobile_sec_pill o_mobile_sec_pill_group flex-shrink-0 text-nowrap d-inline-flex align-items-center gap-1"
+                                        t-att-class="{'o_sec_pill_active': state.isMobileSubmenuOpen and state.activeMobileSection === section}"
+                                        t-on-click="() => this.toggleMobileSubmenu(section)">
+                                    <span><t t-esc="section.name"/></span>
+                                    <i class="oi oi-chevron-down fs-9" t-att-class="{'o_chevron_rotated': state.isMobileSubmenuOpen and state.activeMobileSection === section}"/>
+                                </button>
+                            </t>
+                        </t>
+                    </div>
+                </div>
+
+                <!-- Bottom Sheet Navigation Drawer -->
+                <t t-portal="'body'">
+                    <div t-if="state.isMobileSubmenuOpen" 
+                         class="o_mobile_submenu_backdrop" 
+                         t-on-click="closeMobileSubmenu"/>
+                    <div t-if="state.isMobileSubmenuOpen" 
+                         class="o_mobile_submenu_bottom_sheet">
+                        <!-- Bottom Sheet Header -->
+                        <div class="o_mobile_submenu_header d-flex align-items-center justify-content-between px-3 py-3 border-bottom bg-light">
+                            <div class="d-flex align-items-center gap-2 text-truncate">
+                                <img t-if="currentApp.webIconData" class="o_app_icon flex-shrink-0" style="width: 24px; height: 24px; object-fit: contain;" t-attf-src="{{currentApp.webIconData}}"/>
+                                <div class="d-flex align-items-center text-truncate gap-1">
+                                    <t t-if="state.activeMobileSection">
+                                        <button type="button" 
+                                                class="btn btn-link p-0 text-muted fs-7 text-decoration-none text-truncate"
+                                                t-on-click="openMobileAllSections"
+                                                title="View all menus">
+                                            <t t-esc="currentApp.name"/>
+                                        </button>
+                                        <i class="oi oi-chevron-right fs-9 text-muted"/>
+                                        <span class="fs-6 fw-bold text-dark text-truncate">
+                                            <t t-esc="state.activeMobileSection.name"/>
+                                        </span>
+                                    </t>
+                                    <t t-else="">
+                                        <span class="fs-6 fw-bold text-dark text-truncate">
+                                            <t t-esc="currentApp.name"/>
+                                        </span>
+                                    </t>
+                                </div>
+                            </div>
+                            <button type="button" 
+                                    class="btn btn-sm btn-light border rounded-circle p-1 d-flex align-items-center justify-content-center shadow-sm flex-shrink-0" 
+                                    style="width: 32px; height: 32px;"
+                                    t-on-click="closeMobileSubmenu" 
+                                    aria-label="Close">
+                                <i class="oi oi-close fs-6 text-dark"/>
+                            </button>
+                        </div>
+                        
+                        <!-- Bottom Sheet Body -->
+                        <div class="o_mobile_submenu_body p-2 overflow-auto">
+                            <!-- Case A: Specific section selected -->
+                            <t t-if="state.activeMobileSection">
+                                <div class="d-flex flex-column gap-1">
+                                    <t t-foreach="state.activeMobileSection.childrenTree" t-as="subSection" t-key="subSection.id">
+                                        <!-- If subsection has nested children -->
+                                        <t t-if="subSection.childrenTree and subSection.childrenTree.length">
+                                            <div class="o_mobile_submenu_group mb-2">
+                                                <div class="o_mobile_submenu_group_title px-3 py-1 text-uppercase fw-bold text-muted" style="font-size: 0.72rem; letter-spacing: 0.05em;">
+                                                    <t t-esc="subSection.name"/>
+                                                </div>
+                                                <div class="o_mobile_submenu_group_items d-flex flex-column gap-1">
+                                                    <t t-foreach="subSection.childrenTree" t-as="leaf" t-key="leaf.id">
+                                                        <a class="btn o_mobile_submenu_item d-flex align-items-center justify-content-between px-4 py-2 text-start rounded-3"
+                                                           t-att-href="getMenuItemHref(leaf)"
+                                                           t-on-click.prevent="() => this.onMobileSubmenuItemClick(leaf)">
+                                                            <span class="text-dark"><t t-esc="leaf.name"/></span>
+                                                            <i class="oi oi-chevron-right fs-8 text-muted"/>
+                                                        </a>
+                                                    </t>
+                                                </div>
+                                            </div>
+                                        </t>
+                                        <!-- Direct item under section -->
+                                        <t t-else="">
+                                            <a class="btn o_mobile_submenu_item o_mobile_submenu_direct_item d-flex align-items-center justify-content-between px-3 py-2 text-start rounded-3 mb-1"
+                                               t-att-href="getMenuItemHref(subSection)"
+                                               t-on-click.prevent="() => this.onMobileSubmenuItemClick(subSection)">
+                                                <span class="fw-semibold text-dark"><t t-esc="subSection.name"/></span>
+                                                <i class="oi oi-chevron-right fs-8 text-muted"/>
+                                            </a>
+                                        </t>
+                                    </t>
+                                </div>
+                            </t>
+
+                            <!-- Case B: All sections view (when clicked on App Title button) -->
+                            <t t-else="">
+                                <t t-foreach="currentAppSections" t-as="section" t-key="section.id">
+                                    <t t-if="section.childrenTree and section.childrenTree.length">
+                                        <div class="o_mobile_submenu_group mb-2">
+                                            <div class="o_mobile_submenu_group_title px-3 py-1 text-uppercase fw-bold text-muted" style="font-size: 0.72rem; letter-spacing: 0.05em;">
+                                                <t t-esc="section.name"/>
+                                            </div>
+                                            <div class="o_mobile_submenu_group_items d-flex flex-column gap-1">
+                                                <t t-foreach="section.childrenTree" t-as="subSection" t-key="subSection.id">
+                                                    <t t-if="subSection.childrenTree and subSection.childrenTree.length">
+                                                        <div class="px-3 pt-2 pb-1 fw-bold text-secondary" style="font-size: 0.85rem;"><t t-esc="subSection.name"/></div>
+                                                        <t t-foreach="subSection.childrenTree" t-as="leaf" t-key="leaf.id">
+                                                            <a class="btn o_mobile_submenu_item d-flex align-items-center justify-content-between px-4 py-2 text-start rounded-3"
+                                                               t-att-href="getMenuItemHref(leaf)"
+                                                               t-on-click.prevent="() => this.onMobileSubmenuItemClick(leaf)">
+                                                                <span class="text-dark"><t t-esc="leaf.name"/></span>
+                                                                <i class="oi oi-chevron-right fs-8 text-muted"/>
+                                                            </a>
+                                                        </t>
+                                                    </t>
+                                                    <t t-else="">
+                                                        <a class="btn o_mobile_submenu_item d-flex align-items-center justify-content-between px-3 py-2 text-start rounded-3"
+                                                           t-att-href="getMenuItemHref(subSection)"
+                                                           t-on-click.prevent="() => this.onMobileSubmenuItemClick(subSection)">
+                                                            <span class="text-dark"><t t-esc="subSection.name"/></span>
+                                                            <i class="oi oi-chevron-right fs-8 text-muted"/>
+                                                        </a>
+                                                    </t>
+                                                </t>
+                                            </div>
+                                        </div>
+                                    </t>
+                                    <t t-else="">
+                                        <a class="btn o_mobile_submenu_item o_mobile_submenu_direct_item d-flex align-items-center justify-content-between px-3 py-2 text-start rounded-3 mb-1"
+                                           t-att-href="getMenuItemHref(section)"
+                                           t-on-click.prevent="() => this.onMobileSubmenuItemClick(section)">
+                                            <span class="fw-semibold text-dark"><t t-esc="section.name"/></span>
+                                            <i class="oi oi-chevron-right fs-8 text-muted"/>
+                                        </a>
+                                    </t>
+                                </t>
+                            </t>
+                        </div>
+                    </div>
+                </t>
+            </t>
+        </xpath>
+
+        <!-- Enterprise Desktop: Remove standalone DropdownItem brand because it is merged into the Home Menu back button (< AppName) -->
+        <xpath expr="//DropdownItem[@t-esc='currentApp.name']" position="replace"/>
+    </t>
+
+    <!-- Override web.NavBar.AppsMenu to render both Sidebar and Apps Grid -->
+    <t t-inherit="web.NavBar.AppsMenu" t-inherit-mode="extension">
+        <xpath expr="//t[@t-if='this.ui.isSmall']" position="replace">
+            <t t-if="this.ui.isSmall">
+                <a href="/odoo" 
+                   class="o_menu_toggle border-0 d-flex align-items-center justify-content-center text-white ps-2 pe-1 py-1 text-decoration-none" 
+                   accesskey="h" 
+                   t-ref="menuApps" 
+                   t-on-click.prevent="_openAppMenuSidebar"
+                   title="Main Menu"
+                   aria-label="Main Menu">
+                    <i class="fa fa-bars text-white o_mobile_hamburger_icon" aria-hidden="true"/>
+                </a>
+                <t t-call="web.NavBar.AppsMenu.Sidebar"/>
+                <!-- Mount AppsMenu on mobile so it can open the full-screen Apps Grid -->
+                <AppsMenu>
+                    <AppMenuItem
+                        t-foreach="sortAppsByUserOrder(apps)"
+                        t-as="app"
+                        t-key="app.id"
+                        app="app"
+                        currentApp="currentApp"
+                        href="getMenuItemHref(app)"
+                        onClick="onNavBarDropdownItemSelection.bind(this)"
+                    />
+                </AppsMenu>
+            </t>
+        </xpath>
+        <xpath expr="//t[@t-else]" position="replace">
+            <t t-else="">
+                <div t-if="!isScopedApp" class="o_navbar_apps_menu">
+                    <AppsMenu>
+                        <AppMenuItem
+                            t-foreach="sortAppsByUserOrder(apps)"
+                            t-as="app"
+                            t-key="app.id"
+                            app="app"
+                            currentApp="currentApp"
+                            href="getMenuItemHref(app)"
+                            onClick="onNavBarDropdownItemSelection.bind(this)"
+                        />
+                    </AppsMenu>
+                </div>
+                <div t-else="" class="mx-2"/>
+            </t>
+        </xpath>
+    </t>
+
+    <t t-inherit="web_responsive.AppsMenu" t-inherit-mode="extension">
+        <xpath expr="//button[hasclass('o_grid_apps_menu__button')]" position="replace">
+            <t t-if="env.isSmall">
+                <!-- Mobile: Only show back button if apps grid is open and there is an active app in background to return to -->
+                <button
+                    t-if="state.open and currentApp"
+                    class="o_grid_apps_menu__button o_apps_menu_back_button"
+                    title="Back"
+                    t-on-click.stop="onBackClick"
+                >
+                    <i class="oi oi-chevron-right fs-4 text-white" />
+                </button>
+            </t>
+            <t t-else="">
+                <!-- Desktop Enterprise Experience -->
+                <!-- Case 1: When on Home Screen (state.open is true) -->
+                <t t-if="state.open">
+                    <!-- If an app is open in background: Show '>' (Previous view) arrow to return to app -->
+                    <button
+                        t-if="currentApp"
+                        class="o_grid_apps_menu__button o_apps_menu_to_app_btn d-inline-flex align-items-center justify-content-center text-white border-0 bg-transparent"
+                        title="Previous view"
+                        aria-label="Previous view"
+                        t-on-click.stop="onBackClick"
+                    >
+                        <i class="oi oi-chevron-right fs-4 text-white" />
+                    </button>
+                    <!-- If no app in background (first login / home): NO button at all! Clean screen! -->
+                </t>
+                <!-- Case 2: When inside an App (state.open is false) -->
+                <t t-else="">
+                    <button
+                        class="o_grid_apps_menu__button o_apps_menu_home_toggle d-inline-flex align-items-center gap-2 border-0 bg-transparent text-white"
+                        title="Home menu"
+                        aria-label="Home menu"
+                        data-hotkey="h"
+                        t-on-click.stop="onMenuClick"
+                    >
+                        <i class="oi oi-chevron-left fs-5 text-white" />
+                        <span t-if="currentApp" class="o_menu_brand fw-bold fs-6 text-white text-truncate">
+                            <t t-esc="currentApp.name"/>
+                        </span>
+                    </button>
+                </t>
+            </t>
+        </xpath>
+        <xpath expr="//div[hasclass('o-app-menu-list')]" position="attributes">
+            <attribute name="t-ref">appsMenuList</attribute>
+        </xpath>
+    </t>
+
+    <t t-inherit="web_responsive.AppMenuItem" t-inherit-mode="extension">
+        <xpath expr="//a" position="attributes">
+            <attribute name="t-att-data-app-id">props.app.id</attribute>
+        </xpath>
+    </t>
+
+</templates>

@@ -1,0 +1,306 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!--
+    Master Report Layout for Dynamic Accounting Reports
+    Provides Enterprise typography, letterhead, filters metadata summary, and standard styles.
+    Can be inherited or called via <t t-call="dynamic_accounts_report.report_master_layout">
+    -->
+    <template id="report_master_layout">
+        <t t-call="web.basic_layout">
+            <div class="page o_report_pdf_container" style="font-family: 'Noto Sans Arabic', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #1e293b; font-size: 11px;">
+                <!-- Embedded Enterprise Print Stylesheet -->
+                <style type="text/css">
+                    @media print {
+                        .page { margin: 0; padding: 0; }
+                        tr { page-break-inside: avoid !important; }
+                    }
+                    .o_report_pdf_container {
+                        font-family: 'Noto Sans Arabic', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+                    }
+                    /* Hard reset: Eliminate any inherited borders, table-boxed pseudo-elements, or vertical column borders */
+                    .o_report_pdf_container table,
+                    .o_report_pdf_container table::before,
+                    .o_report_pdf_container table::after {
+                        border: none !important;
+                        content: none !important;
+                        outline: none !important;
+                        box-shadow: none !important;
+                    }
+                    .o_report_pdf_container table th,
+                    .o_report_pdf_container table td {
+                        border-left: none !important;
+                        border-right: none !important;
+                    }
+                    .o_pdf_header_box {
+                        border-bottom: 2px solid #1e293b;
+                        border-top: none !important;
+                        border-left: none !important;
+                        border-right: none !important;
+                        padding-bottom: 8px;
+                        margin-bottom: 10px;
+                    }
+                    .o_pdf_company_title {
+                        font-size: 16px;
+                        font-weight: 800;
+                        color: #0f172a;
+                        margin-bottom: 2px;
+                        font-family: 'Noto Sans Arabic', 'Segoe UI', Roboto, Arial, sans-serif;
+                    }
+                    .o_pdf_company_sub {
+                        font-size: 9.5px;
+                        color: #64748b;
+                        font-family: 'Noto Sans Arabic', 'Segoe UI', Roboto, Arial, sans-serif;
+                    }
+                    .o_pdf_report_title {
+                        font-size: 19px;
+                        font-weight: 800;
+                        color: #1e293b;
+                        text-transform: uppercase;
+                        margin: 0;
+                        text-align: right;
+                        font-family: 'Noto Sans Arabic', 'Segoe UI', Roboto, Arial, sans-serif;
+                    }
+                    .o_pdf_report_subtitle {
+                        font-size: 11px;
+                        font-weight: 600;
+                        color: #4f46e5;
+                        text-align: right;
+                        font-family: 'Noto Sans Arabic', 'Segoe UI', Roboto, Arial, sans-serif;
+                    }
+                    .o_pdf_filters_card {
+                        background-color: #f8fafc;
+                        border: 1px solid #e2e8f0;
+                        border-radius: 5px;
+                        padding: 6px 10px;
+                        margin-bottom: 8px;
+                        box-sizing: border-box;
+                    }
+                    .o_pdf_filter_item {
+                        font-size: 9.5px;
+                        color: #334155;
+                        font-family: 'Noto Sans Arabic', 'Segoe UI', Roboto, Arial, sans-serif;
+                    }
+                    .o_pdf_filter_label {
+                        font-weight: 700;
+                        color: #64748b;
+                        text-transform: uppercase;
+                        font-size: 8.5px;
+                    }
+                    .o_pdf_table {
+                        width: 100%;
+                        border-collapse: collapse !important;
+                        border: none !important;
+                        margin-top: 4px;
+                        font-size: 10.5px;
+                    }
+                    .o_pdf_table thead th {
+                        background-color: #1e293b !important;
+                        color: #ffffff !important;
+                        font-weight: 700;
+                        text-transform: uppercase;
+                        font-size: 10px;
+                        padding: 6px 8px;
+                        border-top: none !important;
+                        border-left: none !important;
+                        border-right: none !important;
+                        border-bottom: 2px solid #0f172a !important;
+                        font-family: 'Noto Sans Arabic', 'Segoe UI', Roboto, Arial, sans-serif;
+                    }
+                    .o_pdf_sec_header td, .o_pdf_sec_header th {
+                        background-color: #0f172a !important;
+                        color: #ffffff !important;
+                        font-weight: 800 !important;
+                        font-size: 10.5px !important;
+                        text-transform: uppercase;
+                        padding: 6px 8px;
+                        border-left: none !important;
+                        border-right: none !important;
+                        border-top: 1px solid #0f172a !important;
+                        border-bottom: 1px solid #0f172a !important;
+                        font-family: 'Noto Sans Arabic', 'Segoe UI', Roboto, Arial, sans-serif;
+                    }
+                    .o_pdf_group_header td, .o_pdf_group_header th {
+                        background-color: #f1f5f9 !important;
+                        color: #0f172a !important;
+                        font-weight: 700 !important;
+                        font-size: 10px !important;
+                        padding: 5px 8px;
+                        border-left: none !important;
+                        border-right: none !important;
+                        border-top: 1px solid #cbd5e1 !important;
+                        border-bottom: 1px solid #cbd5e1 !important;
+                        font-family: 'Noto Sans Arabic', 'Segoe UI', Roboto, Arial, sans-serif;
+                    }
+                    .o_pdf_account_row td {
+                        padding: 3.5px 8px;
+                        font-size: 9.5px;
+                        color: #334155;
+                        border-left: none !important;
+                        border-right: none !important;
+                        border-bottom: 1px solid #f1f5f9 !important;
+                        font-family: 'Noto Sans Arabic', 'Segoe UI', Roboto, Arial, sans-serif;
+                    }
+                    .o_pdf_account_row:nth-child(even) td {
+                        background-color: #fafafa;
+                    }
+                    .o_pdf_subtotal_row td, .o_pdf_subtotal_row th {
+                        background-color: #e2e8f0 !important;
+                        color: #0f172a !important;
+                        font-weight: 700 !important;
+                        font-size: 10px !important;
+                        padding: 5px 8px;
+                        border-left: none !important;
+                        border-right: none !important;
+                        border-top: 1px solid #94a3b8 !important;
+                        border-bottom: 1px solid #94a3b8 !important;
+                        font-family: 'Noto Sans Arabic', 'Segoe UI', Roboto, Arial, sans-serif;
+                    }
+                    .o_pdf_grand_total td, .o_pdf_grand_total th {
+                        background-color: #1e293b !important;
+                        color: #ffffff !important;
+                        font-weight: 800 !important;
+                        font-size: 11px !important;
+                        padding: 7px 8px;
+                        border-left: none !important;
+                        border-right: none !important;
+                        border-top: 2px solid #0f172a !important;
+                        border-bottom: 3px double #0f172a !important;
+                        font-family: 'Noto Sans Arabic', 'Segoe UI', Roboto, Arial, sans-serif;
+                    }
+                    .o_pdf_num {
+                        text-align: right;
+                        font-variant-numeric: tabular-nums;
+                        white-space: nowrap;
+                    }
+                    .o_pdf_num_neg {
+                        color: #dc2626 !important;
+                        font-weight: 600;
+                    }
+                    .o_pdf_num_pos {
+                        color: #059669 !important;
+                        font-weight: 600;
+                    }
+                    .o_acc_code_badge {
+                        color: #4f46e5;
+                        font-weight: 600;
+                        margin-right: 4px;
+                    }
+                </style>
+
+                <!-- Letterhead / Header Box (Div-based, zero table borders) -->
+                <div class="o_pdf_header_box" style="border-bottom: 2px solid #1e293b; padding-bottom: 8px; margin-bottom: 10px; width: 100%; overflow: hidden; box-sizing: border-box; border-top: none !important; border-left: none !important; border-right: none !important;">
+                    <div style="float: left; width: 55%; text-align: left;">
+                        <div t-if="res_company and res_company.logo" style="float: left; padding-right: 12px;">
+                            <img t-att-src="image_data_uri(res_company.logo)" style="max-height: 48px; max-width: 130px; object-fit: contain;" alt="Logo"/>
+                        </div>
+                        <div style="overflow: hidden;">
+                            <div class="o_pdf_company_title">
+                                <t t-if="res_company and res_company.name" t-esc="res_company.name"/>
+                                <t t-else="">Arcadia ERP</t>
+                            </div>
+                            <div class="o_pdf_company_sub">
+                                <t t-if="res_company and res_company.vat">
+                                    <span>Tax ID / VAT: <t t-esc="res_company.vat"/></span> | 
+                                </t>
+                                <span>Currency: <t t-esc="(res_company.currency_id.name if res_company and res_company.currency_id else 'EGP')"/></span>
+                                <t t-if="res_company and res_company.phone">
+                                    | <span>Tel: <t t-esc="res_company.phone"/></span>
+                                </t>
+                            </div>
+                        </div>
+                        <div style="clear: both;"/>
+                    </div>
+                    <div style="float: right; width: 45%; text-align: right;">
+                        <h2 class="o_pdf_report_title">
+                            <t t-if="report_title" t-esc="report_title"/>
+                            <t t-else="">Financial Report</t>
+                        </h2>
+                        <div class="o_pdf_report_subtitle">
+                            <t t-if="report_subtitle" t-esc="report_subtitle"/>
+                        </div>
+                    </div>
+                    <div style="clear: both;"/>
+                </div>
+
+                <!-- Filter Metadata Card (Div-based, zero table borders) -->
+                <t t-set="report_filter_dict" t-value="filters if (filters and isinstance(filters, dict)) else ((data.get('filters') or data.get('filter_data')) if (data and isinstance(data, dict) and (data.get('filters') or data.get('filter_data'))) else (data.get('data', {}).get('filter_data') or data.get('data', {}).get('filters') if (data and isinstance(data, dict) and isinstance(data.get('data'), dict)) else {}))"/>
+                <t t-set="report_filter_dict" t-value="report_filter_dict or {}"/>
+                <t t-set="start_date_val" t-value="report_filter_dict.get('date_from') or report_filter_dict.get('start_date') if isinstance(report_filter_dict, dict) else None"/>
+                <t t-set="end_date_val" t-value="report_filter_dict.get('date_to') or report_filter_dict.get('end_date') if isinstance(report_filter_dict, dict) else None"/>
+                <div class="o_pdf_filters_card" style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 5px; padding: 6px 10px; margin-bottom: 8px; overflow: hidden; width: 100%; box-sizing: border-box;">
+                    <div style="float: left; width: 28%; box-sizing: border-box;">
+                        <span class="o_pdf_filter_label">Period / Date:</span><br/>
+                        <span class="o_pdf_filter_item" style="font-weight: 600;">
+                            <t t-if="start_date_val and end_date_val">
+                                <t t-esc="start_date_val"/> to <t t-esc="end_date_val"/>
+                            </t>
+                            <t t-elif="end_date_val">
+                                As of <t t-esc="end_date_val"/>
+                            </t>
+                            <t t-elif="start_date_val">
+                                From <t t-esc="start_date_val"/>
+                            </t>
+                            <t t-elif="isinstance(data, dict) and data.get('year') and len(data['year']) &gt; 0">
+                                Fiscal Year <t t-esc="data['year'][0]"/>
+                            </t>
+                            <t t-else="">All Dates</t>
+                        </span>
+                    </div>
+                    <div style="float: left; width: 24%; box-sizing: border-box;">
+                        <span class="o_pdf_filter_label">Target Entries:</span><br/>
+                        <span class="o_pdf_filter_item" style="font-weight: 600;">
+                            <t t-if="report_filter_dict.get('target_move_name')">
+                                <t t-esc="report_filter_dict.get('target_move_name')"/>
+                            </t>
+                            <t t-elif="report_filter_dict.get('options') and 'draft' in report_filter_dict.get('options')">
+                                Posted &amp; Draft Entries
+                            </t>
+                            <t t-else="">Posted Entries Only</t>
+                        </span>
+                    </div>
+                    <div style="float: left; width: 24%; box-sizing: border-box;">
+                        <t t-if="report_filter_dict.get('partner') and len(report_filter_dict['partner']) &gt; 0">
+                            <span class="o_pdf_filter_label">Partners:</span><br/>
+                            <span class="o_pdf_filter_item" style="font-weight: 600; color: #4f46e5;">
+                                <t t-esc="len(report_filter_dict['partner'])"/> Selected
+                            </span>
+                        </t>
+                        <t t-else="">
+                            <span class="o_pdf_filter_label">Comparison:</span><br/>
+                            <span class="o_pdf_filter_item">
+                                <t t-if="report_filter_dict.get('comparison_number_range')">
+                                    <t t-esc="report_filter_dict.get('comparison_number_range')"/> Period(s) (<t t-esc="report_filter_dict.get('comparison_type') or 'period'"/>)
+                                </t>
+                                <t t-elif="isinstance(data, dict) and data.get('comparison')">
+                                    <t t-esc="data.get('comparison')"/> Period(s) (<t t-esc="data.get('comparison_type') or 'year'"/>)
+                                </t>
+                                <t t-else="">None</t>
+                            </span>
+                        </t>
+                    </div>
+                    <div style="float: right; width: 24%; text-align: right; box-sizing: border-box;">
+                        <span class="o_pdf_filter_label">Printed:</span><br/>
+                        <span class="o_pdf_filter_item">
+                            <t t-esc="(context_timestamp(datetime.datetime.now()) if context_timestamp else datetime.datetime.now()).strftime('%Y-%m-%d %H:%M')"/>
+                        </span>
+                    </div>
+                    <div style="clear: both;"/>
+                </div>
+
+                <!-- Main Report Body Slot -->
+                <t t-out="0"/>
+            </div>
+
+            <!-- Standard Report Footer with Page Numbering (Div-based, zero table borders) -->
+            <div class="footer o_standard_footer" style="font-family: 'Noto Sans Arabic', 'Segoe UI', Tahoma, sans-serif; font-size: 8.5px; color: #64748b; border-top: 1px solid #cbd5e1; padding-top: 4px; width: 100%; border-bottom: none !important; border-left: none !important; border-right: none !important; overflow: hidden; box-sizing: border-box;">
+                <div style="float: left; width: 60%; text-align: left;">
+                    <span t-if="res_company" t-esc="res_company.name"/> | <t t-if="report_title" t-esc="report_title"/>
+                </div>
+                <div style="float: right; width: 40%; text-align: right;">
+                    Page <span class="page"/> / <span class="topage"/>
+                </div>
+                <div style="clear: both;"/>
+            </div>
+        </t>
+    </template>
+</odoo>

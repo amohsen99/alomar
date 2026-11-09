@@ -1,516 +1,331 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8"?>
 <templates>
+    <!--
+    Trial Balance Template - Enterprise Grade
+    Responsive hierarchy, dark control bar, executive KPI cards, glassmorphic filters, and tabular financial formatting.
+    -->
     <t t-name="trl_b_template_new" owl="1">
-        <!-- Section contains a structure for the Trial Balance report, including a filter
-        view and a table view. It has div elements for the filter view and table view,
-         with respective classes for styling.-->
-        <div class="container">
-            <div class="fin_report">
-                <!--  Filter View  -->
-                <div class="filter_view_gl pt-3 pb-5">
-                    <div class="">
-                        <h2 class="text-uppercase" style="padding:10px">
-                            <t t-esc="props.action.name"/>
-                        </h2>
+        <div class="o_partner_ledger_container">
+            <!-- Header Control Bar (Enterprise Dark Bar) -->
+            <div class="o_report_control_bar">
+                <div class="o_report_header_left">
+                    <h2 class="o_report_main_title">
+                        <i class="fa fa-balance-scale me-2"/>
+                        <t t-esc="state.title || 'Trial Balance'"/>
+                    </h2>
+                    <!-- Action Buttons -->
+                    <button type="button"
+                            class="o_btn_report_action o_btn_pdf"
+                            t-on-click="printPdf"
+                            title="Print PDF Report">
+                        <i class="fa fa-file-pdf-o"/> Print (PDF)
+                    </button>
+                    <button type="button"
+                            class="o_btn_report_action o_btn_xlsx"
+                            t-on-click="print_xlsx"
+                            title="Export XLSX Spreadsheet">
+                        <i class="fa fa-file-excel-o"/> Export (XLSX)
+                    </button>
+                </div>
+
+                <div class="d-flex align-items-center flex-wrap gap-2">
+                    <!-- Real-Time Search Box -->
+                    <div class="o_report_search_wrapper">
+                        <i class="fa fa-search o_search_icon"/>
+                        <input type="text"
+                               class="form-control form-control-sm o_report_search_input"
+                               placeholder="Search code or account..."
+                               t-on-input="onSearchInput"/>
                     </div>
-                    <div style="margin-right: 10px; margin-left: 10px;margin-bottom: 15px;display: flex;">
-                        <div class="sub_container_left" style="width:70%;">
-                            <div class="report_print">
-                                <!-- Print (PDF) Button -->
-                                <button type="button"
-                                        class="btn btn-primary btn-report-print"
-                                        t-on-click="printPdf"
-                                        style="margin-right: 8px;">
-                                    Print (PDF)
-                                </button>
-                                <!-- Export (XLSX) Button -->
-                                <button type="button"
-                                        class="btn btn-primary btn-report-print"
-                                        t-on-click="print_xlsx">
-                                    Export (XLSX)
-                                </button>
+
+                    <!-- Filter Pills -->
+                    <div class="o_filter_pills_group">
+                        <!-- 1. Date Range Filter -->
+                        <div class="dropdown">
+                            <button type="button"
+                                    class="btn o_filter_chip dropdown-toggle"
+                                    data-bs-toggle="dropdown"
+                                    aria-expanded="false">
+                                <i class="fa fa-calendar"/>
+                                <span><t t-esc="state.date_filter_label || 'Date Range'"/></span>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-end shadow-sm p-3" style="min-width: 260px;" role="menu">
+                                <div class="list-group list-group-flush mb-2">
+                                    <button class="dropdown-item py-1" type="button" t-on-click="() => this.applyDatePreset('month', 'This Month')">This Month</button>
+                                    <button class="dropdown-item py-1" type="button" t-on-click="() => this.applyDatePreset('quarter', 'This Quarter')">This Quarter</button>
+                                    <button class="dropdown-item py-1" type="button" t-on-click="() => this.applyDatePreset('year', 'This Year')">This Year</button>
+                                    <div class="dropdown-divider my-1"/>
+                                    <button class="dropdown-item py-1" type="button" t-on-click="() => this.applyDatePreset('last-month', 'Last Month')">Last Month</button>
+                                    <button class="dropdown-item py-1" type="button" t-on-click="() => this.applyDatePreset('last-quarter', 'Last Quarter')">Last Quarter</button>
+                                    <button class="dropdown-item py-1" type="button" t-on-click="() => this.applyDatePreset('last-year', 'Last Year')">Last Year</button>
+                                </div>
+                                <div class="dropdown-divider my-2"/>
+                                <div class="mb-2">
+                                    <label class="form-label text-muted small mb-1" for="tb_start_date">Start Date</label>
+                                    <input type="date" id="tb_start_date" t-ref="start_date" class="form-control form-control-sm" t-on-change="applyCustomDate"/>
+                                </div>
+                                <div>
+                                    <label class="form-label text-muted small mb-1" for="tb_end_date">End Date</label>
+                                    <input type="date" id="tb_end_date" t-ref="end_date" class="form-control form-control-sm" t-on-change="applyCustomDate"/>
+                                </div>
                             </div>
                         </div>
-                        <div class="d-flex justify-content-end">
-                            <!-- Time Range -->
-                            <div class="time_range" style="">
-                                <a type="button" class="dropdown-toggle"
-                                   data-bs-toggle="dropdown">
-                                    <!-- Date Range Dropdown -->
-                                    <span class="fa fa-calendar" title="Dates"
-                                          role="img"
-                                          aria-label="Dates"/>
-                                    Date Range
-                                </a>
-                                <div class="dropdown-menu" role="menu">
-                                    <!-- Date Range Options -->
-                                    <div class="list-group">
-                                        <!-- This Month Button -->
-                                        <button class="report-filter-button"
-                                                t-att-data-value="'month'"
-                                                type="button"
-                                                t-on-click="applyFilter">
-                                            This Month
-                                        </button>
-                                        <!-- This Quarter Button -->
-                                        <button class="report-filter-button"
-                                                t-att-data-value="'quarter'"
-                                                type="button"
-                                                t-on-click="applyFilter">
-                                            This Quarter
-                                        </button>
-                                        <!-- This Year Button -->
-                                        <button class="report-filter-button"
-                                                t-att-data-value="'year'"
-                                                type="button"
-                                                t-on-click="applyFilter">
-                                            This Year
-                                        </button>
-                                        <!-- Separator -->
-                                        <div role="separator"
-                                             class="dropdown-divider"/>
-                                        <!-- Last Month Button -->
-                                        <button class="report-filter-button"
-                                                t-att-data-value="'last-month'"
-                                                type="button"
-                                                t-on-click="applyFilter">
-                                            Last month
-                                        </button>
-                                        <!-- Last Quarter Button -->
-                                        <button class="report-filter-button"
-                                                t-att-data-value="'last-quarter'"
-                                                type="button"
-                                                t-on-click="applyFilter">
-                                            Last quarter
-                                        </button>
-                                        <!-- Last Year Button -->
-                                        <button class="report-filter-button"
-                                                t-att-data-value="'last-year'"
-                                                type="button"
-                                                t-on-click="applyFilter">
-                                            Last year
-                                        </button>
-                                        <!-- Separator -->
-                                        <div role="separator"
-                                             class="dropdown-divider"/>
-                                        <!-- Start Date -->
-                                        <label class="" for="date_from">Start
-                                            Date :
-                                        </label>
-                                        <div class="input-group date"
-                                             data-target-input="nearest">
 
-                                            <input type="date" id="start_date"
-                                                   t-on-change="applyFilter"
-                                                   t-ref="date_from"
-                                                   style="border:none;border-bottom: 1px solid #000;padding: 5px;outline: none;"
-                                                   name="start_date"/>
-                                        </div>
-                                        <!-- End Date -->
-                                        <label class="" for="date_to">End Date
-                                            :
-                                        </label>
-                                        <div class="input-group date"
-                                             data-target-input="nearest">
-                                            <input type="date" id="end_date"
-                                                   t-on-change="applyFilter"
-                                                   t-ref="date_to"
-                                                   style="border:none;border-bottom: 1px solid #000;padding: 5px;outline: none;"
-                                                   name="end_date"/>
-                                        </div>
+                        <!-- 2. Comparison Filter -->
+                        <div class="dropdown">
+                            <button type="button"
+                                    class="btn o_filter_chip dropdown-toggle"
+                                    data-bs-toggle="dropdown"
+                                    aria-expanded="false">
+                                <i class="fa fa-signal"/>
+                                <span><t t-esc="state.apply_comparison ? (state.comparison_type === 'year' ? 'Comparison (Year)' : 'Comparison (Period)') : 'Comparison'"/></span>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-end shadow-sm p-3" style="min-width: 250px;" role="menu">
+                                <button class="dropdown-item py-1 mb-2" type="button" t-on-click="applyComparison">
+                                    No Comparison
+                                </button>
+                                <div class="dropdown-divider my-2"/>
+                                <div class="mb-2">
+                                    <label class="form-label text-muted small mb-1">Previous Period(s):</label>
+                                    <div class="input-group input-group-sm">
+                                        <input type="number" t-ref="periods" min="1" max="12" class="form-control" placeholder="1" t-on-input="onPeriodChange"/>
+                                        <button class="btn btn-primary" type="button" t-on-click="applyComparisonPeriod">Apply</button>
+                                    </div>
+                                </div>
+                                <div class="dropdown-divider my-2"/>
+                                <div>
+                                    <label class="form-label text-muted small mb-1">Same Period Last Year(s):</label>
+                                    <div class="input-group input-group-sm">
+                                        <input type="number" t-ref="period_year" min="1" max="5" class="form-control" placeholder="1" t-on-input="onPeriodYearChange"/>
+                                        <button class="btn btn-primary" type="button" t-on-click="applyComparisonYear">Apply</button>
                                     </div>
                                 </div>
                             </div>
-                            <div class="comparison_range" style="">
-                                <a type="button" class="dropdown-toggle"
-                                   data-bs-toggle="dropdown">
-                                    <span class="fa fa-signal"
-                                          title="Comparison"
-                                          role="img"
-                                          aria-label="Comparison"/>
-                                    Comparison
-                                </a>
-                                <div class="dropdown-menu" role="menu">
-                                    <div class="list-group">
-                                        <button class="report-filter-button"
-                                                t-att-data-value="'no comparison'"
-                                                type="button"
-                                                t-on-click="applyComparison">
-                                            No Comparison
-                                        </button>
-                                        <div role="separator"
-                                             class="dropdown-divider"/>
-                                        <label class="" for="periods"
-                                               style="display: flex;padding: 4px 20px;color: #000;">
-                                            Previous Period
-                                            <br/>
-                                            Number of Periods:
-                                        </label>
-                                        <div class="input-group comparison"
-                                             data-target-input="nearest">
+                        </div>
 
-                                            <input type="number"
-                                                   t-ref="periods"
-                                                   min="1"
-                                                   t-on-input="onPeriodChange"
-                                                   style="border:none;border-bottom: 1px solid #000;padding: 5px;outline: none;"
-                                                   name="previous_period"/>
-                                        </div>
-                                        <button class="btn btn-primary"
+                        <!-- 3. Journals Filter -->
+                        <div class="dropdown">
+                            <button type="button"
+                                    class="btn o_filter_chip dropdown-toggle"
+                                    data-bs-toggle="dropdown"
+                                    aria-expanded="false">
+                                <i class="fa fa-book"/>
+                                <span>Journals</span>
+                                <t t-if="state.selected_journal_list and state.selected_journal_list.length > 0">
+                                    <span class="badge bg-primary ms-1"><t t-esc="state.selected_journal_list.length"/></span>
+                                </t>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-end shadow-sm p-2" style="max-height: 280px; overflow-y: auto;" role="menu">
+                                <t t-if="state.journals and state.journals.length > 0">
+                                    <t t-foreach="state.journals" t-as="journal" t-key="journal.id">
+                                        <button t-attf-class="dropdown-item py-1 d-flex align-items-center justify-content-between {{ state.selected_journal_list.includes(journal.id) ? 'active' : '' }}"
                                                 type="button"
-                                                style="margin-left: 19px;margin-top: 4px;"
-                                                t-on-click="applyComparisonPeriod">
-                                            Apply
+                                                t-on-click="() => this.toggleJournalFilter(journal.id)">
+                                            <span><t t-esc="journal.name"/></span>
+                                            <i t-if="state.selected_journal_list.includes(journal.id)" class="fa fa-check ms-2"/>
                                         </button>
-                                        <div role="separator"
-                                             class="dropdown-divider"/>
-                                        <label class="" for="period_year"
-                                               style="display: flex;padding: 4px 20px;color: #000;">
-                                            Same Period Last Year
-                                            <br/>
-                                            Number of Periods:
-                                        </label>
-                                        <div class="input-group comparison"
-                                             data-target-input="nearest">
-                                            <input type="number"
-                                                   t-ref="period_year"
-                                                   t-on-input="onPeriodYearChange"
-                                                   min="1"
-                                                   style="border:none;border-bottom: 1px solid #000;padding: 5px;outline: none;"
-                                                   name="period_year"/>
-                                        </div>
-                                        <button class="btn btn-primary"
-                                                type="button"
-                                                style="margin-left: 19px;margin-top: 4px;"
-                                                t-on-click="applyComparisonYear">
-                                            Apply
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="journal" style="">
-                                <a type="button" class="dropdown-toggle"
-                                   data-bs-toggle="dropdown" style="display: flex;
-                                                                    text-wrap: wrap;
-                                                                    flex-direction: row;
-                                                                    align-items: center;
-                                                                    justify-content: flex-start;
-                                                                    min-width: 105px;">
-                                    <span class="fa fa-book" title="Journals"
-                                          role="img"/>
-                                    Journals
-                                    <t t-if="state.selected_journal_list">:
-                                        <t t-foreach="state.selected_journal_list"
-                                           t-as="Journal_key"
-                                           t-key="Journal_key_index">
-                                            <t t-foreach="state.journals"
-                                               t-as="Journal"
-                                               t-key="Journal_index">
-                                                <t t-if="Journal['id'] == Journal_key">
-                                                    <t t-esc="Journal['name']"/>
-                                                </t>
-                                            </t>
-                                            <t t-if="Journal_key_index != Object.keys(state.selected_journal_list).length - 1">
-                                                ,
-                                            </t>
-                                        </t>
                                     </t>
-                                </a>
-                                <div class="dropdown-menu" role="menu">
-                                    <div class="list-group">
-                                        <t t-if="state.journals">
-                                            <t t-foreach="state.journals"
-                                               t-as="journal"
-                                               t-key="journal.id">
-                                                <button class="report-filter-button"
-                                                        t-att-data-value="'journal'"
-                                                        t-att-data-id="journal.id"
-                                                        type="button"
-                                                        t-on-click="applyFilter">
-                                                    <t t-esc="journal.name"/>
-                                                </button>
-                                            </t>
-                                        </t>
-                                    </div>
-                                </div>
+                                </t>
+                                <t t-else="">
+                                    <span class="dropdown-item text-muted py-1">No journals available</span>
+                                </t>
                             </div>
-                            <!-- Options Dropdown -->
-                            <div class="option" style="">
-                                <a type="button" class="dropdown-toggle"
-                                   data-bs-toggle="dropdown">
-                                    <span class="fa fa-glass" title="Accounts"
-                                          role="img"
-                                          aria-label="Dates"/>
-                                    Options : Posted Entries ,
-                                    <t t-esc="Object.keys(state.method)[(Object.keys(state.method).length)-1]"/>
-                                </a>
-                                <div class="dropdown-menu" role="menu">
-                                    <div class="list-group">
-                                        <!-- Include Draft Entries Button -->
-                                        <button class="report-filter-button"
-                                                t-att-data-value="'draft'"
-                                                type="button"
-                                                t-on-click="applyFilter">
-                                            Include Draft Entries
-                                        </button>
-                                        <button class="report-filter-button"
-                                                t-att-data-value="'cash-basis'"
-                                                type="button"
-                                                t-on-click="applyFilter">
-                                            Cash basis method
-                                        </button>
-                                    </div>
-                                </div>
+                        </div>
+
+                        <!-- 4. Options Filter (Posted / Draft & Method) -->
+                        <div class="dropdown">
+                            <button type="button"
+                                    class="btn o_filter_chip dropdown-toggle"
+                                    data-bs-toggle="dropdown"
+                                    aria-expanded="false">
+                                <i class="fa fa-filter"/>
+                                <span><t t-esc="state.target_move === 'draft' ? 'Include Draft' : 'Posted Only'"/></span>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-end shadow-sm p-1" role="menu">
+                                <button class="dropdown-item py-1" type="button" t-on-click="() => this.applyTargetMove('posted')">
+                                    Posted Entries Only
+                                </button>
+                                <button class="dropdown-item py-1" type="button" t-on-click="() => this.applyTargetMove('draft')">
+                                    Include Draft Entries
+                                </button>
+                                <div class="dropdown-divider my-1"/>
+                                <button class="dropdown-item py-1" type="button" t-on-click="() => this.applyMethod('accrual')">
+                                    Accrual Basis
+                                </button>
+                                <button class="dropdown-item py-1" type="button" t-on-click="() => this.applyMethod('cash-basis')">
+                                    Cash Basis Method
+                                </button>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="table_style" style="height: 650px; overflow-y: scroll;">
-                <!-- Table View -->
-                <div class="table_view_gl" style="right:20px;width:100%;"
-                     t-ref="table_view_gl">
-                    <div>
-                        <div class="table_main_view">
-                            <table cellspacing="0" width="100%">
-                                <thead>
-                                    <tr class="o_heading"
-                                        style="text-align:center;">
-                                        <th colspan="6"/>
-                                        <th colspan="2">Initial Balance</th>
-                                        <t t-if="state.date_viewed.length != 0">
-                                            <t t-foreach="state.date_viewed"
-                                               t-as="date_view"
-                                               t-key="date_view_index">
-                                                <th colspan="2">
-                                                    <t t-esc="date_view"/>
-                                                </th>
-                                            </t>
-                                        </t>
-                                        <t t-if="state.apply_comparison == true">
-                                            <t t-if="state.data and state.data[0].dynamic_date_num">
-                                                <!-- Safely create a list of numbers to loop over, adding one extra period -->
-                                                <t t-set="number_of_periods"
-                                                   t-value="Array.from({length: ((comparison_number_range || []).length + 1)}, (_, i) => i)"/>
-                                                <t t-foreach="number_of_periods" t-as="number" t-key="number">
-                                                    <th colspan="2">
-                                                        <t t-esc="state.data[0].dynamic_date_num['dynamic_date_num' + number] or ''"/>
-                                                    </th>
-                                                </t>
-                                            </t>
-                                        </t>
-                                        <th colspan="2">End Balance</th>
-                                    </tr>
-                                    <tr class="o_heading"
-                                        style="text-align:center;">
-                                        <th colspan="6"/>
-                                        <th>Debit</th>
-                                        <th>Credit</th>
-                                        <th>Debit</th>
-                                        <th>Credit</th>
-                                        <th>Debit</th>
-                                        <th>Credit</th>
-                                        <t t-if="state.apply_comparison == true">
-                                            <t t-set="number_of_periods"
-                                               t-value="comparison_number_range"/>
-                                            <t t-foreach="number_of_periods"
-                                               t-as="number" t-key="number">
-                                                <th>Debit</th>
-                                                <th>Credit</th>
-                                            </t>
-                                        </t>
-                                    </tr>
-                                </thead>
-                                <tbody t-ref="tbody">
-                                    <t t-set="show" t-value="True"/>
-                                    <t t-if="this.state.default_report == false">
-                                        <t t-if="state.data">
-                                            <t t-foreach="state.data" t-as="each" t-key="each.account_id">
-                                                <t t-set="show" t-value="False"/>
-                                                <tr class="border-bottom"
-                                                    style="border-spacing: 0 10px;">
-                                                    <th colspan="6">
-                                                        <span class="dropdown">
-                                                            <a class="dropdown-toggle"
-                                                               data-bs-toggle="dropdown"
-                                                               style="color: black;">
-                                                                <span>
-                                                                    <t t-esc="each['account']"/>
-                                                                </span>
-                                                            </a>
-                                                            <span class="dropdown-menu">
-                                                                <a role="menuitem"
-                                                                   t-on-click="show_gl"
-                                                                   class="show_gl">
-                                                                    General Ledger
-                                                                </a>
-                                                                <div role="separator"
-                                                                     class="dropdown-divider"/>
-                                                                <a role="menuitem"
-                                                                   t-att-data-id="each['account_id']"
-                                                                   t-on-click="gotoJournalItem"
-                                                                   class="show_gl">
-                                                                    Journal Items
-                                                                </a>
-                                                            </span>
-                                                        </span>
-                                                    </th>
-                                                    <th style="text-align:center;">
-                                                        <t t-if="each['initial_total_credit']"
-                                                           t-esc="each['initial_total_credit']"/>
-                                                    </th>
-                                                    <t t-if="state.apply_comparison == true">
-                                                        <t t-set="number_of_periods"
-                                                           t-value="comparison_number_range"/>
-                                                        <t t-foreach="number_of_periods"
-                                                           t-as="num" t-key="num">
-                                                            <th style="text-align:center;">
-                                                                <t t-if="each['dynamic_total_debit_' + num]"
-                                                                   t-esc="each['dynamic_total_debit_' + num]"/>
-                                                            </th>
-                                                            <th style="text-align:center;">
-                                                                <t t-if="each['dynamic_total_credit_' + num]"
-                                                                   t-esc="each['dynamic_total_credit_' + num]"/>
-                                                            </th>
-                                                        </t>
-                                                    </t>
-                                                    <th style="text-align:center;">
-                                                        <t t-if="each['total_debit']"
-                                                           t-esc="each['total_debit']"/>
-                                                    </th>
-                                                    <th style="text-align:center;">
-                                                        <t t-if="each['total_credit']"
-                                                           t-esc="each['total_credit']"/>
-                                                    </th>
-                                                    <th style="text-align:center;">
-                                                        <t t-if="each['end_total_debit']"
-                                                           t-esc="each['end_total_debit']"/>
-                                                    </th>
-                                                    <th style="text-align:center;">
-                                                        <t t-if="each['end_total_credit']"
-                                                           t-esc="each['end_total_credit']"/>
-                                                    </th>
-                                                </tr>
-                                            </t>
-                                        </t>
+
+
+            <!-- Informational Banner (Enterprise Alert Look) -->
+            <div class="alert alert-info d-flex align-items-center mb-3 py-2 px-3" style="font-size: 12px; border-radius: 6px; background-color: #e7f5ff; border: 1px solid #b7dcf7; color: #0c5460;">
+                <i class="fa fa-info-circle text-info me-2 fs-6"/>
+                <span>Trial Balance summarizes opening balance, current period movement, and ending balance for all accounts to verify equality of debits and credits. Click on any account action to drill down into General Ledger or Journal Items.</span>
+            </div>
+
+            <!-- Table Card Container -->
+            <div class="o_report_table_card">
+                <div class="o_report_table_scrollable">
+                    <table class="o_bs_table" cellspacing="0">
+                        <thead>
+                            <!-- Super Headers -->
+                            <tr class="o_tb_super_header">
+                                <th style="width: 34%; text-align: left; padding-left: 16px;">Account</th>
+                                <th colspan="2" style="width: 22%;">Initial Balance</th>
+                                <t t-if="state.apply_comparison and comparison_number_range and comparison_number_range.length > 0">
+                                    <t t-foreach="comparison_number_range" t-as="num" t-key="num">
+                                        <th colspan="2" style="width: 14%;">
+                                            <t t-esc="state.date_viewed and state.date_viewed[num] ? state.date_viewed[num] : ('Period -' + num)"/>
+                                        </th>
                                     </t>
-                                    <t t-if="this.state.default_report == true">
-                                        <t t-if="state.data">
-                                            <t t-set="i" t-value="0"/>
-                                            <t t-foreach="state.accounts"
-                                               t-as="move_line"
-                                               t-key="move_line_index">
-                                                <t t-set="i" t-value="i + 1"/>
-                                                <tr class="border-bottom"
-                                                    style="border-spacing: 0 10px;">
-                                                    <th colspan="6">
-                                                        <span class="dropdown">
-                                                            <a class="dropdown-toggle"
-                                                               data-bs-toggle="dropdown"
-                                                               style="color: black;">
-                                                                <span>
-                                                                    <t t-esc="move_line['account']"/>
-                                                                </span>
-                                                            </a>
-                                                            <span class="dropdown-menu">
-                                                                <a role="menuitem"
-                                                                   t-on-click="show_gl"
-                                                                   class="show_gl">
-                                                                    General Ledger
-                                                                </a>
-                                                                <div role="separator"
-                                                                     class="dropdown-divider"/>
-                                                                <a role="menuitem"
-                                                                   t-att-data-id="move_line['account_id']"
-                                                                   t-on-click="gotoJournalItem"
-                                                                   class="show_gl">
-                                                                    Journal Items
-                                                                </a>
-                                                            </span>
-                                                        </span>
-                                                    </th>
-                                                    <th style="text-align:center;">
-                                                        <t t-if="move_line['initial_total_debit']"
-                                                           t-esc="move_line['initial_total_debit']"/>
-                                                    </th>
-                                                    <th style="text-align:center;">
-                                                        <t t-if="move_line['initial_total_credit']"
-                                                           t-esc="move_line['initial_total_credit']"/>
-                                                    </th>
-                                                    <t t-if="state.apply_comparison == true">
-                                                        <t t-set="number_of_periods"
-                                                           t-value="comparison_number_range"/>
-                                                        <t t-foreach="number_of_periods"
-                                                           t-as="num" t-key="num">
-                                                            <th style="text-align:center;">
-                                                                <t t-if="move_line['dynamic_total_debit_' + num]"
-                                                                   t-esc="move_line['dynamic_total_debit_' + num]"/>
-                                                            </th>
-                                                            <th style="text-align:center;">
-                                                                <t t-if="move_line['dynamic_total_credit_' + num]"
-                                                                   t-esc="move_line['dynamic_total_credit_' + num]"/>
-                                                            </th>
-                                                        </t>
-                                                    </t>
-                                                    <th style="text-align:center;">
-                                                        <t t-if="move_line['total_debit']"
-                                                           t-esc="move_line['total_debit']"/>
-                                                    </th>
-                                                    <th style="text-align:center;">
-                                                        <t t-if="move_line['total_credit']"
-                                                           t-esc="move_line['total_credit']"/>
-                                                    </th>
-                                                    <th style="text-align:center;">
-                                                        <t t-if="move_line['end_total_debit']"
-                                                           t-esc="move_line['end_total_debit']"/>
-                                                    </th>
-                                                    <th style="text-align:center;">
-                                                        <t t-if="move_line['end_total_credit']"
-                                                           t-esc="move_line['end_total_credit']"/>
-                                                    </th>
-                                                </tr>
-                                            </t>
-                                            <tr class="border-bottom"
-                                                style="border-spacing: 0 10px;color:#000">
-                                                <th colspan="6">Total</th>
-                                                <th style="text-align:center;">
-                                                    <t t-esc="sumByKey(state.accounts, 'initial_total_debit')"/>
-                                                </th>
-                                                <th style="text-align:center;">
-                                                    <t t-esc="sumByKey(state.accounts, 'initial_total_credit')"/>
-                                                </th>
-                                                <t t-if="state.apply_comparison == true">
-                                                    <t t-set="number_of_periods"
-                                                       t-value="comparison_number_range"/>
-                                                    <t t-foreach="number_of_periods"
-                                                       t-as="nb" t-key="nb">
-                                                        <th style="text-align:center;">
-                                                            <t t-esc="sumByKey(state.accounts, 'dynamic_total_debit_' + nb)"/>
-                                                        </th>
-                                                        <th style="text-align:center;">
-                                                            <t t-esc="sumByKey(state.accounts, 'dynamic_total_credit_' + nb)"/>
-                                                        </th>
-                                                    </t>
-                                                </t>
-                                                <th style="text-align:center;">
-                                                    <t t-esc="sumByKey(state.accounts, 'total_debit')"/>
-                                                </th>
-                                                <th style="text-align:center;">
-                                                    <t t-esc="sumByKey(state.accounts, 'total_credit')"/>
-                                                </th>
-                                                <th style="text-align:center;">
-                                                    <t t-esc="sumByKey(state.accounts, 'end_total_debit')"/>
-                                                </th>
-                                                <th style="text-align:center;">
-                                                    <t t-esc="sumByKey(state.accounts, 'end_total_credit')"/>
-                                                </th>
-                                            </tr>
-                                        </t>
+                                </t>
+                                <th colspan="2" style="width: 22%;">
+                                    <t t-esc="state.date_viewed and state.date_viewed.length > 0 ? state.date_viewed[0] : 'Current Period'"/>
+                                </th>
+                                <th colspan="2" style="width: 22%;">End Balance</th>
+                            </tr>
+                            <!-- Sub Headers (Debit / Credit) -->
+                            <tr class="o_tb_sub_header">
+                                <th style="text-align: left; padding-left: 16px;">Code &amp; Name</th>
+                                <th class="text-end" style="width: 11%;">Debit</th>
+                                <th class="text-end" style="width: 11%;">Credit</th>
+                                <t t-if="state.apply_comparison and comparison_number_range and comparison_number_range.length > 0">
+                                    <t t-foreach="comparison_number_range" t-as="num" t-key="num">
+                                        <th class="text-end" style="width: 7%;">Debit</th>
+                                        <th class="text-end" style="width: 7%;">Credit</th>
                                     </t>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+                                </t>
+                                <th class="text-end" style="width: 11%;">Debit</th>
+                                <th class="text-end" style="width: 11%;">Credit</th>
+                                <th class="text-end" style="width: 11%;">Debit</th>
+                                <th class="text-end" style="width: 11%;">Credit</th>
+                            </tr>
+                        </thead>
+                        <tbody t-ref="tbody">
+                            <t t-if="displayed_accounts and displayed_accounts.length > 0">
+                                <t t-foreach="displayed_accounts" t-as="acc" t-key="acc.account_id">
+                                    <tr class="o_tb_account_row">
+                                        <td>
+                                            <div class="d-flex align-items-center justify-content-between">
+                                                <div class="d-flex align-items-center text-truncate me-2">
+                                                    <span class="o_tb_account_code_badge me-2" t-att-title="acc.account">
+                                                        <t t-esc="acc.account_code || (acc.account ? acc.account.split(' ')[0] : '')"/>
+                                                    </span>
+                                                    <span class="o_tb_account_title text-truncate" t-att-title="acc.account">
+                                                        <t t-esc="acc.account_name || acc.account"/>
+                                                    </span>
+                                                </div>
+                                                <div class="d-flex align-items-center gap-1">
+                                                    <button type="button"
+                                                            class="o_tb_action_btn"
+                                                            t-on-click="(ev) => this.gotoJournalItem(acc.account_id, ev)"
+                                                            title="View Journal Items">
+                                                        <i class="fa fa-list"/> Items
+                                                    </button>
+                                                    <button type="button"
+                                                            class="o_tb_action_btn"
+                                                            t-on-click="(ev) => this.gotoGeneralLedger(acc.account_id, ev)"
+                                                            title="View General Ledger">
+                                                        <i class="fa fa-book"/> GL
+                                                    </button>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <!-- Initial Balance -->
+                                        <td class="o_tb_cell_amount">
+                                            <t t-esc="formatAmount(acc.initial_total_debit)"/>
+                                        </td>
+                                        <td class="o_tb_cell_amount">
+                                            <t t-esc="formatAmount(acc.initial_total_credit)"/>
+                                        </td>
+
+                                        <!-- Comparison Periods -->
+                                        <t t-if="state.apply_comparison and comparison_number_range and comparison_number_range.length > 0">
+                                            <t t-foreach="comparison_number_range" t-as="num" t-key="num">
+                                                <td class="o_tb_cell_amount">
+                                                    <t t-esc="formatAmount(acc['dynamic_total_debit_' + num])"/>
+                                                </td>
+                                                <td class="o_tb_cell_amount">
+                                                    <t t-esc="formatAmount(acc['dynamic_total_credit_' + num])"/>
+                                                </td>
+                                            </t>
+                                        </t>
+
+                                        <!-- Current Period Movement -->
+                                        <td class="o_tb_cell_amount fw-semibold">
+                                            <t t-esc="formatAmount(acc.total_debit)"/>
+                                        </td>
+                                        <td class="o_tb_cell_amount fw-semibold">
+                                            <t t-esc="formatAmount(acc.total_credit)"/>
+                                        </td>
+
+                                        <!-- End Balance -->
+                                        <td class="o_tb_cell_amount fw-bold" style="color: #0f172a;">
+                                            <t t-esc="formatAmount(acc.end_total_debit)"/>
+                                        </td>
+                                        <td class="o_tb_cell_amount fw-bold" style="color: #0f172a;">
+                                            <t t-esc="formatAmount(acc.end_total_credit)"/>
+                                        </td>
+                                    </tr>
+                                </t>
+                            </t>
+                            <t t-else="">
+                                <tr>
+                                    <td colspan="7" class="text-center py-5 text-muted">
+                                        <i class="fa fa-folder-open-o fs-3 mb-2 d-block"/>
+                                        <span>No trial balance data found for the selected criteria.</span>
+                                    </td>
+                                </tr>
+                            </t>
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td class="text-end fw-bold py-3 px-3" style="font-size: 13px; background-color: #f1f5f9;">
+                                    Grand Total
+                                </td>
+                                <!-- Initial Balance Totals -->
+                                <td class="text-end fw-bold py-3" style="background-color: #f1f5f9;">
+                                    <t t-esc="state.totals ? (state.totals.initial_total_debit || '0.00') : '0.00'"/>
+                                </td>
+                                <td class="text-end fw-bold py-3" style="background-color: #f1f5f9;">
+                                    <t t-esc="state.totals ? (state.totals.initial_total_credit || '0.00') : '0.00'"/>
+                                </td>
+
+                                <!-- Comparison Period Totals -->
+                                <t t-if="state.apply_comparison and comparison_number_range and comparison_number_range.length > 0">
+                                    <t t-foreach="comparison_number_range" t-as="num" t-key="num">
+                                        <td class="text-end fw-bold py-3" style="background-color: #f1f5f9;">
+                                            <t t-esc="state.totals ? (state.totals['dynamic_total_debit_' + num] || '0.00') : '0.00'"/>
+                                        </td>
+                                        <td class="text-end fw-bold py-3" style="background-color: #f1f5f9;">
+                                            <t t-esc="state.totals ? (state.totals['dynamic_total_credit_' + num] || '0.00') : '0.00'"/>
+                                        </td>
+                                    </t>
+                                </t>
+
+                                <!-- Current Period Movement Totals -->
+                                <td class="text-end fw-bold py-3 text-primary" style="background-color: #f1f5f9;">
+                                    <t t-esc="state.totals ? (state.totals.total_debit || formatNumber(total_period_debit)) : formatNumber(total_period_debit)"/>
+                                </td>
+                                <td class="text-end fw-bold py-3 text-primary" style="background-color: #f1f5f9;">
+                                    <t t-esc="state.totals ? (state.totals.total_credit || formatNumber(total_period_credit)) : formatNumber(total_period_credit)"/>
+                                </td>
+
+                                <!-- End Balance Totals -->
+                                <td class="text-end fw-bold py-3 text-success" style="background-color: #f1f5f9; font-size: 13px;">
+                                    <t t-esc="state.totals ? (state.totals.end_total_debit || formatNumber(total_end_debit)) : formatNumber(total_end_debit)"/>
+                                </td>
+                                <td class="text-end fw-bold py-3 text-success" style="background-color: #f1f5f9; font-size: 13px;">
+                                    <t t-esc="state.totals ? (state.totals.end_total_credit || formatNumber(total_end_credit)) : formatNumber(total_end_credit)"/>
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
                 </div>
             </div>
         </div>

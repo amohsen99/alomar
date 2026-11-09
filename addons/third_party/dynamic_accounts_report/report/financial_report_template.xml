@@ -1,256 +1,312 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-        <!--    Report Template for Profit and Book.-->
+    <!--
+    Profit and Loss (Income Statement) Report Template - Enterprise Edition
+    Inherits / Calls the Master Layout with 4-Level Financial Hierarchy and Legible Styling.
+    -->
     <template id="profit_loss">
-        <t t-call="web.html_container">
-            <t t-call="web.external_layout">
-                <t t-set="data_report_margin_top" t-value="12"/>
-                <t t-set="data_report_header_spacing" t-value="9"/>
-                <t t-set="data_report_dpi" t-value="110"/>
-                <div class="page">
-                    <h3>
-                        <center>
-                            <b>
-                                <span t-esc="report_name"/>
-                            </b>
-                        </center>
-                    </h3>
-                    <br/>
-                    <br/>
-                    <div class="filters">
-                        <t t-esc="date_from"/>
-                        <table class="table table-sm table-reports">
-                            <thead class="filter_table"
-                                   style="background:#808080;">
-                                <tr>
-                                    <th>Date Range</th>
-                                    <th>Comparison</th>
-                                    <th>Account</th>
-                                    <th>Journal</th>
-                                    <th>Analytic Account</th>
-                                    <th>Target move</th>
+        <!-- Normalize data whether passed as state or wrapped in {'data': state} -->
+        <t t-set="d" t-value="data.get('data') if (data and isinstance(data, dict) and isinstance(data.get('data'), dict) and 'datas' in data.get('data')) else data"/>
+        <t t-set="data" t-value="d"/>
+        <t t-set="unfold_all" t-value="data.get('is_unfolded_all') if isinstance(data, dict) else None"/>
+        <t t-set="exp_groups" t-value="data.get('expanded_groups') if (isinstance(data, dict) and isinstance(data.get('expanded_groups'), dict)) else {}"/>
+
+        <!-- Dynamic Visibility Flags per Group -->
+        <t t-set="show_income" t-value="exp_groups.get('income') if 'income' in exp_groups else (unfold_all if unfold_all is not None else True)"/>
+        <t t-set="show_revenue" t-value="exp_groups.get('revenue') if 'revenue' in exp_groups else (unfold_all if unfold_all is not None else True)"/>
+        <t t-set="show_other_income" t-value="exp_groups.get('other_income') if 'other_income' in exp_groups else (unfold_all if unfold_all is not None else True)"/>
+        <t t-set="show_expenses" t-value="exp_groups.get('expenses') if 'expenses' in exp_groups else (unfold_all if unfold_all is not None else True)"/>
+        <t t-set="show_depreciation" t-value="exp_groups.get('depreciation') if 'depreciation' in exp_groups else (unfold_all if unfold_all is not None else True)"/>
+
+        <t t-set="is_all_folded" t-value="not (show_income or show_revenue or show_other_income or show_expenses or show_depreciation)"/>
+        <t t-set="is_all_unfolded" t-value="show_income and show_revenue and show_other_income and show_expenses and show_depreciation"/>
+
+        <t t-call="dynamic_accounts_report.report_master_layout">
+            <t t-set="report_title" t-value="report_name or (data.get('title') if isinstance(data, dict) else None) or 'Profit and Loss'"/>
+            <t t-set="report_subtitle" t-value="'Income Statement / قائمة الأرباح والخسائر' + (' - Summary (ملخص)' if is_all_folded else (' - Detailed (تفصيلي)' if is_all_unfolded else ''))"/>
+
+            <table class="o_pdf_table o_ignore_layout_styling">
+                <thead>
+                    <tr>
+                        <th style="width: 65%; text-align: left; padding-left: 10px;">
+                            Account / Category (الحساب / التصنيف المالي)
+                        </th>
+                        <t t-if="data and data.get('year')">
+                            <t t-foreach="data['year']" t-as="period">
+                                <th class="o_pdf_num" style="width: 35%;">
+                                    <div><t t-esc="period"/></div>
+                                    <small style="font-weight: 500; opacity: 0.85;">Balance (الرصيد)</small>
+                                </th>
+                            </t>
+                        </t>
+                        <t t-else="">
+                            <th class="o_pdf_num" style="width: 35%;">Balance</th>
+                        </t>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- ==================== NET PROFIT (TOP HIGHLIGHT) ==================== -->
+                    <tr class="o_pdf_grand_total">
+                        <td style="padding-left: 10px; font-weight: 800;">
+                            NET PROFIT / (LOSS) (صافي الربح / الخسارة)
+                        </td>
+                        <t t-if="data and data.get('datas')">
+                            <t t-foreach="data['datas']" t-as="val">
+                                <td class="o_pdf_num" style="font-size: 13px; font-weight: 800;">
+                                    <t t-if="val.get('total') is not None">
+                                        <t t-set="net_val" t-value="val.get('total')"/>
+                                        <t t-if="net_val &lt; 0">
+                                            <span style="color: #fca5a5;">(<t t-esc="'{:,.2f}'.format(abs(net_val))"/>)</span>
+                                        </t>
+                                        <t t-else="">
+                                            <span style="color: #6ee7b7;"><t t-esc="'{:,.2f}'.format(net_val)"/></span>
+                                        </t>
+                                    </t>
+                                    <t t-else="">0.00</t>
+                                </td>
+                            </t>
+                        </t>
+                    </tr>
+
+                    <!-- ==================== 1. INCOME (LEVEL 1) ==================== -->
+                    <tr class="o_pdf_sec_header">
+                        <td style="padding-left: 10px;">1. INCOME (الإيرادات)</td>
+                        <t t-if="data and data.get('datas')">
+                            <t t-foreach="data['datas']" t-as="val">
+                                <td class="o_pdf_num"><t t-esc="val.get('total_income') or '0.00'"/></td>
+                            </t>
+                        </t>
+                    </tr>
+
+                    <!-- 1.1 Operating Income (Level 2) -->
+                    <tr class="o_pdf_group_header">
+                        <td style="padding-left: 20px;">
+                            <span style="color: #4f46e5; margin-right: 4px;">
+                                <t t-if="show_income">▾</t>
+                                <t t-else="">▸</t>
+                            </span> 1.1 Operating Income (إيرادات النشاط التشغيلي)
+                        </td>
+                        <t t-if="data and data.get('datas')">
+                            <t t-foreach="data['datas']" t-as="val">
+                                <td class="o_pdf_num"><t t-esc="val.get('income', [None, '0.00'])[1]"/></td>
+                            </t>
+                        </t>
+                    </tr>
+                    <!-- Operating Income Accounts (Level 3) -->
+                    <t t-if="show_income and data and data.get('datas') and len(data['datas']) &gt; 0">
+                        <t t-foreach="data['datas'][0].get('income', [[], None])[0]" t-as="acc">
+                            <t t-if="acc.get('amount') not in ('0.00', '0', 0)">
+                                <tr class="o_pdf_account_row">
+                                    <td style="padding-left: 38px;">
+                                        <span class="o_acc_code_badge"><t t-esc="acc['name'].split(' - ')[0] if ' - ' in acc['name'] else ''"/></span>
+                                        <span style="color: #1e293b;"><t t-esc="acc['name'].split(' - ')[1] if ' - ' in acc['name'] else acc['name']"/></span>
+                                    </td>
+                                    <t t-foreach="data['datas']" t-as="p_val">
+                                        <t t-foreach="p_val.get('income', [[], None])[0]" t-as="sub_acc">
+                                            <t t-if="sub_acc['name'] == acc['name']">
+                                                <td class="o_pdf_num"><t t-esc="sub_acc['amount']"/></td>
+                                            </t>
+                                        </t>
+                                    </t>
                                 </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td>
-                                        <span t-esc="date_from"/>
-                                        <t t-if="date_from">
-                                            <span t-esc="date_from"/>
-                                        </t>
-                                        <t t-if="date_to">
-                                            –
-                                            <span t-esc="date_to"/>
-                                        </t>
-                                        <t t-if="not date_from and not date_to">
-                                            <span t-esc="date_range or 'All'"/>
-                                        </t>
+                            </t>
+                        </t>
+                    </t>
+
+                    <!-- 1.2 Cost of Revenue (Level 2) -->
+                    <tr class="o_pdf_group_header">
+                        <td style="padding-left: 20px;">
+                            <span style="color: #4f46e5; margin-right: 4px;">
+                                <t t-if="show_revenue">▾</t>
+                                <t t-else="">▸</t>
+                            </span> 1.2 Cost of Revenue (تكلفة المبيعات / تكلفة النشاط)
+                        </td>
+                        <t t-if="data and data.get('datas')">
+                            <t t-foreach="data['datas']" t-as="val">
+                                <td class="o_pdf_num"><t t-esc="val.get('expense_direct_cost', [None, '0.00'])[1]"/></td>
+                            </t>
+                        </t>
+                    </tr>
+                    <!-- Cost of Revenue Accounts (Level 3) -->
+                    <t t-if="show_revenue and data and data.get('datas') and len(data['datas']) &gt; 0">
+                        <t t-foreach="data['datas'][0].get('expense_direct_cost', [[], None])[0]" t-as="acc">
+                            <t t-if="acc.get('amount') not in ('0.00', '0', 0)">
+                                <tr class="o_pdf_account_row">
+                                    <td style="padding-left: 38px;">
+                                        <span class="o_acc_code_badge"><t t-esc="acc['name'].split(' - ')[0] if ' - ' in acc['name'] else ''"/></span>
+                                        <span style="color: #1e293b;"><t t-esc="acc['name'].split(' - ')[1] if ' - ' in acc['name'] else acc['name']"/></span>
                                     </td>
-                                    <td>
-                                        <span t-esc="comparison or '-'"/>
-                                    </td>
-                                    <td>
-                                        <t t-if="account_ids">
-                                            <t t-foreach="account_ids" t-as="acc">
-                                                <span t-esc="acc"/>
-                                                <t>, </t>
+                                    <t t-foreach="data['datas']" t-as="p_val">
+                                        <t t-foreach="p_val.get('expense_direct_cost', [[], None])[0]" t-as="sub_acc">
+                                            <t t-if="sub_acc['name'] == acc['name']">
+                                                <td class="o_pdf_num"><t t-esc="sub_acc['amount']"/></td>
                                             </t>
                                         </t>
-                                        <t t-if="not account_ids">All</t>
-                                    </td>
-                                    <td>
-                                        <t t-if="journal_ids">
-                                            <t t-foreach="journal_ids" t-as="jrn">
-                                                <span t-esc="jrn"/>
-                                                <t>, </t>
-                                            </t>
-                                        </t>
-                                        <t t-if="not journal_ids">All</t>
-                                    </td>
-                                    <td>
-                                        <t t-if="analytic_ids">
-                                            <t t-foreach="analytic_ids" t-as="ana">
-                                                <span t-esc="ana"/>
-                                                <t>, </t>
-                                            </t>
-                                        </t>
-                                        <t t-if="not analytic_ids">All</t>
-                                    </td>
-                                    <td>
-                                        <span t-esc="target or 'All'"/>
-                                    </td>
+                                    </t>
                                 </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <br/>
-                    <br/>
-                    <br/>
-                    <table cellspacing="0" width="100%" style="border: 1px solid white; text-align: left;">
-                    <thead>
-                        <tr class="o_heading">
-                            <th colspan="6"/>
-                            <t t-if="data['year']">
-                                <t t-foreach="data['year']"
-                                   t-as="periodData"
-                                   t-key="periodData_index">
-                                    <th class="text-end">
-                                        <t t-esc="periodData"/>
-                                    </th>
-                                </t>
                             </t>
-                        </tr>
-                        <tr class="o_heading">
-                            <th colspan="6"/>
-                            <t t-if="data['year']">
-                                <t t-foreach="data['year']"
-                                   t-as="periodData"
-                                   t-key="periodData_index">
-                                    <th class="text-end">Balance</th>
-                                </t>
+                        </t>
+                    </t>
+
+                    <!-- 1.3 Other Income (Level 2) -->
+                    <tr class="o_pdf_group_header">
+                        <td style="padding-left: 20px;">
+                            <span style="color: #4f46e5; margin-right: 4px;">
+                                <t t-if="show_other_income">▾</t>
+                                <t t-else="">▸</t>
+                            </span> 1.3 Other Income (إيرادات أخرى)
+                        </td>
+                        <t t-if="data and data.get('datas')">
+                            <t t-foreach="data['datas']" t-as="val">
+                                <td class="o_pdf_num"><t t-esc="val.get('income_other', [None, '0.00'])[1]"/></td>
                             </t>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <th colspan="6">
-                                <span class="fw-bolder">
-                                    Net Profit
-                                </span>
-                            </th>
-                            <t t-foreach="data['datas']" t-as="total"
-                               t-key="total_index">
-                                <th class="text-end">
-                                    <span class="fw-bolder">
-                                        <t t-if="total['total']"
-                                           t-esc="total['total']"/>
-                                    </span>
-                                </th>
+                        </t>
+                    </tr>
+                    <!-- Other Income Accounts (Level 3) -->
+                    <t t-if="show_other_income and data and data.get('datas') and len(data['datas']) &gt; 0">
+                        <t t-foreach="data['datas'][0].get('income_other', [[], None])[0]" t-as="acc">
+                            <t t-if="acc.get('amount') not in ('0.00', '0', 0)">
+                                <tr class="o_pdf_account_row">
+                                    <td style="padding-left: 38px;">
+                                        <span class="o_acc_code_badge"><t t-esc="acc['name'].split(' - ')[0] if ' - ' in acc['name'] else ''"/></span>
+                                        <span style="color: #1e293b;"><t t-esc="acc['name'].split(' - ')[1] if ' - ' in acc['name'] else acc['name']"/></span>
+                                    </td>
+                                    <t t-foreach="data['datas']" t-as="p_val">
+                                        <t t-foreach="p_val.get('income_other', [[], None])[0]" t-as="sub_acc">
+                                            <t t-if="sub_acc['name'] == acc['name']">
+                                                <td class="o_pdf_num"><t t-esc="sub_acc['amount']"/></td>
+                                            </t>
+                                        </t>
+                                    </t>
+                                </tr>
                             </t>
-                        </tr>
-                        <tr class="border-bottom border-dark" style="border-right:0px solid transparent;">
-                            <th colspan="9">
-                                <span class="fw-bolder ms-2">
-                                    Income
-                                </span>
-                            </th>
-                        </tr>
-                        <tr class="border-bottom border-gainsboro">
-                            <th colspan="9">
-                                <span class="fw-bolder ms-3">
-                                    Gross Profit
-                                </span>
-                            </th>
-                        </tr>
-                        <tr class="border-bottom border-gainsboro">
-                            <th colspan="6">
-                                <span class="ms-3">Operating Income</span>
-                            </th>
-                            <t t-foreach="data['datas']" t-as="total"
-                           t-key="total_index">
-                                <th class="text-end">
-                                    <span>
-                                        <t t-esc="total['income'][1]"/>
-                                    </span>
-                                </th>
+                        </t>
+                    </t>
+
+                    <!-- Total Income Subtotal Row -->
+                    <tr class="o_pdf_subtotal_row">
+                        <td style="padding-left: 15px; font-weight: 700;">TOTAL INCOME (إجمالي الإيرادات)</td>
+                        <t t-if="data and data.get('datas')">
+                            <t t-foreach="data['datas']" t-as="val">
+                                <td class="o_pdf_num" style="font-weight: 700;"><t t-esc="val.get('total_income') or '0.00'"/></td>
                             </t>
-                        </tr>
-                        <tr class="border-bottom border-gainsboro">
-                            <th colspan="6">
-                                <span class="ms-3">Cost of
-                                    Revenue
-                                </span>
-                            </th>
-                            <t t-foreach="data['datas']" t-as="total"
-                           t-key="total_index">
-                            <th class="text-end">
-                                <span>
-                                    <t t-esc="total['expense_direct_cost'][1]"/>
-                                </span>
-                            </th>
+                        </t>
+                    </tr>
+
+                    <!-- ==================== 2. EXPENSES (LEVEL 1) ==================== -->
+                    <tr class="o_pdf_sec_header">
+                        <td style="padding-left: 10px;">2. EXPENSES (المصروفات)</td>
+                        <t t-if="data and data.get('datas')">
+                            <t t-foreach="data['datas']" t-as="val">
+                                <td class="o_pdf_num"><t t-esc="val.get('total_expense') or '0.00'"/></td>
                             </t>
-                        </tr>
-                        <tr class="border-bottom">
-                            <th colspan="6">
-                                <span class="ms-3">Other Income
-                                </span>
-                            </th>
-                            <t t-foreach="data['datas']" t-as="total"
-                           t-key="total_index">
-                            <th class="text-end">
-                                <span>
-                                    <t t-esc="total['income_other'][1]"/>
-                                </span>
-                            </th>
+                        </t>
+                    </tr>
+
+                    <!-- 2.1 Operating Expenses (Level 2) -->
+                    <tr class="o_pdf_group_header">
+                        <td style="padding-left: 20px;">
+                            <span style="color: #4f46e5; margin-right: 4px;">
+                                <t t-if="show_expenses">▾</t>
+                                <t t-else="">▸</t>
+                            </span> 2.1 Operating &amp; General Expenses (المصروفات التشغيلية والإدارية)
+                        </td>
+                        <t t-if="data and data.get('datas')">
+                            <t t-foreach="data['datas']" t-as="val">
+                                <td class="o_pdf_num"><t t-esc="val.get('expense', [None, '0.00'])[1]"/></td>
                             </t>
-                        </tr>
-                        <tr class="border-bottom">
-                            <th colspan="6">
-                                <span class="fw-bolder ms-2">
-                                    Total Income
-                                </span>
-                            </th>
-                            <t t-foreach="data['datas']" t-as="total"
-                           t-key="total_index">
-                            <th class="text-end">
-                                <span class="fw-bolder">
-                                    <t t-esc="total['total_income']"/>
-                                </span>
-                            </th>
+                        </t>
+                    </tr>
+                    <!-- Operating Expenses Accounts (Level 3) -->
+                    <t t-if="show_expenses and data and data.get('datas') and len(data['datas']) &gt; 0">
+                        <t t-foreach="data['datas'][0].get('expense', [[], None])[0]" t-as="acc">
+                            <t t-if="acc.get('amount') not in ('0.00', '0', 0)">
+                                <tr class="o_pdf_account_row">
+                                    <td style="padding-left: 38px;">
+                                        <span class="o_acc_code_badge"><t t-esc="acc['name'].split(' - ')[0] if ' - ' in acc['name'] else ''"/></span>
+                                        <span style="color: #1e293b;"><t t-esc="acc['name'].split(' - ')[1] if ' - ' in acc['name'] else acc['name']"/></span>
+                                    </td>
+                                    <t t-foreach="data['datas']" t-as="p_val">
+                                        <t t-foreach="p_val.get('expense', [[], None])[0]" t-as="sub_acc">
+                                            <t t-if="sub_acc['name'] == acc['name']">
+                                                <td class="o_pdf_num"><t t-esc="sub_acc['amount']"/></td>
+                                            </t>
+                                        </t>
+                                    </t>
+                                </tr>
                             </t>
-                        </tr>
-                        <tr class="border-bottom border-dark" style="border-right:0px solid transparent;">
-                            <th colspan="9">
-                                <span class="fw-bolder ms-1">
-                                    Expenses
-                                </span>
-                            </th>
-                        </tr>
-                        <tr class="border-bottom" style="border-right:0px solid transparent;">
-                                <th colspan="6">
-                                            <span class="ms-3">Expenses</span>
-                                </th>
-                                <t t-foreach="data['datas']" t-as="total"
-                           t-key="total_index">
-                                <th class="text-end">
-                                    <span>
-                                        <t t-esc="total['expense'][1]"/>
-                                    </span>
-                                </th>
-                                </t>
-                            </tr>
-                        <tr class="border-bottom border-gainsboro">
-                                <th colspan="6">
-                                    <span class="ms-3">Depreciation
-                                    </span>
-                                </th>
-                                <t t-foreach="data['datas']" t-as="total"
-                           t-key="total_index">
-                                <th class="text-end">
-                                    <span>
-                                        <t t-esc="total['expense_depreciation'][1]"/>
-                                    </span>
-                                </th>
-                                </t>
-                            </tr>
-                        <tr class="border-bottom">
-                                <th colspan="6">
-                                    <span class="fw-bolder ms-2">Total Expenses
-                                    </span>
-                                </th>
-                            <t t-foreach="data['datas']" t-as="total"
-                           t-key="total_index">
-                                <th class="text-end">
-                                    <span class="fw-bolder">
-                                        <t t-esc="total['total_expense']"/>
-                                    </span>
-                                </th>
+                        </t>
+                    </t>
+
+                    <!-- 2.2 Depreciation (Level 2) -->
+                    <tr class="o_pdf_group_header">
+                        <td style="padding-left: 20px;">
+                            <span style="color: #4f46e5; margin-right: 4px;">
+                                <t t-if="show_depreciation">▾</t>
+                                <t t-else="">▸</t>
+                            </span> 2.2 Depreciation &amp; Amortization (الإهلاك والاستهلاك)
+                        </td>
+                        <t t-if="data and data.get('datas')">
+                            <t t-foreach="data['datas']" t-as="val">
+                                <td class="o_pdf_num"><t t-esc="val.get('expense_depreciation', [None, '0.00'])[1]"/></td>
                             </t>
-                            </tr>
-                    </tbody>
-                </table>
-                </div>
-            </t>
+                        </t>
+                    </tr>
+                    <!-- Depreciation Accounts (Level 3) -->
+                    <t t-if="show_depreciation and data and data.get('datas') and len(data['datas']) &gt; 0">
+                        <t t-foreach="data['datas'][0].get('expense_depreciation', [[], None])[0]" t-as="acc">
+                            <t t-if="acc.get('amount') not in ('0.00', '0', 0)">
+                                <tr class="o_pdf_account_row">
+                                    <td style="padding-left: 38px;">
+                                        <span class="o_acc_code_badge"><t t-esc="acc['name'].split(' - ')[0] if ' - ' in acc['name'] else ''"/></span>
+                                        <span style="color: #1e293b;"><t t-esc="acc['name'].split(' - ')[1] if ' - ' in acc['name'] else acc['name']"/></span>
+                                    </td>
+                                    <t t-foreach="data['datas']" t-as="p_val">
+                                        <t t-foreach="p_val.get('expense_depreciation', [[], None])[0]" t-as="sub_acc">
+                                            <t t-if="sub_acc['name'] == acc['name']">
+                                                <td class="o_pdf_num"><t t-esc="sub_acc['amount']"/></td>
+                                            </t>
+                                        </t>
+                                    </t>
+                                </tr>
+                            </t>
+                        </t>
+                    </t>
+
+                    <!-- Total Expenses Subtotal Row -->
+                    <tr class="o_pdf_subtotal_row">
+                        <td style="padding-left: 15px; font-weight: 700;">TOTAL EXPENSES (إجمالي المصروفات)</td>
+                        <t t-if="data and data.get('datas')">
+                            <t t-foreach="data['datas']" t-as="val">
+                                <td class="o_pdf_num" style="font-weight: 700;"><t t-esc="val.get('total_expense') or '0.00'"/></td>
+                            </t>
+                        </t>
+                    </tr>
+
+                    <!-- ==================== FINAL NET PROFIT / LOSS SUMMARY ==================== -->
+                    <tr class="o_pdf_grand_total">
+                        <td style="padding-left: 10px; font-weight: 800;">
+                            NET PROFIT / (LOSS) (صافي الأرباح والخسائر)
+                        </td>
+                        <t t-if="data and data.get('datas')">
+                            <t t-foreach="data['datas']" t-as="val">
+                                <td class="o_pdf_num" style="font-size: 13px; font-weight: 800;">
+                                    <t t-if="val.get('total') is not None">
+                                        <t t-set="net_val" t-value="val.get('total')"/>
+                                        <t t-if="net_val &lt; 0">
+                                            <span style="color: #fca5a5;">(<t t-esc="'{:,.2f}'.format(abs(net_val))"/>)</span>
+                                        </t>
+                                        <t t-else="">
+                                            <span style="color: #6ee7b7;"><t t-esc="'{:,.2f}'.format(net_val)"/></span>
+                                        </t>
+                                    </t>
+                                    <t t-else="">0.00</t>
+                                </td>
+                            </t>
+                        </t>
+                    </tr>
+                </tbody>
+            </table>
         </t>
     </template>
 </odoo>

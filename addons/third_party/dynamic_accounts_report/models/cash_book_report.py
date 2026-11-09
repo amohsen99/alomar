@@ -3,8 +3,8 @@
 #
 #    Cybrosys Technologies Pvt. Ltd.
 #
-#    Copyright (C) 2025-TODAY Cybrosys Technologies(<https://www.cybrosys.com>)
-#    Author: Swetha Anand (<https://www.cybrosys.com>)
+#    Copyright (C) 2024-TODAY Cybrosys Technologies(<https://www.cybrosys.com>)
+#    Author: Bhagyadev KP (<https://www.cybrosys.com>)
 #
 #    You can modify it under the terms of the GNU LESSER
 #    GENERAL PUBLIC LICENSE (LGPL v3), Version 3.
@@ -34,50 +34,57 @@ class CashBookReport(models.TransientModel):
     _description = 'Account Cash Book Report'
 
     @api.model
+    def _get_cash_journals_and_accounts(self):
+        """Helper to get cash journals and related cash safe accounts."""
+        journals = self.env['account.journal'].search([('type', '=', 'cash')])
+        cash_accounts = self.env['account.account'].search([
+            '|',
+            ('id', 'in', journals.mapped('default_account_id').ids),
+            '&', ('account_type', '=', 'asset_cash'), ('code', '=like', '1221%')
+        ])
+        return journals, cash_accounts
+
+    @api.model
     def view_report(self):
         """
         Retrieves and formats data for the cash book report.
-
-        Returns a dictionary containing the following data:
-        - 'move_lines_total': A dictionary containing the total debit, total
-                              credit, and currency symbol for each account in
-                              the cash journal.
-        - 'accounts': A list of dictionaries, each representing an account
-                      in the cash journal. Each dictionary contains the
-                      'display_name' and 'name' of the account.
-        - Additional data for each account: The key is the 'display_name' of the
-                                            account, and the value is a list of
-                                            dictionaries, each representing a
-                                            move line for that account. Each
-                                            move line dictionary contains the
-                                            following
-          data: 'date', 'journal_id', 'partner_id', 'move_name', 'debit',
-                 'move_id', 'credit', 'name', and 'ref'.
         """
         data = {}
         move_lines_total = {}
-        journals = self.env['account.journal'].search(
-            [('type', '=', 'cash')])
-        account_move_lines = self.env['account.move.line'].search(
-            [('parent_state', '=', 'posted'),
-             ('journal_id', 'in', journals.ids)])
-        accounts = account_move_lines.mapped('account_id').read(
-            ['display_name', 'name'])
-        for account in accounts:
-            move_lines = account_move_lines.filtered(
-                lambda x: x.account_id.id == account['id'])
-            move_line_data = move_lines.read(
-                ['date', 'journal_id', 'partner_id', 'move_name', 'debit',
-                 'move_id',
-                 'credit', 'name', 'ref'])
-            data[move_lines.mapped('account_id').display_name] = move_line_data
-            currency_id = self.env.company.currency_id.symbol
-            move_lines_total[move_lines.mapped('account_id').display_name] = {
-                'total_debit': round(sum(move_lines.mapped('debit')), 2),
-                'total_credit': round(sum(move_lines.mapped('credit')), 2),
-                'currency_id': currency_id}
+        currency_id = self.env.company.currency_id.symbol
+        journals, cash_accounts = self._get_cash_journals_and_accounts()
+
+        domain = [
+            ('parent_state', '=', 'posted'),
+            '|',
+            ('journal_id', 'in', journals.ids),
+            ('account_id', 'in', cash_accounts.ids)
+        ]
+        account_move_lines = self.env['account.move.line'].search(domain, order='date asc, id asc')
+
+        for acc in account_move_lines.mapped('account_id'):
+            move_lines = account_move_lines.filtered(lambda x: x.account_id == acc)
+            move_line_data = move_lines.read([
+                'date', 'journal_id', 'partner_id', 'move_name', 'debit',
+                'move_id', 'credit', 'name', 'ref'
+            ])
+            for l in move_line_data:
+                l['account_code'] = acc.code or ''
+            acc_name = acc.display_name
+            data[acc_name] = move_line_data
+            tot_debit = round(sum(move_lines.mapped('debit')), 2)
+            tot_credit = round(sum(move_lines.mapped('credit')), 2)
+            move_lines_total[acc_name] = {
+                'total_debit': tot_debit,
+                'total_credit': tot_credit,
+                'balance': round(tot_debit - tot_credit, 2),
+                'currency_id': currency_id,
+                'account_id': acc.id,
+                'account_code': acc.code or '',
+            }
+
         data['move_lines_total'] = move_lines_total
-        data['accounts'] = accounts
+        data['accounts'] = cash_accounts.read(['display_name', 'name'])
         return data
 
     @api.model
@@ -85,165 +92,117 @@ class CashBookReport(models.TransientModel):
         """
         Retrieves and formats filtered data for the cash book report based on
         the provided filter criteria.
-        :param partner_id: List of partner IDs to filter the data by.
-        :type partner_id: list
-        :param data_range: Specifies the date range filter. Possible values are
-                            'month', 'year', 'quarter', 'last-month',
-                            'last-year', 'last-quarter', or a dictionary
-                            containing 'start_date' and/or 'end_date' fields.
-        :type data_range: str or dict
-        :param account_list: List of account IDs to filter the data by.
-        :type account_list: list
-        :param options: Dictionary containing additional options for filtering
-                        the data. The 'draft' option indicates
-                        whether to include draft journal entries in the data.
-        :type options: dict
-
-        :return: A dictionary containing the following data:
-                 - 'move_lines_total': A dictionary containing the total debit,
-                                       total credit, and currency symbol
-                                       for each account in the cash journal.
-                 - Additional data for each account: The key is the
-                                                    'display_name' of account,
-                                                    and the value is a list of
-                                                    dictionaries, each
-                                                    representing a move line for
-                                                    that account. Each move line
-                                                     dictionary contains the
-                                                     following
-                   data: 'date', 'journal_id', 'partner_id', 'move_name',
-                          debit', 'move_id', 'credit', 'name', and 'ref'.
-        :rtype: dict
         """
         data = {}
         move_lines_total = {}
         today = fields.Date.today()
-        quarter_start, quarter_end = date_utils.get_quarter(today)
-        previous_quarter_start = quarter_start - relativedelta(months=3)
-        previous_quarter_end = quarter_start - relativedelta(days=1)
-        journals = self.env['account.journal'].search([('type', '=', 'cash')])
+        currency_id = self.env.company.currency_id.symbol
+        journals, cash_accounts = self._get_cash_journals_and_accounts()
+
         option_domain = ['posted']
-        if options is not None:
-            if 'draft' in options:
-                option_domain = ['posted', 'draft']
-        if partner_id:
-            domain = [('parent_state', 'in', option_domain),
-                      ('journal_id', 'in', journals.ids),
-                      ('partner_id', 'in', partner_id), ]
-        else:
-            domain = [('parent_state', 'in', option_domain),
-                      ('journal_id', 'in', journals.ids), ]
+        if options and 'draft' in options:
+            option_domain = ['posted', 'draft']
+
+        domain = [('parent_state', 'in', option_domain)]
+
         if account_list:
-            domain += ('account_id', 'in', account_list),
+            domain.append(('account_id', 'in', account_list))
+        else:
+            domain.extend([
+                '|',
+                ('journal_id', 'in', journals.ids),
+                ('account_id', 'in', cash_accounts.ids)
+            ])
+
+        if partner_id:
+            domain.append(('partner_id', 'in', partner_id))
+
         if data_range:
             if data_range == 'month':
-                account_move_lines = self.env['account.move.line'].search(
-                    domain).filtered(
-                    lambda x: x.date.month == fields.Date.today().month)
-            elif data_range == 'year':
-                account_move_lines = self.env['account.move.line'].search(
-                    domain).filtered(
-                    lambda x: x.date.year == fields.Date.today().year)
+                domain.extend([('date', '>=', date_utils.start_of(today, 'month')), ('date', '<=', date_utils.end_of(today, 'month'))])
             elif data_range == 'quarter':
-                domain += ('date', '>=', quarter_start), (
-                    'date', '<=', quarter_end)
-                account_move_lines = self.env['account.move.line'].search(
-                    domain)
+                q_start, q_end = date_utils.get_quarter(today)
+                domain.extend([('date', '>=', q_start), ('date', '<=', q_end)])
+            elif data_range == 'year':
+                domain.extend([('date', '>=', date_utils.start_of(today, 'year')), ('date', '<=', date_utils.end_of(today, 'year'))])
             elif data_range == 'last-month':
-                account_move_lines = self.env['account.move.line'].search(
-                    domain).filtered(
-                    lambda x: x.date.month == fields.Date.today().month - 1)
-            elif data_range == 'last-year':
-                account_move_lines = self.env['account.move.line'].search(
-                    domain).filtered(
-                    lambda x: x.date.year == fields.Date.today().year - 1)
+                last_m = today - relativedelta(months=1)
+                domain.extend([('date', '>=', date_utils.start_of(last_m, 'month')), ('date', '<=', date_utils.end_of(last_m, 'month'))])
             elif data_range == 'last-quarter':
-                domain += ('date', '>=', previous_quarter_start), (
-                    'date', '<=', previous_quarter_end)
-                account_move_lines = self.env['account.move.line'].search(
-                    domain)
-            elif 'start_date' in data_range and 'end_date' in data_range:
-                start_date = datetime.strptime(data_range['start_date'],
-                                               '%Y-%m-%d').date()
-                end_date = datetime.strptime(data_range['end_date'],
-                                             '%Y-%m-%d').date()
-                domain += ('date', '>=', start_date), ('date', '<=', end_date),
-                account_move_lines = self.env['account.move.line'].search(
-                    domain)
-            elif 'start_date' in data_range:
-                start_date = datetime.strptime(data_range['start_date'],
-                                               '%Y-%m-%d').date()
-                domain.append(('date', '>=', start_date))
-                account_move_lines = self.env['account.move.line'].search(
-                    domain)
-            elif 'end_date' in data_range:
-                end_date = datetime.strptime(data_range['end_date'],
-                                             '%Y-%m-%d').date()
-                domain.append(('date', '<=', end_date))
-                account_move_lines = self.env['account.move.line'].search(
-                    domain)
-        else:
-            account_move_lines = self.env['account.move.line'].search(domain)
-        accounts = account_move_lines.mapped('account_id').read(
-            ['display_name'])
-        for account in accounts:
-            move_lines = account_move_lines.filtered(
-                lambda x: x.account_id.id == account['id'])
-            move_line_data = move_lines.read(
-                ['date', 'journal_id', 'partner_id', 'move_name', 'debit',
-                 'move_id', 'credit', 'name', 'ref'])
-            data[move_lines.mapped('account_id').display_name] = move_line_data
-            currency_id = self.env.company.currency_id.symbol
-            move_lines_total[move_lines.mapped('account_id').display_name] = {
-                'total_debit': round(sum(move_lines.mapped('debit')), 2),
-                'total_credit': round(sum(move_lines.mapped('credit')), 2),
-                'currency_id': currency_id}
+                q_start, _ = date_utils.get_quarter(today)
+                prev_q_start = q_start - relativedelta(months=3)
+                prev_q_end = q_start - relativedelta(days=1)
+                domain.extend([('date', '>=', prev_q_start), ('date', '<=', prev_q_end)])
+            elif data_range == 'last-year':
+                last_y = today - relativedelta(years=1)
+                domain.extend([('date', '>=', date_utils.start_of(last_y, 'year')), ('date', '<=', date_utils.end_of(last_y, 'year'))])
+            elif isinstance(data_range, dict):
+                if data_range.get('start_date'):
+                    domain.append(('date', '>=', data_range['start_date']))
+                if data_range.get('end_date'):
+                    domain.append(('date', '<=', data_range['end_date']))
+
+        account_move_lines = self.env['account.move.line'].search(domain, order='date asc, id asc')
+
+        for acc in account_move_lines.mapped('account_id'):
+            move_lines = account_move_lines.filtered(lambda x: x.account_id == acc)
+            move_line_data = move_lines.read([
+                'date', 'journal_id', 'partner_id', 'move_name', 'debit',
+                'move_id', 'credit', 'name', 'ref'
+            ])
+            for l in move_line_data:
+                l['account_code'] = acc.code or ''
+            acc_name = acc.display_name
+            data[acc_name] = move_line_data
+            tot_debit = round(sum(move_lines.mapped('debit')), 2)
+            tot_credit = round(sum(move_lines.mapped('credit')), 2)
+            move_lines_total[acc_name] = {
+                'total_debit': tot_debit,
+                'total_credit': tot_credit,
+                'balance': round(tot_debit - tot_credit, 2),
+                'currency_id': currency_id,
+                'account_id': acc.id,
+                'account_code': acc.code or '',
+            }
+
         data['move_lines_total'] = move_lines_total
+        data['accounts'] = cash_accounts.read(['display_name', 'name'])
         return data
 
     @api.model
-    def get_xlsx_report(self, data, response, report_name, report_action):
+    def get_xlsx_report(self, data, response, report_name=None, report_action=None, **kwargs):
         """
         Generate an Excel report based on the provided data.
-        :param data: The data used to generate the report.
-        :type data: str (JSON format)
-        :param response: The response object to write the report to.
-        :type response: object
-        :param report_name: The name of the report.
-        :type report_name: str
-        :return: None
         """
-        data = json.loads(data)
+        if isinstance(data, (str, bytes)):
+
+            data = json.loads(data)
         output = io.BytesIO()
         workbook = xlsxwriter.Workbook(output, {'in_memory': True})
-        start_date = data['filters']['start_date'] if \
-            data['filters']['start_date'] else ''
-        end_date = data['filters']['end_date'] if \
-            data['filters']['end_date'] else ''
+        start_date = data['filters'].get('start_date', '')
+        end_date = data['filters'].get('end_date', '')
         sheet = workbook.add_worksheet()
-        head = workbook.add_format(
-            {'align': 'center', 'bold': True, 'font_size': '15px'})
-        sub_heading = workbook.add_format(
-            {'align': 'center', 'bold': True, 'font_size': '10px',
-             'border': 1, 'bg_color': '#D3D3D3',
-             'border_color': 'black'})
-        filter_head = workbook.add_format(
-            {'align': 'center', 'bold': True, 'font_size': '10px',
-             'border': 1, 'bg_color': '#D3D3D3',
-             'border_color': 'black'})
-        filter_body = workbook.add_format(
-            {'align': 'center', 'bold': True, 'font_size': '10px'})
-        side_heading_sub = workbook.add_format(
-            {'align': 'left', 'bold': True, 'font_size': '10px',
-             'border': 1,
-             'border_color': 'black'})
-        side_heading_sub.set_indent(1)
+        head = workbook.add_format({'align': 'center', 'bold': True, 'font_size': '15px'})
+        sub_heading = workbook.add_format({
+            'align': 'center', 'bold': True, 'font_size': '10px',
+            'border': 1, 'bg_color': '#D3D3D3', 'border_color': 'black'
+        })
+        filter_head = workbook.add_format({
+            'align': 'center', 'bold': True, 'font_size': '10px',
+            'border': 1, 'bg_color': '#D3D3D3', 'border_color': 'black'
+        })
+        filter_body = workbook.add_format({'align': 'center', 'bold': True, 'font_size': '10px'})
         txt_name = workbook.add_format({'font_size': '10px', 'border': 1})
-        txt_name.set_indent(2)
-        sheet.set_column(0, 0, 30)
+        txt_name.set_indent(1)
+        num_format = workbook.add_format({'font_size': '10px', 'border': 1, 'num_format': '#,##0.00'})
+
+        sheet.set_column(0, 0, 15)
         sheet.set_column(1, 1, 20)
-        sheet.set_column(2, 2, 15)
-        sheet.set_column(3, 3, 15)
+        sheet.set_column(2, 2, 20)
+        sheet.set_column(3, 3, 25)
+        sheet.set_column(4, 4, 15)
+        sheet.set_column(5, 5, 15)
+        sheet.set_column(6, 6, 15)
         col = 0
         sheet.write('A1:b1', report_name, head)
         sheet.write('B3:b4', 'Date Range', filter_head)
@@ -251,93 +210,52 @@ class CashBookReport(models.TransientModel):
         sheet.write('B5:b4', 'Accounts', filter_head)
         sheet.write('B6:b4', 'Options', filter_head)
         if start_date or end_date:
-            sheet.merge_range('C3:G3', f"{start_date} to {end_date}",
-                              filter_body)
-        if data['filters']['partner']:
-            display_names = [partner.get('display_name', 'undefined') for
-                             partner in data['filters']['partner']]
-            display_names_str = ', '.join(display_names)
-            sheet.merge_range('C4:G4', display_names_str, filter_body)
-        if data['filters']['account']:
-            account_keys_str = ', '.join(data['filters']['account'])
-            sheet.merge_range('C5:G5', account_keys_str, filter_body)
-        if data['filters']['options']:
-            option_keys = list(data['filters']['options'].keys())
-            option_keys_str = ', '.join(option_keys)
-            sheet.merge_range('C6:G6', option_keys_str, filter_body)
-        if data:
-            if report_action == 'dynamic_accounts_report.action_cash_book':
-                sheet.write(8, col, ' ', sub_heading)
-                sheet.merge_range('B9:C9', 'Journal', sub_heading)
-                sheet.merge_range('D9:E9', 'Partner', sub_heading)
-                sheet.merge_range('F9:G9', 'Ref', sub_heading)
-                sheet.merge_range('H9:I9', 'Move', sub_heading)
-                sheet.merge_range('J9:K9', 'Entry Label', sub_heading)
-                sheet.merge_range('L9:M9', 'Debit', sub_heading)
-                sheet.merge_range('N9:O9', 'Credit', sub_heading)
-                sheet.merge_range('P9:Q9', 'Balance', sub_heading)
-                row = 8
-                for move_line in data['move_lines']:
+            sheet.merge_range('C3:G3', f"{start_date} to {end_date}", filter_body)
+        if data['filters'].get('partner'):
+            display_names = [partner.get('display_name', 'undefined') for partner in data['filters']['partner']]
+            sheet.merge_range('C4:G4', ', '.join(display_names), filter_body)
+        if data['filters'].get('account'):
+            sheet.merge_range('C5:G5', ', '.join(str(a) for a in data['filters']['account']), filter_body)
+        if data['filters'].get('options'):
+            sheet.merge_range('C6:G6', ', '.join(data['filters']['options'].keys()), filter_body)
+
+        if data.get('move_lines'):
+            sheet.write(8, col, 'Date', sub_heading)
+            sheet.write(8, col + 1, 'Journal', sub_heading)
+            sheet.write(8, col + 2, 'Partner', sub_heading)
+            sheet.write(8, col + 3, 'Ref / Move', sub_heading)
+            sheet.write(8, col + 4, 'Debit', sub_heading)
+            sheet.write(8, col + 5, 'Credit', sub_heading)
+            sheet.write(8, col + 6, 'Balance', sub_heading)
+            row = 8
+            for move_line in data['move_lines']:
+                row += 1
+                tot = data['total'].get(move_line, {})
+                sheet.write(row, col, move_line, sub_heading)
+                sheet.write(row, col + 1, '', sub_heading)
+                sheet.write(row, col + 2, '', sub_heading)
+                sheet.write(row, col + 3, '', sub_heading)
+                sheet.write(row, col + 4, tot.get('total_debit', 0.0), num_format)
+                sheet.write(row, col + 5, tot.get('total_credit', 0.0), num_format)
+                sheet.write(row, col + 6, tot.get('total_debit', 0.0) - tot.get('total_credit', 0.0), num_format)
+                for rec in data.get('data', {}).get(move_line, []):
                     row += 1
-                    sheet.write(row, col, move_line, txt_name)
-                    sheet.merge_range(row, col + 1, row, col + 2, ' ',
-                                      txt_name)
-                    sheet.merge_range(row, col + 3, row, col + 4, ' ',
-                                      txt_name)
-                    sheet.merge_range(row, col + 5, row, col + 6, ' ',
-                                      txt_name)
-                    sheet.merge_range(row, col + 7, row, col + 8, ' ',
-                                      txt_name)
-                    sheet.merge_range(row, col + 9, row, col + 10, ' ',
-                                      txt_name)
-                    sheet.merge_range(row, col + 11, row, col + 12,
-                                      data['total'][move_line]['total_debit'],
-                                      txt_name)
-                    sheet.merge_range(row, col + 13, row, col + 14,
-                                      data['total'][move_line]['total_credit'],
-                                      txt_name)
-                    sheet.merge_range(row, col + 15, row, col + 16,
-                                      data['total'][move_line]['total_debit'] -
-                                      data['total'][move_line]['total_credit'],
-                                      txt_name)
-                    for rec in data['data'][move_line]:
-                        row += 1
-                        if rec['partner_id']:
-                            partner = rec['partner_id'][1]
-                        else:
-                            partner = ' '
-                        sheet.write(row, col, rec['date'], txt_name)
-                        sheet.merge_range(row, col + 1, row, col + 2,
-                                          rec['journal_id'][1],
-                                          txt_name)
-                        sheet.merge_range(row, col + 3, row, col + 4, partner,
-                                          txt_name)
-                        sheet.merge_range(row, col + 5, row, col + 6,
-                                          rec['ref'], txt_name)
-                        sheet.merge_range(row, col + 7, row, col + 8,
-                                          rec['move_name'],
-                                          txt_name)
-                        sheet.merge_range(row, col + 9, row, col + 10,
-                                          rec['name'],
-                                          txt_name)
-                        sheet.merge_range(row, col + 11, row, col + 12,
-                                          rec['debit'], txt_name)
-                        sheet.merge_range(row, col + 13, row, col + 14,
-                                          rec['credit'], txt_name)
-                        sheet.merge_range(row, col + 15, row, col + 16, ' ',
-                                          txt_name)
-                sheet.merge_range(row + 1, col, row + 1, col + 10, 'Total',
-                                  filter_head)
-                sheet.merge_range(row + 1, col + 11, row + 1, col + 12,
-                                  data['grand_total']['total_debit'],
-                                  filter_head)
-                sheet.merge_range(row + 1, col + 13, row + 1, col + 14,
-                                  data['grand_total']['total_credit'],
-                                  filter_head)
-                sheet.merge_range(row + 1, col + 15, row + 1, col + 16,
-                                  float(data['grand_total']['total_debit']) -
-                                  float(data['grand_total']['total_credit']),
-                                  filter_head)
+                    partner = rec['partner_id'][1] if rec.get('partner_id') else ''
+                    sheet.write(row, col, rec.get('date', ''), txt_name)
+                    sheet.write(row, col + 1, rec.get('journal_id', ['', ''])[1], txt_name)
+                    sheet.write(row, col + 2, partner, txt_name)
+                    sheet.write(row, col + 3, rec.get('move_name') or rec.get('name') or '', txt_name)
+                    sheet.write(row, col + 4, rec.get('debit', 0.0), num_format)
+                    sheet.write(row, col + 5, rec.get('credit', 0.0), num_format)
+                    sheet.write(row, col + 6, '', txt_name)
+
+            gt = data.get('grand_total', {})
+            row += 1
+            sheet.merge_range(row, col, row, col + 3, 'Total', filter_head)
+            sheet.write(row, col + 4, float(gt.get('total_debit', 0.0)), num_format)
+            sheet.write(row, col + 5, float(gt.get('total_credit', 0.0)), num_format)
+            sheet.write(row, col + 6, float(gt.get('total_debit', 0.0)) - float(gt.get('total_credit', 0.0)), num_format)
+
         workbook.close()
         output.seek(0)
         response.stream.write(output.read())

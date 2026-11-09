@@ -3,8 +3,8 @@
 #
 #    Cybrosys Technologies Pvt. Ltd.
 #
-#    Copyright (C) 2025-TODAY Cybrosys Technologies(<https://www.cybrosys.com>)
-#    Author: Swetha Anand (<https://www.cybrosys.com>)
+#    Copyright (C) 2024-TODAY Cybrosys Technologies(<https://www.cybrosys.com>)
+#    Author: Bhagyadev KP (<https://www.cybrosys.com>)
 #
 #    You can modify it under the terms of the GNU LESSER
 #    GENERAL PUBLIC LICENSE (LGPL v3), Version 3.
@@ -20,25 +20,22 @@
 #
 ################################################################################
 {
-    'name': 'Odoo19 Dynamic Accounting Reports',
-    'version': '19.0.1.1.2',
+    'name': 'Odoo 19 Dynamic Accounting Reports',
+    'version': '19.0.1.0.0',
     'category': 'Accounting',
-    'summary': "Odoo 19 Accounting Financial Reports,Dynamic Accounting Reports, Dynamic Financial Reports,Dynamic Report Odoo18, Odoo18,Financial Reports, Odoo18 Accounting,Accounting, Odoo Apps",
-    'description': "This module creates dynamic Accounting General Ledger, Trial"
-                   "Balance, Balance Sheet, Profit and Loss, Cash Book, Partner"
-                   "Ledger, Aged Payable, Aged Receivable, Bank book and Tax"
-                   "Reports in Odoo 19 community edition, Reporting, Odoo18 Accounting, odoo18 reporting, odoo18, odoo18 accounts reports",
+    'summary': "Dynamic Accounting & Financial Reports for Odoo 19 Community",
+    'description': "This module creates dynamic Accounting General Ledger, Trial Balance, Balance Sheet, Profit and Loss, Cash Book, Partner Ledger, Aged Payable, Aged Receivable, Bank book and Tax Reports in Odoo 19 community edition.",
     'author': 'Cybrosys Techno Solutions',
     'company': 'Cybrosys Techno Solutions',
     'maintainer': 'Cybrosys Techno Solutions',
     'website': "https://www.cybrosys.com",
-    'depends': ['base_accounting_kit','cybrosys_support_client'],
+    'depends': ['base_accounting_kit'],
     'data': [
         'security/ir.model.access.csv',
         'views/accounting_report_views.xml',
-        'views/hide_bak_report_menus.xml',
         'report/trial_balance.xml',
         'report/general_ledger_templates.xml',
+        'report/report_master_layout.xml',
         'report/financial_report_template.xml',
         'report/partner_ledger_templates.xml',
         'report/financial_reports_views.xml',
@@ -71,9 +68,11 @@
             'dynamic_accounts_report/static/src/js/aged_payable_report.js',
             'dynamic_accounts_report/static/src/js/aged_receivable_report.js',
             'dynamic_accounts_report/static/src/js/tax_report.js',
+            # 'https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js' #FIX Not need as this version has a
+            # conflict with the version of jquery used by the odoo
         ],
     },
-    'images': ['static/description/banner.jpg'],
+    'images': ['static/description/banner.png'],
     'license': 'LGPL-3',
     'installable': True,
     'auto_install': False,

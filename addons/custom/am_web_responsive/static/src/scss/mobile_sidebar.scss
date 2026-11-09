@@ -1,0 +1,213 @@
+/* ============================================================
+ * Enterprise Mobile App Submenu Sidebar (Drawer)
+ * ============================================================ */
+
+.o_app_menu_sidebar,
+div.o_app_menu_sidebar,
+.o_app_menu_sidebar.position-fixed,
+.o_app_menu_sidebar.end-100,
+.o_app_menu_sidebar.start-100 {
+    position: fixed !important;
+    top: 0 !important;
+    bottom: 0 !important;
+    left: 0 !important;
+    right: auto !important;
+    width: 85vw !important;
+    max-width: 340px !important;
+    height: 100vh !important;
+    height: 100dvh !important;
+    background-color: #ffffff !important;
+    background: #ffffff !important;
+    box-shadow: 4px 0 30px rgba(0, 0, 0, 0.35) !important;
+    z-index: 10000 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+    transform: none !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+    pointer-events: auto !important;
+
+    .o_sidebar_topbar {
+        background-color: #ffffff !important;
+        border-bottom: 1px solid #e9ecef !important;
+        min-height: 48px !important;
+        height: 48px !important;
+
+        .btn-all-apps {
+            background-color: var(--o-brand-odoo, #714B67) !important;
+            color: #ffffff !important;
+            border: 1px solid rgba(0, 0, 0, 0.15) !important;
+            border-radius: 8px !important;
+            font-weight: 600 !important;
+            font-size: 0.82rem !important;
+            padding: 6px 14px !important;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15) !important;
+            transition: opacity 0.15s ease, transform 0.15s ease, background-color 0.15s ease !important;
+
+            &:hover, &:active {
+                opacity: 0.9 !important;
+                transform: scale(0.96) !important;
+            }
+
+            i {
+                font-size: 0.85rem !important;
+            }
+        }
+
+        .btn-sidebar-close {
+            color: #0f172a !important;
+            line-height: 1 !important;
+            cursor: pointer !important;
+
+            &:active {
+                opacity: 0.7 !important;
+            }
+        }
+    }
+
+    .o_burger_menu_app {
+        background-color: #ffffff !important;
+        padding-bottom: 2rem !important;
+        -webkit-overflow-scrolling: touch;
+
+        &::-webkit-scrollbar {
+            width: 4px;
+        }
+        &::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+
+        .o_app_icon {
+            height: 24px !important;
+            width: 24px !important;
+            object-fit: contain !important;
+        }
+
+        .fs-4.fw-bolder {
+            font-size: 1.15rem !important;
+            font-weight: 700 !important;
+            color: #1e293b !important;
+        }
+    }
+
+    // Dividers between main sections
+    .o_sidebar_divider {
+        border-top: 1px solid #e2e8f0 !important;
+        margin: 8px 14px 4px 14px !important;
+    }
+
+    // Section Titles (e.g. Users & Companies, Translations, Technical)
+    .o_sidebar_section_title {
+        font-size: 0.95rem;
+        font-weight: 700;
+        color: #0f172a;
+        padding: 6px 14px 2px 14px;
+        user-select: none;
+    }
+
+    // Sub Section Titles (e.g. Import / Export, Discuss)
+    .o_sidebar_section_subtitle {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #334155;
+        padding: 6px 14px 2px 28px;
+        user-select: none;
+
+        &.o_sidebar_level_2 {
+            padding-left: 44px;
+        }
+    }
+
+    // Leaf Menu Items
+    .o_sidebar_menu_leaf {
+        cursor: pointer;
+        padding: 6px 14px 6px 14px;
+        color: #334155;
+        font-size: 0.9rem;
+        border-radius: 4px;
+        margin: 1px 6px;
+        transition: background-color 0.12s ease, color 0.12s ease;
+        user-select: none;
+        display: block;
+
+        &.o_sidebar_menu_leaf_root {
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        &.o_sidebar_level_1 {
+            padding-left: 28px;
+            font-weight: 500;
+            color: #334155;
+        }
+
+        &.o_sidebar_level_2 {
+            padding-left: 44px;
+            font-weight: 400;
+            color: #475569;
+        }
+
+        &:hover, &:active {
+            background-color: #f1f5f9;
+            color: var(--o-brand-odoo, #714B67) !important;
+            font-weight: 600;
+        }
+    }
+}
+
+.modal-backdrop.show {
+    z-index: 1055 !important;
+}
+
+.o_menu_toggle {
+    cursor: pointer !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    min-width: 24px !important;
+    width: auto !important;
+    height: 100% !important;
+    padding: 0 4px !important;
+    margin: 0 !important;
+    color: #ffffff !important;
+    text-decoration: none !important;
+
+    i.fa-bars, .oi-menu, .o_mobile_hamburger_icon {
+        font-size: 0.95rem !important;
+        color: #ffffff !important;
+        pointer-events: none !important;
+    }
+}
+
+// Support RTL (Arabic)
+[dir="rtl"], .o_rtl {
+    .o_app_menu_sidebar {
+        left: auto !important;
+        right: 0 !important;
+        box-shadow: -4px 0 25px rgba(0, 0, 0, 0.25) !important;
+
+        .o_sidebar_section_subtitle {
+            padding-left: 14px;
+            padding-right: 28px;
+
+            &.o_sidebar_level_2 {
+                padding-left: 14px;
+                padding-right: 44px;
+            }
+        }
+
+        .o_sidebar_menu_leaf {
+            &.o_sidebar_level_1 {
+                padding-left: 14px;
+                padding-right: 28px;
+            }
+
+            &.o_sidebar_level_2 {
+                padding-left: 14px;
+                padding-right: 44px;
+            }
+        }
+    }
+}

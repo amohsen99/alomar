@@ -1,0 +1,30 @@
+{
+    "name": "AM Web Responsive Extension",
+    "summary": "Adds Drag & Drop App Ordering and Mobile Enterprise Apps Grid to OCA Web Responsive (Odoo 19)",
+    "version": "19.0.1.0.0",
+    "category": "Website",
+    "author": "AM Solutions (Ahmed & Mohsen)",
+    "license": "LGPL-3",
+    "depends": ["base", "web", "web_responsive"],
+    "assets": {
+        "web.assets_backend": [
+            "am_web_responsive/static/src/xml/apps_menu_patch.xml",
+            "am_web_responsive/static/src/xml/mobile_sidebar_patch.xml",
+            "am_web_responsive/static/src/js/apps_menu_patch.js",
+            "am_web_responsive/static/src/js/apps_menu_mobile.js",
+            "am_web_responsive/static/src/js/mobile_sidebar_patch.js",
+            "am_web_responsive/static/src/js/am_theme_service.js",
+            "am_web_responsive/static/src/scss/apps_menu_mobile.scss",
+            "am_web_responsive/static/src/scss/mobile_sidebar.scss",
+        ],
+    },
+    "data": [
+        "views/res_config_settings_views.xml",
+        "views/res_users_views.xml",
+    ],
+    "images": ["static/description/icon.png"],
+    "installable": True,
+    "application": False,
+    "auto_install": False,
+    "post_init_hook": "_post_init_hook",
+}

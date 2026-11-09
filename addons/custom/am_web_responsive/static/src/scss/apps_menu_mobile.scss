@@ -1,0 +1,699 @@
+// =============================================================================
+// Enterprise-Grade Mobile App Icon Grid Styling (mkt_web_responsive)
+// =============================================================================
+
+// Clean Home Screen Navbar when App Launcher Grid is open (Matching Enterprise)
+body.o_apps_menu_opened,
+.o_apps_menu_opened {
+    // Desktop: Transparent Floating Navbar matching Enterprise
+    @include media-breakpoint-up(md) {
+        .o_navbar,
+        .o_main_navbar {
+            background: transparent !important;
+            background-color: transparent !important;
+            border-bottom: none !important;
+            box-shadow: none !important;
+            z-index: 1050 !important;
+            position: relative !important;
+        }
+    }
+
+    // Mobile: Solid header fixed at top so apps scroll smoothly beneath without overlapping
+    @include media-breakpoint-down(md) {
+        .o_navbar,
+        .o_main_navbar {
+            background: $o-navbar-background !important;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.08) !important;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1) !important;
+            position: fixed !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            width: 100vw !important;
+            height: 48px !important;
+            z-index: 1060 !important;
+        }
+    }
+
+    .o_main_navbar {
+        .o_menu_toggle,
+        a.o_menu_toggle,
+        .o_menu_brand,
+        .o_menu_sections,
+        .o_navbar_breadcrumbs,
+        .o_breadcrumb,
+        .breadcrumb,
+        .o_mobile_secondary_navbar {
+            display: none !important;
+        }
+
+        button.o_mobile_menu_toggle:has(.oi-panel-right) {
+            display: none !important;
+        }
+
+        // Systray is ALWAYS visible on both Mobile and Desktop
+        .o_menu_systray {
+            display: flex !important;
+            align-items: center !important;
+            position: relative !important;
+            z-index: 1065 !important;
+            margin-left: auto !important;
+
+            button,
+            a,
+            .dropdown-toggle {
+                color: #ffffff !important;
+            }
+
+            // Ensure single user menu avatar is always visible
+            .o_user_menu {
+                display: inline-flex !important;
+                align-items: center !important;
+            }
+
+            // Hide duplicate burger avatar
+            .o_mobile_menu_toggle,
+            button.o_mobile_menu_toggle,
+            .o_burger_menu_avatar {
+                display: none !important;
+            }
+        }
+
+        .o_grid_apps_menu__button {
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            color: #ffffff !important;
+            padding: 0 0.5rem !important;
+            min-width: 40px !important;
+            cursor: pointer !important;
+            position: relative !important;
+            z-index: 1065 !important;
+
+            i {
+                font-size: 1.25rem !important;
+                color: #ffffff !important;
+            }
+        }
+    }
+}
+
+// Desktop only: full-screen Apps Menu covers 100vh with seamless transparent navbar
+@include media-breakpoint-up(md) {
+    .app-menu-container {
+        position: fixed !important;
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        width: 100vw !important;
+        height: 100vh !important;
+        height: 100dvh !important;
+        min-height: 100vh !important;
+        min-height: 100dvh !important;
+        max-height: 100vh !important;
+        max-height: 100dvh !important;
+        padding-top: calc(#{$o-navbar-height} + 1.25rem) !important;
+        padding-bottom: 2rem !important;
+        box-sizing: border-box !important;
+        overflow-y: auto !important;
+        z-index: 999 !important;
+    }
+}
+
+// Enterprise Desktop & Mobile Navbar Apps Menu Toggle Styling
+.o_main_navbar {
+    .o_grid_apps_menu__button.o_apps_menu_home_toggle {
+        display: inline-flex !important;
+        align-items: center !important;
+        width: auto !important;
+        min-width: unset !important;
+        height: $o-navbar-height !important;
+        padding: 0 0.85rem !important;
+        color: var(--NavBar-entry-color, #ffffff) !important;
+        gap: 0.4rem !important;
+        cursor: pointer !important;
+        border-radius: 4px;
+        transition: background-color 0.15s ease, opacity 0.15s ease;
+
+        &:hover, &:focus {
+            background-color: var(--NavBar-entry-backgroundColor--hover, rgba(255, 255, 255, 0.12)) !important;
+        }
+
+        i {
+            font-size: 1.1rem !important;
+            color: inherit !important;
+        }
+
+        .o_menu_brand {
+            font-size: 1.05rem !important;
+            font-weight: 700 !important;
+            color: inherit !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+    }
+
+    .o_grid_apps_menu__button.o_apps_menu_to_app_btn {
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: $o-navbar-height !important;
+        height: $o-navbar-height !important;
+        min-width: unset !important;
+        padding: 0 !important;
+        color: var(--NavBar-entry-color, #ffffff) !important;
+        cursor: pointer !important;
+        border-radius: 4px;
+        transition: background-color 0.15s ease, transform 0.15s ease;
+
+        &:hover, &:focus {
+            background-color: var(--NavBar-entry-backgroundColor--hover, rgba(255, 255, 255, 0.12)) !important;
+            transform: scale(1.05);
+        }
+
+        i {
+            font-size: 1.35rem !important;
+            color: inherit !important;
+        }
+    }
+}
+
+@include media-breakpoint-down(md) {
+    // 1. Full-screen Mobile App Menu Container
+    .app-menu-container {
+        position: fixed !important;
+        top: $o-navbar-height !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        width: 100vw !important;
+        height: calc(100dvh - #{$o-navbar-height}) !important;
+        max-height: calc(100dvh - #{$o-navbar-height}) !important;
+        padding: 1.25rem 0.75rem !important;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
+        -webkit-overflow-scrolling: touch;
+        z-index: 1050 !important;
+        box-sizing: border-box !important;
+        align-content: flex-start !important;
+        display: flex !important;
+        flex-direction: column !important;
+        flex-wrap: nowrap !important;
+        gap: 1.25rem !important;
+    }
+
+    // 2. Responsive 4-Column Mobile Grid
+    .o_grid_apps_menu {
+        .o-app-menu-list {
+            display: grid !important;
+            grid-template-columns: repeat(4, 1fr) !important;
+            gap: 1rem 0.35rem !important;
+            width: 100% !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            justify-items: center !important;
+            align-items: start !important;
+        }
+    }
+
+    // 3. Enterprise App Icon Item Styling on Mobile
+    .o-app-menu-item {
+        width: 100% !important;
+        max-width: 82px !important;
+        padding: 0.25rem 0.15rem !important;
+        margin: 0 auto !important;
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: flex-start !important;
+        text-align: center !important;
+        background: transparent !important;
+        border: none !important;
+        border-radius: 12px !important;
+        transition: transform 0.15s ease, opacity 0.15s ease !important;
+
+        .o_app {
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        &__icon {
+            width: 56px !important;
+            height: 56px !important;
+            max-width: 56px !important;
+            aspect-ratio: 1 !important;
+            border-radius: 14px !important;
+            padding: 7px !important;
+            background-color: #ffffff !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12), 0 1px 3px rgba(0, 0, 0, 0.08) !important;
+            transition: transform 0.15s ease, box-shadow 0.15s ease !important;
+            object-fit: contain !important;
+        }
+
+        &__name {
+            font-size: 0.75rem !important;
+            font-weight: 500 !important;
+            line-height: 1.2 !important;
+            margin-top: 0.4rem !important;
+            max-width: 100% !important;
+            display: -webkit-box !important;
+            -webkit-line-clamp: 2 !important;
+            -webkit-box-orient: vertical !important;
+            overflow: hidden !important;
+            word-break: break-word !important;
+            text-align: center !important;
+            letter-spacing: -0.01em !important;
+            color: var(--app-menu-text-color, #ffffff) !important;
+            text-shadow: var(--app-menu-text-shadow, 0 1px 2px rgba(0, 0, 0, 0.4)) !important;
+        }
+
+        &__active {
+            font-size: 0.85rem !important;
+            bottom: 0px !important;
+            right: 0px !important;
+            color: #16a34a !important;
+            background: #ffffff;
+            border-radius: 50%;
+        }
+
+        // Touch active micro-interaction
+        &:active {
+            transform: scale(0.92) !important;
+            .o-app-menu-item__icon {
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15) !important;
+            }
+        }
+    }
+
+    // 4. Hide redundant sidebar panel icon from right if present
+    button.o_mobile_menu_toggle:has(.oi-panel-right) {
+        display: none !important;
+    }
+
+    // 5. App Menu Navbar Button
+    .o_grid_apps_menu__button {
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        color: inherit !important;
+        font-size: 1.25rem !important;
+        padding: 0 0.35rem !important;
+        min-height: $o-navbar-height !important;
+        height: $o-navbar-height !important;
+    }
+
+    // 6. Mobile Secondary App Bar (Option 1 - Dedicated Sub-Header Bar)
+    .o_mobile_secondary_navbar {
+        height: 38px !important;
+        min-height: 38px !important;
+        background-color: #f8f9fa !important;
+        border-bottom: 1px solid #e2e8f0 !important;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06) !important;
+        z-index: 1000 !important;
+
+        .o_mobile_app_title_btn {
+            background: #ffffff !important;
+            border: 1px solid #cbd5e1 !important;
+            color: #1e293b !important;
+            padding: 0.2rem 0.6rem !important;
+            border-radius: 16px !important;
+            font-size: 0.82rem !important;
+            max-width: 140px;
+            transition: all 0.2s ease;
+
+            &:hover,
+            &:focus,
+            &:active {
+                background: #f1f5f9 !important;
+                border-color: #94a3b8 !important;
+                color: #0f172a !important;
+            }
+
+            .o_mobile_app_chevron {
+                transition: transform 0.25s ease;
+                color: #64748b;
+                &.o_chevron_rotated {
+                    transform: rotate(180deg);
+                }
+            }
+        }
+
+        .o_mobile_sec_divider {
+            width: 1px;
+            height: 18px;
+            background: #cbd5e1;
+            margin: 0 2px;
+        }
+
+        .o_mobile_sec_pills_container {
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            &::-webkit-scrollbar {
+                display: none;
+            }
+
+            .o_mobile_sec_pill {
+                background: #ffffff;
+                border: 1px solid #e2e8f0;
+                color: #475569 !important;
+                font-size: 0.78rem !important;
+                font-weight: 500;
+                padding: 0.18rem 0.55rem !important;
+                border-radius: 14px !important;
+                line-height: 1.25;
+                transition: all 0.15s ease;
+
+                &:hover,
+                &:focus {
+                    background: #f8fafc;
+                    color: #0f172a !important;
+                    border-color: #cbd5e1;
+                }
+
+                &:active,
+                &.o_sec_pill_active {
+                    background: #f1f5f9 !important;
+                    border-color: var(--o-brand-odoo, #714B67) !important;
+                    color: var(--o-brand-odoo, #714B67) !important;
+
+                    i {
+                        color: var(--o-brand-odoo, #714B67) !important;
+                    }
+                }
+
+                &_group {
+                    i {
+                        color: #94a3b8;
+                        transition: transform 0.25s ease;
+                        &.o_chevron_rotated {
+                            transform: rotate(180deg);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    // 7. Mobile Submenu Bottom Sheet & Backdrop
+    .o_mobile_submenu_backdrop {
+        position: fixed !important;
+        inset: 0 !important;
+        background: rgba(0, 0, 0, 0.45) !important;
+        backdrop-filter: blur(4px) !important;
+        z-index: 1150 !important;
+        animation: fadeInBackdrop 0.2s ease;
+    }
+
+    .o_mobile_submenu_bottom_sheet {
+        position: fixed !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        max-height: 75vh !important;
+        background: #ffffff !important;
+        border-radius: 20px 20px 0 0 !important;
+        z-index: 1160 !important;
+        box-shadow: 0 -10px 35px rgba(0, 0, 0, 0.3) !important;
+        display: flex !important;
+        flex-direction: column !important;
+        overflow: hidden !important;
+        animation: slideUpSubmenuSheet 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+
+        .o_mobile_submenu_body {
+            max-height: calc(75vh - 60px);
+            overscroll-behavior: contain;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .o_mobile_submenu_item {
+            background: transparent;
+            border: none;
+            transition: all 0.15s ease;
+            text-align: inherit;
+
+            &:hover,
+            &:focus {
+                background-color: #f1f5f9;
+                span {
+                    color: var(--o-brand-odoo, #714B67) !important;
+                }
+            }
+
+            &:active {
+                background-color: rgba(0, 0, 0, 0.06);
+                span {
+                    color: var(--o-brand-odoo, #714B67) !important;
+                    font-weight: 600;
+                }
+            }
+        }
+    }
+
+    @keyframes slideUpSubmenuSheet {
+        from {
+            transform: translateY(100%);
+        }
+        to {
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes fadeInBackdrop {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    // 8. Mobile Compact Systray & Navbar (Ensure Language, Chat, Clock, and User Avatar are visible like Enterprise)
+    .o_main_navbar {
+        height: 48px !important;
+        padding-left: 0.25rem !important;
+        padding-right: 0.25rem !important;
+        overflow: visible !important;
+
+        .o_navbar_breadcrumbs,
+        .o_breadcrumb,
+        .breadcrumb {
+            display: flex !important;
+            flex-direction: row !important;
+            align-items: center !important;
+            justify-content: flex-start !important;
+            color: #ffffff !important;
+            font-size: 0.84rem !important;
+            font-weight: 600 !important;
+            flex-grow: 1 !important;
+            flex-shrink: 1 !important;
+            width: auto !important;
+            min-width: 0 !important;
+            max-width: calc(100vw - 185px) !important;
+            padding-left: 2px !important;
+            margin-left: 0 !important;
+            gap: 2px !important;
+
+            .o_back_button,
+            button,
+            a {
+                color: #ffffff !important;
+                padding: 0 2px !important;
+                margin: 0 !important;
+                display: inline-flex !important;
+                align-items: center !important;
+                text-decoration: none !important;
+
+                i, .oi {
+                    color: #ffffff !important;
+                    font-size: 0.85rem !important;
+                    font-weight: bold !important;
+                }
+            }
+
+            .d-flex.gap-1,
+            .o_last_breadcrumb_item,
+            .breadcrumb-item,
+            li,
+            span {
+                color: #ffffff !important;
+                font-weight: 600 !important;
+                font-size: 0.84rem !important;
+                overflow: hidden !important;
+                text-overflow: ellipsis !important;
+                white-space: nowrap !important;
+                max-width: 100% !important;
+            }
+        }
+
+        .o_menu_systray {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: flex-end !important;
+            gap: 2px !important;
+            flex-shrink: 0 !important;
+            width: auto !important;
+            max-width: fit-content !important;
+            overflow: visible !important;
+            margin-left: auto !important;
+            padding: 0 2px 0 0 !important;
+
+            // Compact padding for each navbar icon
+            > *,
+            .o_nav_entry,
+            > div,
+            > button,
+            > a,
+            .dropdown,
+            .o_dropdown {
+                flex: 0 0 auto !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                display: inline-flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+            }
+
+            .btn,
+            .dropdown-toggle,
+            .o_quick_lang_btn,
+            button,
+            a {
+                padding: 2px 2px !important;
+                font-size: 0.84rem !important;
+                margin: 0 !important;
+                min-width: unset !important;
+                width: auto !important;
+                line-height: 1 !important;
+                color: #ffffff !important;
+
+                i.fa-comments,
+                i.fa-clock-o {
+                    font-size: 0.95rem !important;
+                }
+            }
+
+            // Chat & Activities - tight alignment
+            .o_messaging_menu,
+            .o-mail-DiscussSystray-class,
+            .o_activity_menu,
+            .o-mail-ActivityMenu {
+                display: inline-flex !important;
+                align-items: center !important;
+                justify-content: center !important;
+                flex: 0 0 auto !important;
+                padding: 0 1px !important;
+            }
+
+            // Notification Badges (compact enterprise pills)
+            .badge,
+            .o_notification_counter {
+                font-size: 0.58rem !important;
+                padding: 1px 3.5px !important;
+                transform: translate(-25%, -25%) !important;
+                border-radius: 8px !important;
+            }
+
+            // Language switcher - ultra compact on mobile
+            .o_switch_lang,
+            .o_lang_selector,
+            .o_quick_lang_container {
+                margin: 0 !important;
+                padding: 0 1px !important;
+
+                .dropdown-toggle,
+                .o_quick_lang_btn {
+                    padding: 0.1rem 0.2rem !important;
+                    font-size: 0.72rem !important;
+                    font-weight: 600 !important;
+                    gap: 2px !important;
+
+                    .o_quick_lang_icon {
+                        font-size: 0.82rem !important;
+                    }
+
+                    .o_quick_lang_code {
+                        font-size: 0.68rem !important;
+                        font-weight: 700 !important;
+                    }
+
+                    .fa-chevron-down {
+                        display: none !important;
+                    }
+                }
+            }
+
+            // User Menu & Avatar (Compact Enterprise circle/rounded square)
+            .o_user_menu {
+                display: inline-flex !important;
+                align-items: center !important;
+                padding-left: 2px !important;
+                padding-right: 1px !important;
+                margin: 0 !important;
+
+                .oe_topbar_name {
+                    display: none !important;
+                }
+
+                .dropdown-toggle {
+                    padding: 0 !important;
+                    display: flex !important;
+                    align-items: center !important;
+                }
+
+                .o_user_avatar,
+                .o_avatar {
+                    width: 25px !important;
+                    height: 25px !important;
+                    min-width: 25px !important;
+                    border: 1px solid rgba(255, 255, 255, 0.3) !important;
+                    border-radius: 6px !important;
+                    object-fit: cover !important;
+                    display: block !important;
+                    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2) !important;
+                }
+            }
+
+            .dropdown-menu {
+                z-index: 1100 !important;
+            }
+
+            // 1. Completely hide mail icon & non-essential 3rd-party systray clutter on mobile
+            .o_mail_icon,
+            .o_whatsapp_icon,
+            .whatsapp_icon,
+            .mail_icon,
+            div.o_mail_icon,
+            div.o_whatsapp_icon,
+            .dropdown.o_mail_icon,
+            .dropdown.o_whatsapp_icon,
+            .o-dropdown.o_mail_icon,
+            .o-dropdown.o_whatsapp_icon,
+            label:has(#fa-icon),
+            [title*="Mail"],
+            [title*="Send a Message Through Mail"],
+            .o_mkt_support_systray_item,
+            .o_auto_database_backup_systray,
+            .o_switch_company_menu,
+            button[title="App Menu Preferences"] {
+                display: none !important;
+            }
+
+            // 2. Hide duplicate mobile burger avatar and panel toggle buttons
+            button.o_mobile_menu_toggle,
+            .o_mobile_menu_toggle,
+            .o_burger_menu_avatar,
+            button:has(.oi-panel-right),
+            .o_nav_entry:has(.oi-panel-right) {
+                display: none !important;
+            }
+        }
+    }
+
+}
+
+// Extra small screens (e.g. iPhone SE / < 340px width): 3 columns
+@media (max-width: 340px) {
+    .o_grid_apps_menu .o-app-menu-list {
+        grid-template-columns: repeat(3, 1fr) !important;
+        gap: 0.75rem 0.25rem !important;
+    }
+}

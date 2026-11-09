@@ -1,505 +1,397 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8"?>
 <templates>
+    <!--
+    Tax Report Template - Enterprise Grade
+    Responsive hierarchy, dark control bar, crisp filters, executive KPI cards, and financial formatting.
+    -->
     <t t-name="tax_r_template_new" owl="1">
-        <!-- Section contains a structure for the Trial Balance report,
-        including a filter view and a table view. It has div elements for the
-        filter view and table view,with respective classes for styling.-->
-        <div class="container">
-            <div class="fin_report">
-                <!--  Filter View  -->
-                <div class="filter_view pt-3 pb-5">
-                    <div class="">
-                        <h2 class="text-uppercase" style="padding:10px">
-                            <t t-esc="props.action.name"/>
-                        </h2>
-                    </div>
-                    <div style="margin-right: 10px; margin-left: 10px;margin-bottom: 15px;display: flex;">
-                        <div class="sub_container_left" style="width:70%;">
-                            <div class="report_print">
-                                <!-- Print (PDF) Button -->
+        <div class="o_partner_ledger_container">
+            <!-- Header Control Bar (Enterprise Dark Bar) -->
+            <div class="o_report_control_bar">
+                <div class="o_report_header_left">
+                    <h2 class="o_report_main_title">
+                        <i class="fa fa-percent me-2"/>
+                        <t t-esc="state.title || 'Tax Report'"/>
+                    </h2>
+                    <!-- Action Buttons -->
+                    <button type="button"
+                            class="o_btn_report_action o_btn_pdf"
+                            t-on-click="printPdf"
+                            title="Print PDF Report">
+                        <i class="fa fa-file-pdf-o"/> Print (PDF)
+                    </button>
+                    <button type="button"
+                            class="o_btn_report_action o_btn_xlsx"
+                            t-on-click="print_xlsx"
+                            title="Export XLSX Spreadsheet">
+                        <i class="fa fa-file-excel-o"/> Export (XLSX)
+                    </button>
+                </div>
+
+                <div class="d-flex align-items-center flex-wrap gap-2">
+                    <!-- Filter Pills Group -->
+                    <div class="o_filter_pills_group">
+                        <!-- Date Range Dropdown -->
+                        <div class="dropdown">
+                            <button type="button"
+                                    class="btn o_filter_chip dropdown-toggle"
+                                    data-bs-toggle="dropdown"
+                                    aria-expanded="false">
+                                <i class="fa fa-calendar"/>
+                                <span><t t-esc="state.date_filter_label || 'Date Range'"/></span>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-end shadow-sm p-3" style="min-width: 260px;" role="menu">
+                                <div class="list-group list-group-flush mb-2">
+                                    <button class="dropdown-item py-1" type="button" t-on-click="() => this.applyDatePreset('month', 'This Month')">This Month</button>
+                                    <button class="dropdown-item py-1" type="button" t-on-click="() => this.applyDatePreset('quarter', 'This Quarter')">This Quarter</button>
+                                    <button class="dropdown-item py-1" type="button" t-on-click="() => this.applyDatePreset('year', 'This Year')">This Year</button>
+                                    <div class="dropdown-divider my-1"/>
+                                    <button class="dropdown-item py-1" type="button" t-on-click="() => this.applyDatePreset('last-month', 'Last Month')">Last Month</button>
+                                    <button class="dropdown-item py-1" type="button" t-on-click="() => this.applyDatePreset('last-quarter', 'Last Quarter')">Last Quarter</button>
+                                    <button class="dropdown-item py-1" type="button" t-on-click="() => this.applyDatePreset('last-year', 'Last Year')">Last Year</button>
+                                </div>
+                                <div class="dropdown-divider my-2"/>
+                                <div class="mb-2">
+                                    <label class="form-label text-muted small mb-1">Start Date</label>
+                                    <input type="date"
+                                           t-ref="date_from"
+                                           t-att-value="state.start_date"
+                                           class="form-control form-control-sm"/>
+                                </div>
+                                <div class="mb-2">
+                                    <label class="form-label text-muted small mb-1">End Date</label>
+                                    <input type="date"
+                                           t-ref="date_to"
+                                           t-att-value="state.end_date"
+                                           class="form-control form-control-sm"/>
+                                </div>
                                 <button type="button"
-                                        class="btn btn-primary btn-report-print"
-                                        t-on-click="printPdf"
-                                        style="margin-right: 8px;">
-                                    Print (PDF)
-                                </button>
-                                <!-- Export (XLSX) Button -->
-                                <button type="button"
-                                        class="btn btn-primary btn-report-print"
-                                        t-on-click="print_xlsx">
-                                    Export (XLSX)
+                                        class="btn btn-sm btn-primary w-100 mt-1"
+                                        t-on-click="applyCustomDates">
+                                    Apply Custom Dates
                                 </button>
                             </div>
                         </div>
-                        <div class="d-flex justify-content-end">
-                            <!-- Time Range -->
-                            <div class="time_range" style="">
-                                <a type="button" class="dropdown-toggle"
-                                   data-bs-toggle="dropdown">
-                                    <!-- Date Range Dropdown -->
-                                    <span class="fa fa-calendar" title="Dates"
-                                          role="img"
-                                          aria-label="Dates"/>
-                                    Date Range
-                                </a>
-                                <div class="dropdown-menu" role="menu">
-                                    <!-- Date Range Options -->
-                                    <div class="list-group">
-                                        <!-- This Month Button -->
-                                        <button class="report-filter-button"
-                                                t-att-data-value="'month'"
-                                                type="button"
-                                                t-on-click="applyFilter">
-                                            This Month
-                                        </button>
-                                        <!-- This Quarter Button -->
-                                        <button class="report-filter-button"
-                                                t-att-data-value="'quarter'"
-                                                type="button"
-                                                t-on-click="applyFilter">
-                                            This Quarter
-                                        </button>
-                                        <!-- This Year Button -->
-                                        <button class="report-filter-button"
-                                                t-att-data-value="'year'"
-                                                type="button"
-                                                t-on-click="applyFilter">
-                                            This Year
-                                        </button>
-                                        <!-- Separator -->
-                                        <div role="separator"
-                                             class="dropdown-divider"/>
-                                        <!-- Last Month Button -->
-                                        <button class="report-filter-button"
-                                                t-att-data-value="'last-month'"
-                                                type="button"
-                                                t-on-click="applyFilter">
-                                            Last month
-                                        </button>
-                                        <!-- Last Quarter Button -->
-                                        <button class="report-filter-button"
-                                                t-att-data-value="'last-quarter'"
-                                                type="button"
-                                                t-on-click="applyFilter">
-                                            Last quarter
-                                        </button>
-                                        <!-- Last Year Button -->
-                                        <button class="report-filter-button"
-                                                t-att-data-value="'last-year'"
-                                                type="button"
-                                                t-on-click="applyFilter">
-                                            Last year
-                                        </button>
-                                        <!-- Separator -->
-                                        <div role="separator"
-                                             class="dropdown-divider"/>
-                                        <!-- Start Date -->
-                                        <label class="" for="date_from">Start
-                                            Date :
-                                        </label>
-                                        <div class="input-group date"
-                                             data-target-input="nearest">
 
-                                            <input type="date" id="start_date"
-                                                   t-on-change="applyFilter"
-                                                   t-ref="date_from"
-                                                   style="border:none;border-bottom: 1px solid #000;padding: 5px;outline: none;"
-                                                   name="start_date"/>
-                                        </div>
-                                        <!-- End Date -->
-                                        <label class="" for="date_to">End Date
-                                            :
-                                        </label>
-                                        <div class="input-group date"
-                                             data-target-input="nearest">
-                                            <input type="date" id="end_date"
-                                                   t-on-change="applyFilter"
-                                                   t-ref="date_to"
-                                                   style="border:none;border-bottom: 1px solid #000;padding: 5px;outline: none;"
-                                                   name="end_date"/>
-                                        </div>
+                        <!-- Comparison Dropdown -->
+                        <div class="dropdown">
+                            <button type="button"
+                                    t-attf-class="btn o_filter_chip dropdown-toggle {{ state.apply_comparison ? 'active' : '' }}"
+                                    data-bs-toggle="dropdown"
+                                    aria-expanded="false">
+                                <i class="fa fa-bar-chart"/>
+                                <span>Comparison</span>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-end shadow-sm p-3" style="min-width: 240px;" role="menu">
+                                <button class="dropdown-item py-1 mb-2 text-danger" type="button" t-on-click="removeComparison">
+                                    <i class="fa fa-times me-1"/> No Comparison
+                                </button>
+                                <div class="dropdown-divider my-2"/>
+                                <div class="mb-2">
+                                    <label class="form-label text-muted small mb-1">Previous Period(s):</label>
+                                    <div class="input-group input-group-sm">
+                                        <input type="number" t-ref="periods" min="1" value="1" class="form-control"/>
+                                        <button class="btn btn-primary" type="button" t-on-click="applyComparisonPeriod">Apply</button>
+                                    </div>
+                                </div>
+                                <div class="dropdown-divider my-2"/>
+                                <div class="mb-1">
+                                    <label class="form-label text-muted small mb-1">Same Period Last Year:</label>
+                                    <div class="input-group input-group-sm">
+                                        <input type="number" t-ref="period_year" min="1" value="1" class="form-control"/>
+                                        <button class="btn btn-primary" type="button" t-on-click="applyComparisonYear">Apply</button>
                                     </div>
                                 </div>
                             </div>
-                            <div class="comparison_range" style="">
-                                <a type="button" class="dropdown-toggle"
-                                   data-bs-toggle="dropdown">
-                                    <span class="fa fa-signal"
-                                          title="Comparison"
-                                          role="img"
-                                          aria-label="Comparison"/>
-                                    Comparison
-                                </a>
-                                <div class="dropdown-menu" role="menu">
-                                    <div class="list-group">
-                                        <button class="report-filter-button"
-                                                t-att-data-value="'no comparison'"
-                                                type="button"
-                                                t-on-click="applyComparison">
-                                            No Comparison
-                                        </button>
-                                        <div role="separator"
-                                             class="dropdown-divider"/>
-                                        <label class="" for="periods"
-                                               style="display: flex;padding: 4px 20px;color: #000;">
-                                            Previous Period
-                                            <br/>
-                                            Number of Periods:
-                                        </label>
-                                        <div class="input-group comparison"
-                                             data-target-input="nearest">
+                        </div>
 
-                                            <input type="number"
-                                                   t-ref="periods"
-                                                   min="1"
-                                                   t-on-input="onPeriodChange"
-                                                   style="border:none;border-bottom: 1px solid #000;padding: 5px;outline: none;"
-                                                   name="previous_period"/>
-                                        </div>
-                                        <button class="btn btn-primary"
-                                                type="button"
-                                                style="margin-left: 19px;margin-top: 4px;"
-                                                t-on-click="applyComparisonPeriod">
-                                            Apply
-                                        </button>
-                                        <div role="separator"
-                                             class="dropdown-divider"/>
-                                        <label class="" for="period_year"
-                                               style="display: flex;padding: 4px 20px;color: #000;">
-                                            Same Period Last Year
-                                            <br/>
-                                            Number of Periods:
-                                        </label>
-                                        <div class="input-group comparison"
-                                             data-target-input="nearest">
-                                            <input type="number"
-                                                   t-ref="period_year"
-                                                   t-on-input="onPeriodYearChange"
-                                                   min="1"
-                                                   style="border:none;border-bottom: 1px solid #000;padding: 5px;outline: none;"
-                                                   name="period_year"/>
-                                        </div>
-                                        <button class="btn btn-primary"
-                                                type="button"
-                                                style="margin-left: 19px;margin-top: 4px;"
-                                                t-on-click="applyComparisonYear">
-                                            Apply
-                                        </button>
-                                    </div>
-                                </div>
+                        <!-- Options Dropdown -->
+                        <div class="dropdown">
+                            <button type="button"
+                                    class="btn o_filter_chip dropdown-toggle"
+                                    data-bs-toggle="dropdown"
+                                    aria-expanded="false">
+                                <i class="fa fa-sliders"/>
+                                <span><t t-esc="state.options and state.options.draft ? 'Options: Draft Included' : 'Options: Posted Only'"/></span>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-end shadow-sm p-2" role="menu">
+                                <button t-attf-class="dropdown-item py-2 d-flex align-items-center justify-content-between {{ state.options and state.options.draft ? 'active fw-bold' : '' }}"
+                                        type="button"
+                                        t-on-click="toggleDraftEntries">
+                                    <span>Include Draft Entries</span>
+                                    <i t-if="state.options and state.options.draft" class="fa fa-check text-success"/>
+                                </button>
                             </div>
-                            <!-- Options Dropdown -->
-                            <div class="option" style="">
-                                <a type="button" class="dropdown-toggle"
-                                   data-bs-toggle="dropdown">
-                                    <span class="fa fa-glass" title="Accounts"
-                                          role="img"
-                                          aria-label="Dates"/>
-                                    Options : Posted Entries
-                                </a>
-                                <div class="dropdown-menu" role="menu">
-                                    <div class="list-group">
-                                        <!-- Include Draft Entries Button -->
-                                        <button class="report-filter-button"
-                                                t-att-data-value="'draft'"
-                                                type="button"
-                                                t-on-click="applyFilter">
-                                            Include Draft Entries
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                            <!-- Options Dropdown -->
-                            <div class="option" style="">
-                                <a type="button" class="dropdown-toggle"
-                                   data-bs-toggle="dropdown">
-                                    <span class="fa fa-glass" title="Accounts"
-                                          role="img"
-                                          aria-label="Dates"/>
-                                    Reports :
-                                </a>
-                                <div class="dropdown-menu" role="menu">
-                                    <div class="list-group">
-                                        <!-- Include Draft Entries Button -->
-                                        <button class="report-filter-button"
-                                                t-att-data-value="'global'"
-                                                type="button" t-ref="global"
-                                                t-on-click="applyFilter">
-                                            Generic Tax Report
-                                        </button>
-                                        <button class="report-filter-button"
-                                                t-att-data-value="'account tax'"
-                                                type="button" t-ref="account"
-                                                t-on-click="applyFilter">
-                                            Group by: Account > Tax
-                                        </button>
-                                        <button class="report-filter-button"
-                                                t-att-data-value="'tax account'"
-                                                type="button" t-ref="tax"
-                                                t-on-click="applyFilter">
-                                            Group by: Tax > Account
-                                        </button>
-                                    </div>
-                                </div>
+                        </div>
+
+                        <!-- Reports / Grouping Dropdown -->
+                        <div class="dropdown">
+                            <button type="button"
+                                    class="btn o_filter_chip dropdown-toggle"
+                                    data-bs-toggle="dropdown"
+                                    aria-expanded="false">
+                                <i class="fa fa-list"/>
+                                <span>Grouping</span>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-end shadow-sm p-2" role="menu">
+                                <button t-attf-class="dropdown-item py-1 {{ !state.report_type ? 'active fw-bold' : '' }}"
+                                        type="button"
+                                        t-on-click="() => this.setReportGrouping('global')">
+                                    Generic Tax Report
+                                </button>
+                                <button t-attf-class="dropdown-item py-1 {{ state.report_type and state.report_type.account ? 'active fw-bold' : '' }}"
+                                        type="button"
+                                        t-on-click="() => this.setReportGrouping('account')">
+                                    Group by: Account &gt; Tax
+                                </button>
+                                <button t-attf-class="dropdown-item py-1 {{ state.report_type and state.report_type.tax ? 'active fw-bold' : '' }}"
+                                        type="button"
+                                        t-on-click="() => this.setReportGrouping('tax')">
+                                    Group by: Tax &gt; Account
+                                </button>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <div>
-                <!-- Table View -->
-                <div class="table_view_gl" style="right:20px;height: 650px; overflow-y: scroll;"
-                     t-ref="table_view_gl">
-                    <div>
-                        <div class="table_main_view">
-                            <table cellspacing="0" width="100%">
-                                <thead>
-                                    <tr class="o_heading"
-                                        style="text-align:center;">
-                                        <th colspan="7"/>
-                                        <t t-if="state.date_viewed.length != 0">
-                                            <t t-foreach="state.date_viewed"
-                                               t-as="date_view"
-                                               t-key="date_view_index">
-                                                <th colspan="2">
-                                                    <t t-esc="date_view"/>
-                                                </th>
-                                            </t>
-                                        </t>
-                                    </tr>
-                                    <tr class="o_heading"
-                                        style="text-align:center;">
-                                        <th colspan="6"/>
-                                        <th/>
-                                        <t t-if="state.apply_comparison == true">
-                                            <t t-set="number_of_periods"
-                                               t-value="comparison_number_range"/>
-                                            <t t-foreach="number_of_periods"
-                                               t-as="number" t-key="number">
-                                                <th>NET</th>
-                                                <th>TAX</th>
-                                            </t>
-                                        </t>
-                                        <th>NET</th>
-                                        <th>TAX</th>
-                                    </tr>
-                                </thead>
-                                <tbody t-ref="tbody">
-                                    <t t-if="state.data">
-                                        <t t-set="prev_account" t-value="None"/>
-                                        <t t-set="prev_tax" t-value="None"/>
-                                        <tr class="border-bottom"
-                                            style="border-spacing: 0 10px;background:#dfdfdf;">
-                                            <th colspan="6">
-                                                <span style="font-weight: 700;">
-                                                    Sales
-                                                </span>
-                                            </th>
-                                            <th/>
-                                            <th/>
-                                            <t t-if="state.apply_comparison == true">
-                                                <t t-set="number_of_periods"
-                                                   t-value="comparison_number_range"/>
-                                                <t t-foreach="number_of_periods"
-                                                   t-as="no" t-key="no">
-                                                    <th/>
-                                                    <th/>
-                                                </t>
-                                            </t>
-                                            <th style="text-align:center;font-weight: 700;">
-                                                <t t-esc="state.sale_total.toFixed(2)"/>
-                                            </th>
-                                        </tr>
-                                        <t t-set="i" t-value="0"/>
-                                        <t t-foreach="state.data.sale"
-                                           t-as="sale_tax_line"
-                                           t-key="sale_tax_line_index">
-                                            <t t-set="i" t-value="i + 1"/>
-                                            <t t-if="state.report_type">
-                                                <t t-if="Object.keys(state.report_type) == 'account'">
-                                                    <t t-if="prev_account !== sale_tax_line['account']">
-                                                        <t t-set="prev_account"
-                                                           t-value="sale_tax_line['account']"/>
-                                                        <tr class="border-bottom"
-                                                            style="border-spacing: 0 10px;">
-                                                            <th colspan="6">
-                                                                <span>
-                                                                    <t t-esc="sale_tax_line['account']"/>
-                                                                </span>
-                                                            </th>
-                                                        </tr>
-                                                    </t>
-                                                </t>
-                                                <t t-else="Object.keys(state.report_type) == 'tax'">
-                                                    <t t-if="prev_tax !== sale_tax_line.name">
-                                                        <t t-set="prev_tax"
-                                                           t-value="sale_tax_line.name"/>
-                                                        <tr class="border-bottom"
-                                                            style="border-spacing: 0 10px;">
-                                                            <th colspan="6">
-                                                                <span>
-                                                                    <t t-esc="sale_tax_line.name"/>
-                                                                    (
-                                                                    <t t-esc="sale_tax_line.amount"/>
-                                                                    %)
-                                                                </span>
-                                                            </th>
-                                                        </tr>
-                                                    </t>
-                                                </t>
-                                            </t>
-                                            <tr class="border-bottom"
-                                                style="border-spacing: 0 10px;font-weight: 400;">
-                                                <th colspan="6">
-                                                    <span style="font-weight: 400;">
-                                                        <t t-if="state.report_type and Object.keys(state.report_type) == 'tax'">
-                                                            <t t-esc="sale_tax_line['account']"/>
-                                                        </t>
-                                                        <t t-else="">
-                                                            <t t-esc="sale_tax_line.name"/>
-                                                            (
-                                                            <t t-esc="sale_tax_line.amount"/>
-                                                            %)
-                                                        </t>
-                                                    </span>
-                                                </th>
-                                                <th/>
-                                                <t t-if="state.apply_comparison == true">
-                                                    <t t-if="sale_tax_line['dynamic net']">
-                                                        <t t-set="number_of_periods"
-                                                           t-value="comparison_number_range"/>
-                                                        <t t-foreach="number_of_periods"
-                                                           t-as="num"
-                                                           t-key="num">
-                                                            <th style="text-align:center;font-weight: 400;">
-                                                                <t t-if="sale_tax_line['dynamic net']['dynamic_total_net_sum' + num]"
-                                                                   t-esc="sale_tax_line['dynamic net']['dynamic_total_net_sum' + num]"/>
-                                                            </th>
-                                                            <th style="text-align:center;font-weight: 400;">
-                                                                <t t-if="sale_tax_line['dynamic tax']['dynamic_total_tax_sum' + num]"
-                                                                   t-esc="sale_tax_line['dynamic tax']['dynamic_total_tax_sum' + num]"/>
-                                                            </th>
-                                                        </t>
-                                                    </t>
-                                                </t>
-                                                <th style="text-align:center;">
-                                                    <span style="font-weight: 400;">
-                                                        <t t-esc="sale_tax_line.net"/>
-                                                    </span>
-                                                </th>
-                                                <th style="text-align:center;">
-                                                    <span style="font-weight: 400;">
-                                                        <t t-esc="sale_tax_line.tax"/>
-                                                    </span>
-                                                </th>
-                                            </tr>
-                                        </t>
-                                        <tr style="height: 2rem;"/>
-                                        <tr class="border-bottom"
-                                            style="border-spacing: 0 10px;background:#dfdfdf;">
-                                            <th colspan="6">
-                                                <span style="font-weight: 700;">
-                                                    Purchase
-                                                </span>
-                                            </th>
-                                            <th/>
-                                            <th/>
-                                            <t t-if="state.apply_comparison == true">
-                                                <t t-set="number_of_periods"
-                                                   t-value="comparison_number_range"/>
-                                                <t t-foreach="number_of_periods"
-                                                   t-as="numb" t-key="numb">
-                                                    <th/>
-                                                    <th/>
-                                                </t>
-                                            </t>
-                                            <th style="text-align:center;font-weight: 700;">
-                                                <t t-esc="state.purchase_total.toFixed(2)"/>
-                                            </th>
-                                        </tr>
-                                        <t t-set="i" t-value="0"/>
-                                        <t t-foreach="state.data.purchase"
-                                           t-as="purchase_tax_line"
-                                           t-key="purchase_tax_line_index">
-                                            <t t-set="i" t-value="i + 1"/>
-                                            <t t-if="state.report_type">
-                                                <t t-if="Object.keys(state.report_type) == 'account'">
-                                                    <tr class="border-bottom"
-                                                        style="border-spacing: 0 10px;">
-                                                        <th colspan="6">
-                                                            <span>
-                                                                <t t-esc="purchase_tax_line['account']"/>
-                                                            </span>
-                                                        </th>
-                                                    </tr>
-                                                </t>
-                                                <t t-else="Object.keys(state.report_type) == 'tax'">
-                                                    <t t-set="prev_account"
-                                                       t-value="purchase_tax_line.name"/>
-                                                    <tr class="border-bottom"
-                                                        style="border-spacing: 0 10px;">
-                                                        <th colspan="6">
-                                                            <span>
-                                                                <t t-esc="purchase_tax_line.name"/>
-                                                                (
-                                                                <t t-esc="purchase_tax_line.amount"/>
-                                                                %)
-                                                            </span>
-                                                        </th>
-                                                    </tr>
-                                                </t>
-                                            </t>
-                                            <tr class="border-bottom"
-                                                style="border-spacing: 0 10px;">
-                                                <th colspan="6">
-                                                    <span style="font-weight: 400;">
-                                                        <t t-if="state.report_type and Object.keys(state.report_type) == 'tax'">
-                                                            <t t-esc="purchase_tax_line['account']"/>
-                                                        </t>
-                                                        <t t-else="">
-                                                            <t t-esc="purchase_tax_line.name"/>
-                                                            (
-                                                            <t t-esc="purchase_tax_line.amount"/>
-                                                            %)
-                                                        </t>
-                                                    </span>
-                                                </th>
-                                                <th/>
-                                                <t t-if="state.apply_comparison == true">
-                                                    <t t-if="purchase_tax_line['dynamic net']">
-                                                        <t t-set="number_of_periods"
-                                                           t-value="comparison_number_range"/>
-                                                        <t t-foreach="number_of_periods"
-                                                           t-as="period"
-                                                           t-key="period">
-                                                            <th style="text-align:center;font-weight: 400;">
-                                                                <t t-if="purchase_tax_line['dynamic net']['dynamic_total_net_sum' + period]"
-                                                                   t-esc="purchase_tax_line['dynamic net']['dynamic_total_net_sum' + period]"/>
-                                                            </th>
-                                                            <th style="text-align:center;font-weight: 400;">
-                                                                <t t-if="purchase_tax_line['dynamic tax']['dynamic_total_tax_sum' + period]"
-                                                                   t-esc="purchase_tax_line['dynamic tax']['dynamic_total_tax_sum' + period]"/>
-                                                            </th>
-                                                        </t>
-                                                    </t>
-                                                </t>
-                                                <th style="text-align:center;">
-                                                    <span style="font-weight: 400;">
-                                                        <t t-esc="purchase_tax_line.net"/>
-                                                    </span>
-                                                </th>
-                                                <th style="text-align:center;">
-                                                    <span style="font-weight: 400;">
-                                                        <t t-esc="purchase_tax_line.tax"/>
-                                                    </span>
-                                                </th>
-                                            </tr>
+
+            <!-- Executive KPI Dashboard -->
+            <div class="o_report_kpi_bar">
+                <div class="o_kpi_card">
+                    <span class="o_kpi_title">Purchase Tax (Input VAT)</span>
+                    <span class="o_kpi_value text-warning"><t t-esc="state.currency"/> <t t-esc="formatNumber(state.purchase_total)"/></span>
+                    <span class="o_kpi_sub">Base: <t t-esc="state.currency"/> <t t-esc="formatNumber(state.purchase_net_total)"/></span>
+                </div>
+                <div class="o_kpi_card">
+                    <span class="o_kpi_title">Net Tax Settlement</span>
+                    <span t-attf-class="o_kpi_value {{ net_tax_position > 0 ? 'text-danger' : (net_tax_position &lt; 0 ? 'text-success' : 'text-muted') }}">
+                        <t t-esc="state.currency"/> <t t-esc="formatNumber(Math.abs(net_tax_position))"/>
+                    </span>
+                    <div class="o_kpi_sub mt-1">
+                        <t t-if="net_tax_position &lt; 0">
+                            <span class="badge bg-success text-white py-1 px-2">Refundable / مسترد</span>
+                        </t>
+                        <t t-elif="net_tax_position > 0">
+                            <span class="badge bg-danger text-white py-1 px-2">Payable / واجب السداد</span>
+                        </t>
+                        <t t-else="">
+                            <span class="badge bg-secondary text-white py-1 px-2">Balanced / متزن</span>
+                        </t>
+                    </div>
+                </div>
+                <div class="o_kpi_card">
+                    <span class="o_kpi_title">Total Taxable Activity</span>
+                    <span class="o_kpi_value text-dark"><t t-esc="state.currency"/> <t t-esc="formatNumber(total_taxable_base)"/></span>
+                    <span class="o_kpi_sub">Combined Sales &amp; Purchase Base</span>
+                </div>
+            </div>
+
+            <!-- Informational Banner (Enterprise Alert Look) -->
+            <div class="alert alert-info d-flex align-items-center mb-3 py-2 px-3" style="font-size: 12px; border-radius: 6px; background-color: #e7f5ff; border: 1px solid #b7dcf7; color: #0c5460;">
+                <i class="fa fa-info-circle text-info me-2 fs-6"/>
+                <span>Tax Report summarizes VAT liability. Output Tax on sales is offset against deductible Input Tax on purchases to determine the final net tax payable or refundable.</span>
+            </div>
+
+            <!-- Table Card Container -->
+            <div class="o_report_table_card">
+                <div class="o_report_table_scrollable">
+                    <table class="o_bs_table" cellspacing="0">
+                        <thead>
+                            <tr class="o_tb_super_header">
+                                <th colspan="2" style="text-align: left; padding-left: 16px;">Tax Scope / Description</th>
+                                <t t-if="state.date_viewed and state.date_viewed.length > 0">
+                                    <t t-foreach="state.date_viewed" t-as="dv" t-key="dv_index">
+                                        <th colspan="2" style="text-align: center;">
+                                            <t t-esc="dv"/>
+                                        </th>
+                                    </t>
+                                </t>
+                                <t t-else="">
+                                    <th colspan="2" style="text-align: center;">Current Period</th>
+                                </t>
+                            </tr>
+                            <tr class="o_tb_sub_header">
+                                <th style="width: 50%; text-align: left; padding-left: 16px;">Tax Rate &amp; Breakdown</th>
+                                <th style="width: 10%; text-align: center;">Type</th>
+                                <t t-if="state.apply_comparison">
+                                    <t t-foreach="comparison_number_range" t-as="num" t-key="num">
+                                        <th class="text-end" style="width: 20%;">NET BASE</th>
+                                        <th class="text-end" style="width: 20%;">TAX AMOUNT</th>
+                                    </t>
+                                </t>
+                                <th class="text-end" style="width: 20%;">NET BASE</th>
+                                <th class="text-end" style="width: 20%;">TAX AMOUNT</th>
+                            </tr>
+                        </thead>
+                        <tbody t-ref="tbody">
+                            <t t-if="state.data">
+                                <!-- SECTION 1: SALES TAX -->
+                                <tr class="o_tax_section_header o_tax_sales_accent">
+                                    <td colspan="2" class="fw-bold">
+                                        <i class="fa fa-shopping-cart text-primary me-2"/>
+                                        <span>Sales (ضريبة المبيعات والمخرجات)</span>
+                                    </td>
+                                    <t t-if="state.apply_comparison">
+                                        <t t-foreach="comparison_number_range" t-as="no" t-key="no">
+                                            <td class="text-end fw-semibold">-</td>
+                                            <td class="text-end fw-semibold">-</td>
                                         </t>
                                     </t>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
+                                    <td class="text-end fw-bold text-primary">
+                                        <t t-esc="formatNumber(state.sale_net_total)"/>
+                                    </td>
+                                    <td class="text-end fw-bold text-primary">
+                                        <t t-esc="formatNumber(state.sale_total)"/>
+                                    </td>
+                                </tr>
+
+                                <t t-if="state.data.sale and state.data.sale.length > 0">
+                                    <t t-foreach="state.data.sale" t-as="sale_line" t-key="sale_line_index">
+                                        <tr class="o_tax_line_row">
+                                            <td class="ps-4">
+                                                <span class="o_tax_rate_badge me-2">
+                                                    <t t-esc="sale_line.name"/>
+                                                </span>
+                                                <t t-if="sale_line.account">
+                                                    <span class="text-muted small ms-1"><t t-esc="sale_line.account"/></span>
+                                                </t>
+                                                <t t-else="">
+                                                    <span class="text-secondary small">Standard Output VAT</span>
+                                                </t>
+                                            </td>
+                                            <td class="text-center text-muted small">Sales</td>
+                                            <t t-if="state.apply_comparison and sale_line['dynamic net']">
+                                                <t t-foreach="comparison_number_range" t-as="num" t-key="num">
+                                                    <td class="text-end text-muted">
+                                                        <t t-esc="formatNumber(sale_line['dynamic net']['dynamic_total_net_sum' + num])"/>
+                                                    </td>
+                                                    <td class="text-end text-muted">
+                                                        <t t-esc="formatNumber(sale_line['dynamic tax']['dynamic_total_tax_sum' + num])"/>
+                                                    </td>
+                                                </t>
+                                            </t>
+                                            <td class="text-end fw-semibold text-dark">
+                                                <t t-esc="formatNumber(sale_line.net)"/>
+                                            </td>
+                                            <td class="text-end fw-semibold text-primary">
+                                                <t t-esc="formatNumber(sale_line.tax)"/>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                </t>
+                                <t t-else="">
+                                    <tr class="o_tax_line_row">
+                                        <td colspan="4" class="text-muted text-center py-2 small ps-4">No taxable sales recorded in this period</td>
+                                    </tr>
+                                </t>
+
+                                <!-- SECTION 2: PURCHASE TAX -->
+                                <tr class="o_tax_section_header o_tax_purchase_accent">
+                                    <td colspan="2" class="fw-bold">
+                                        <i class="fa fa-truck text-warning me-2"/>
+                                        <span>Purchase (ضريبة المشتريات والمدخلات)</span>
+                                    </td>
+                                    <t t-if="state.apply_comparison">
+                                        <t t-foreach="comparison_number_range" t-as="numb" t-key="numb">
+                                            <td class="text-end fw-semibold">-</td>
+                                            <td class="text-end fw-semibold">-</td>
+                                        </t>
+                                    </t>
+                                    <td class="text-end fw-bold text-warning">
+                                        <t t-esc="formatNumber(state.purchase_net_total)"/>
+                                    </td>
+                                    <td class="text-end fw-bold text-warning">
+                                        <t t-esc="formatNumber(state.purchase_total)"/>
+                                    </td>
+                                </tr>
+
+                                <t t-if="state.data.purchase and state.data.purchase.length > 0">
+                                    <t t-foreach="state.data.purchase" t-as="purchase_line" t-key="purchase_line_index">
+                                        <tr class="o_tax_line_row">
+                                            <td class="ps-4">
+                                                <span class="o_tax_rate_badge me-2" style="background-color: #fef3c7; color: #b45309;">
+                                                    <t t-esc="purchase_line.name"/>
+                                                </span>
+                                                <t t-if="purchase_line.account">
+                                                    <span class="text-muted small ms-1"><t t-esc="purchase_line.account"/></span>
+                                                </t>
+                                                <t t-else="">
+                                                    <span class="text-secondary small">Deductible Input VAT</span>
+                                                </t>
+                                            </td>
+                                            <td class="text-center text-muted small">Purchase</td>
+                                            <t t-if="state.apply_comparison and purchase_line['dynamic net']">
+                                                <t t-foreach="comparison_number_range" t-as="num" t-key="num">
+                                                    <td class="text-end text-muted">
+                                                        <t t-esc="formatNumber(purchase_line['dynamic net']['dynamic_total_net_sum' + num])"/>
+                                                    </td>
+                                                    <td class="text-end text-muted">
+                                                        <t t-esc="formatNumber(purchase_line['dynamic tax']['dynamic_total_tax_sum' + num])"/>
+                                                    </td>
+                                                </t>
+                                            </t>
+                                            <td class="text-end fw-semibold text-dark">
+                                                <t t-esc="formatNumber(purchase_line.net)"/>
+                                            </td>
+                                            <td class="text-end fw-semibold text-warning">
+                                                <t t-esc="formatNumber(purchase_line.tax)"/>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                </t>
+                                <t t-else="">
+                                    <tr class="o_tax_line_row">
+                                        <td colspan="4" class="text-muted text-center py-2 small ps-4">No taxable purchases recorded in this period</td>
+                                    </tr>
+                                </t>
+
+                                <!-- SECTION 3: NET TAX POSITION FINAL SETTLEMENT ROW -->
+                                <tr class="o_tax_net_row">
+                                    <td class="fw-bold ps-3 text-uppercase">
+                                        <span>Net Tax Due / (Refundable) - صافي الضريبة</span>
+                                    </td>
+                                    <td class="text-center">
+                                        <t t-if="net_tax_position &lt; 0">
+                                            <span class="o_tax_refundable_badge">
+                                                <i class="fa fa-arrow-down me-1"/> Refundable
+                                            </span>
+                                        </t>
+                                        <t t-elif="net_tax_position > 0">
+                                            <span class="o_tax_payable_badge">
+                                                <i class="fa fa-arrow-up me-1"/> Payable
+                                            </span>
+                                        </t>
+                                        <t t-else="">
+                                            <span class="badge bg-secondary text-white">Balanced</span>
+                                        </t>
+                                    </td>
+                                    <t t-if="state.apply_comparison">
+                                        <t t-foreach="comparison_number_range" t-as="no_end" t-key="no_end">
+                                            <td class="text-end fw-bold">-</td>
+                                            <td class="text-end fw-bold">-</td>
+                                        </t>
+                                    </t>
+                                    <td class="text-end fw-bold text-white">
+                                        <t t-esc="formatNumber(net_tax_base)"/>
+                                    </td>
+                                    <td t-attf-class="text-end fw-bold {{ net_tax_position > 0 ? 'text-danger' : (net_tax_position &lt; 0 ? 'text-success' : 'text-white') }}" style="font-size: 14px;">
+                                        <t t-esc="formatNumber(net_tax_position)"/>
+                                    </td>
+                                </tr>
+                            </t>
+
+                            <!-- Empty State -->
+                            <t t-else="">
+                                <tr>
+                                    <td colspan="4" class="text-center py-5 text-muted">
+                                        <i class="fa fa-percent fa-3x mb-3 text-secondary"/>
+                                        <h5 class="fw-semibold">No Tax Activity Found</h5>
+                                        <p class="small mb-0">No invoices or bills with tax lines were recorded for this selected period.</p>
+                                    </td>
+                                </tr>
+                            </t>
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>

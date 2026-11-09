@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<templates xml:space="preserve">
+    <!-- 1. Override web.SectionMenu for clean hierarchical sidebar tree matching Enterprise design -->
+    <t t-inherit="web.SectionMenu" t-inherit-mode="extension">
+        <xpath expr="//li[@t-if]" position="replace">
+            <li t-if="section.childrenTree.length" class="o_sidebar_section_group list-unstyled">
+                <!-- Top-Level Category Header -->
+                <t t-if="!isNested">
+                    <div t-if="subMenu_index != 0" class="o_sidebar_divider"/>
+                    <div class="o_sidebar_section_title"
+                         t-att-data-menu-xmlid="section.xmlid || section.id">
+                        <t t-esc="section.name"/>
+                    </div>
+                </t>
+                <!-- Nested Category Header -->
+                <t t-else="">
+                    <div class="o_sidebar_section_subtitle"
+                         t-att-class="{
+                             'o_sidebar_level_1': (level || 1) == 1,
+                             'o_sidebar_level_2': (level || 1) >= 2
+                         }"
+                         t-att-data-menu-xmlid="section.xmlid || section.id">
+                        <t t-esc="section.name"/>
+                    </div>
+                </t>
+
+                <!-- Children Submenu List -->
+                <ul class="list-unstyled mb-0">
+                    <t t-foreach="section.childrenTree" t-as="subSection" t-key="subSection_index">
+                        <t t-call="web.SectionMenu">
+                            <t t-set="section" t-value="subSection"/>
+                            <t t-set="level" t-value="(level || 0) + 1"/>
+                            <t t-set="isNested" t-value="true"/>
+                        </t>
+                    </t>
+                </ul>
+            </li>
+        </xpath>
+
+        <xpath expr="//li[@t-else]" position="replace">
+            <li t-else="" 
+                class="o_sidebar_menu_leaf text-truncate"
+                role="button"
+                tabindex="0"
+                t-on-click="() => this._onMenuClicked(section)"
+                t-att-data-menu-xmlid="section.xmlid || section.id"
+                t-att-class="{
+                    'o_sidebar_menu_leaf_root': !isNested,
+                    'o_sidebar_level_1': (level || 0) == 1,
+                    'o_sidebar_level_2': (level || 0) >= 2
+                }">
+                <t t-esc="section.name"/>
+            </li>
+        </xpath>
+    </t>
+
+    <!-- 2. Modernize Sidebar Drawer Header matching exact Enterprise design -->
+    <t t-inherit="web.NavBar.AppsMenu.Sidebar" t-inherit-mode="extension">
+        <xpath expr="//t[@t-portal]" position="replace">
+            <t t-portal="'body'">
+                <!-- Backdrop -->
+                <div t-if="state.isAppMenuSidebarOpened" 
+                     class="modal-backdrop show d-block d-md-none o_sidebar_backdrop" 
+                     style="z-index: 1055 !important;"
+                     t-on-click.stop="_closeAppMenuSidebar" 
+                     t-on-touchstart.stop="_onSwipeStart" 
+                     t-on-touchend.stop="_onSwipeEnd"/>
+
+                <!-- Sidebar Drawer -->
+                <div t-if="state.isAppMenuSidebarOpened" 
+                     class="o_app_menu_sidebar position-fixed top-0 bottom-0 start-0 d-flex flex-column flex-nowrap"
+                     t-on-touchstart.stop="_onSwipeStart" 
+                     t-on-touchend.stop="_onSwipeEnd">
+                    <!-- Topbar Header -->
+                    <div class="o_sidebar_topbar d-flex align-items-center justify-content-between px-3 border-bottom flex-shrink-0">
+                        <button type="button" 
+                                class="btn btn-sm btn-all-apps d-inline-flex align-items-center gap-2" 
+                                t-on-click.stop.prevent="onAllAppsBtnClick">
+                            <i class="oi oi-apps"/>
+                            <span>All Apps</span>
+                        </button>
+                        <button type="button" 
+                                class="btn btn-sm btn-sidebar-close p-1 border-0 bg-transparent text-dark" 
+                                aria-label="Close menu" 
+                                title="Close menu" 
+                                t-on-click.stop.prevent="_closeAppMenuSidebar">
+                            <i class="oi oi-close fs-4 fw-bold"/>
+                        </button>
+                    </div>
+
+                    <!-- App Title & Menu Hierarchy -->
+                    <nav class="o_burger_menu_content flex-grow-1 flex-shrink-1 overflow-auto o_burger_menu_app">
+                        <div t-if="!state.isAllAppsMenuOpened and currentApp" class="d-flex align-items-center m-3 mb-0">
+                            <img style="height: 2em;" t-if="currentApp.webIconData" class="o_app_icon me-2" t-attf-src="{{currentApp.webIconData}}"/>
+                            <span class="fs-4 fw-bolder"><t t-esc="currentApp.name"/></span>
+                        </div>
+                        <ul class="list-unstyled py-2 ps-0 mb-0">
+                            <t t-if="!state.isAllAppsMenuOpened">
+                                <t t-foreach="currentAppSections" t-as="subMenu" t-key="subMenu_index">
+                                    <t t-call="web.SectionMenu">
+                                        <t t-set="section" t-value="subMenu" />
+                                    </t>
+                                </t>
+                            </t>
+                            <t t-else="">
+                                <div class="o_sidebar_apps_grid">
+                                    <t t-foreach="sortAppsByUserOrder(apps)" t-as="app" t-key="app.id">
+                                        <a class="o_sidebar_app_item text-decoration-none"
+                                           t-att-data-menu-xmlid="app.xmlid"
+                                           t-on-click="() => { this.onNavBarDropdownItemSelection(app); this._closeAppMenuSidebar(); }">
+                                            <div class="o_sidebar_app_icon_wrapper">
+                                                <img class="o_sidebar_app_icon" 
+                                                     t-if="app.webIconData" 
+                                                     t-attf-src="{{app.webIconData}}"/>
+                                            </div>
+                                            <span class="o_sidebar_app_name">
+                                                <t t-esc="app.name"/>
+                                            </span>
+                                        </a>
+                                    </t>
+                                </div>
+                            </t>
+                        </ul>
+                    </nav>
+                </div>
+            </t>
+        </xpath>
+    </t>
+</templates>

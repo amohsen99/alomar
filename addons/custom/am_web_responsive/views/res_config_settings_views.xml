@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="res_config_settings_view_form_inherit_am_web_responsive" model="ir.ui.view">
+        <field name="name">res.config.settings.view.form.inherit.am.web.responsive</field>
+        <field name="model">res.config.settings</field>
+        <field name="priority" eval="70"/>
+        <field name="inherit_id" ref="base.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form//app[@name='general_settings']" position="inside">
+                <block title="AM Mobile &amp; Responsive UI" id="am_web_responsive_settings">
+                    <setting string="Enterprise Mobile Apps Grid" 
+                             help="Display home screen apps in an Enterprise-style 4-column icon grid on mobile devices."
+                             company_dependent="False">
+                        <field name="am_mobile_apps_grid"/>
+                    </setting>
+                    <setting string="Enhanced Mobile Navigation Drawer" 
+                             help="Enable hierarchical category tree and 'All Apps' quick button in mobile drawer."
+                             company_dependent="False">
+                        <field name="am_mobile_sidebar_enhancements"/>
+                    </setting>
+                </block>
+            </xpath>
+        </field>
+    </record>
+</odoo>

@@ -3,6 +3,7 @@
     <!--    Change invoicing menu to Accounting     -->
     <record model="ir.ui.menu" id="account.menu_finance">
         <field name="name">Accounting</field>
+        <field name="web_icon">base_accounting_kit,static/description/icon.png</field>
     </record>
 <!--    Menu Generic Statements-->
     <menuitem id="account_reports_generic_statements" sequence="1"
