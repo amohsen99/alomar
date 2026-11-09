@@ -1,10 +1,1381 @@
-.report-filter-button {
-	background-color: #dfdada;
-	border: 0.1px solid #f4efef;
-	padding: 2px;
-	margin-top: 2px;
-	margin-left: 2px;
-	margin-right: 2px;
+/* ==========================================================================
+   Enterprise-Style Accounting Reports Theme for Odoo 18
+   Dynamic Accounts Report - Partner Ledger & Customer/Vendor Debt Summary
+   ========================================================================== */
+
+/* Main Container & Layout - Single Screen Enterprise Layout (Zero Outer Scroll) */
+.o_action_manager:has(.o_partner_ledger_container),
+.o_content:has(.o_partner_ledger_container) {
+    overflow: hidden !important;
+    padding: 0 !important;
+    height: 100% !important;
+    max-height: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+}
+
+.o_partner_ledger_container {
+    padding: 12px 18px 8px 18px !important;
+    background-color: #f8fafc;
+    height: 100% !important;
+    max-height: 100% !important;
+    box-sizing: border-box !important;
+    display: flex !important;
+    flex-direction: column !important;
+    overflow: hidden !important;
+    flex: 1 1 100% !important;
+    min-height: 0 !important;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: #1e293b;
+}
+
+.o_partner_ledger_container .alert {
+    flex-shrink: 0 !important;
+    margin-bottom: 10px !important;
+}
+
+/* Header Control Bar (Enterprise Dark Bar) - Fixed at top */
+.o_report_control_bar {
+    background: #ffffff !important;
+    color: #1e293b !important;
+    border: 1px solid #dee2e6 !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05) !important;
+    border-radius: 8px;
+    padding: 10px 16px;
+    margin-bottom: 10px;
+    flex-shrink: 0 !important;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -2px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.o_report_header_left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.o_report_main_title {
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    color: #714B67 !important;
+    margin: 0;
+    text-transform: uppercase;
+}
+
+/* Sleek Action Buttons */
+.o_btn_report_action {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 6px 14px;
+    border-radius: 6px;
+    border: none;
+    transition: all 0.15s ease-in-out;
+    cursor: pointer;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+}
+
+.o_btn_pdf {
+    background-color: #714B67;
+    color: #ffffff;
+}
+.o_btn_pdf:hover {
+    background-color: #593b51;
+    color: #ffffff;
+}
+
+.o_btn_xlsx {
+    background-color: #017e84;
+    color: #ffffff;
+}
+.o_btn_xlsx:hover {
+    background-color: #01656a;
+    color: #ffffff;
+}
+
+.o_btn_toggle_mode {
+    background-color: #3b82f6;
+    color: #ffffff;
+}
+.o_btn_toggle_mode:hover {
+    background-color: #2563eb;
+    color: #ffffff;
+}
+
+/* Mode Switcher (Segmented Control) */
+.o_report_mode_switcher {
+    display: inline-flex;
+    background-color: #f1f5f9;
+    border-radius: 6px;
+    padding: 3px;
+    border: 1px solid #cbd5e1;
+}
+
+.o_report_mode_btn {
+    background: transparent;
+    border: none;
+    color: #94a3b8;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 5px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.o_report_mode_btn:hover {
+    color: #ffffff;
+}
+
+.o_report_mode_btn.active {
+    background-color: #714B67;
+    color: #ffffff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+/* Executive KPI Dashboard Bar - Hidden to give maximum screen space for financial reports */
+.o_report_kpi_bar {
+    display: none !important;
+}
+
+.o_kpi_card {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 12px 16px;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+
+.o_kpi_card:hover {
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.08);
+}
+
+.o_kpi_title {
+    font-size: 11px;
+    font-weight: 600;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.o_kpi_value {
+    font-size: 18px;
+    font-weight: 700;
+    color: #0f172a;
+    font-variant-numeric: tabular-nums;
+}
+
+.o_kpi_card.o_kpi_highlight {
+    background: linear-gradient(135deg, #f8fafc 0%, #eff6ff 100%);
+    border-color: #bfdbfe;
+}
+
+.o_kpi_card.o_kpi_highlight .o_kpi_value {
+    color: #1d4ed8;
+}
+
+/* Filter Pills Container */
+.o_filter_pills_group {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+/* Filter Pills (Dropdown Chips) - Clean Community Light Style */
+.o_partner_ledger_container .o_report_control_bar .o_filter_chip,
+.o_partner_ledger_container .o_report_control_bar a.o_filter_chip,
+.o_partner_ledger_container .o_report_control_bar button.o_filter_chip,
+.o_partner_ledger_container .o_report_control_bar .dropdown-toggle.o_filter_chip,
+.o_partner_ledger_container .o_report_control_bar .btn.o_filter_chip,
+.o_report_control_bar .o_filter_chip,
+.o_filter_chip {
+    background-color: #ffffff !important;
+    color: #495057 !important;
+    border: 1px solid #ced4da !important;
+    border-radius: 20px !important;
+    padding: 6px 14px !important;
+    font-size: 12px !important;
+    font-weight: 600 !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 7px !important;
+    cursor: pointer !important;
+    transition: all 0.15s ease !important;
+    text-decoration: none !important;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+    white-space: nowrap !important;
+}
+
+.o_partner_ledger_container .o_report_control_bar .o_filter_chip:hover,
+.o_partner_ledger_container .o_report_control_bar .o_filter_chip:focus,
+.o_partner_ledger_container .o_report_control_bar .o_filter_chip:active,
+.o_partner_ledger_container .o_report_control_bar .o_filter_chip.show,
+.o_partner_ledger_container .o_report_control_bar .o_filter_chip[aria-expanded="true"],
+.o_report_control_bar .o_filter_chip:hover,
+.o_report_control_bar .o_filter_chip:focus,
+.o_report_control_bar .o_filter_chip:active,
+.o_report_control_bar .o_filter_chip.show,
+.o_report_control_bar .o_filter_chip[aria-expanded="true"],
+.o_filter_chip:hover,
+.o_filter_chip:focus,
+.o_filter_chip:active,
+.o_filter_chip.show,
+.o_filter_chip[aria-expanded="true"] {
+    background-color: #f8f9fa !important;
+    color: #714B67 !important;
+    border-color: #714B67 !important;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08) !important;
+}
+
+.o_partner_ledger_container .o_report_control_bar .o_filter_chip i,
+.o_partner_ledger_container .o_report_control_bar .o_filter_chip .fa,
+.o_partner_ledger_container .o_report_control_bar .o_filter_chip span,
+.o_report_control_bar .o_filter_chip i,
+.o_report_control_bar .o_filter_chip .fa,
+.o_report_control_bar .o_filter_chip span,
+.o_filter_chip i,
+.o_filter_chip .fa,
+.o_filter_chip span {
+    color: #495057 !important;
+    font-size: 12px !important;
+    opacity: 1 !important;
+}
+
+.o_partner_ledger_container .o_report_control_bar .o_filter_chip:hover i,
+.o_partner_ledger_container .o_report_control_bar .o_filter_chip:hover .fa,
+.o_partner_ledger_container .o_report_control_bar .o_filter_chip:hover span,
+.o_report_control_bar .o_filter_chip:hover i,
+.o_report_control_bar .o_filter_chip:hover .fa,
+.o_report_control_bar .o_filter_chip:hover span,
+.o_filter_chip:hover i,
+.o_filter_chip:hover .fa,
+.o_filter_chip:hover span {
+    color: #714B67 !important;
+}
+
+/* Dropdown triangle arrow on pills */
+.o_partner_ledger_container .o_report_control_bar .o_filter_chip.dropdown-toggle::after,
+.o_report_control_bar .o_filter_chip.dropdown-toggle::after,
+.o_filter_chip.dropdown-toggle::after {
+    color: #495057 !important;
+    border-top-color: #495057 !important;
+    opacity: 0.9 !important;
+    margin-left: 6px !important;
+    vertical-align: middle !important;
+}
+
+/* Dropdown Menus Appearance - Clean Community White Card */
+.o_partner_ledger_container .o_report_control_bar .dropdown-menu,
+.o_report_control_bar .dropdown-menu,
+.o_filter_pills_group .dropdown-menu,
+.dropdown-menu.o_filter_dropdown {
+    background-color: #ffffff !important;
+    color: #212529 !important;
+    border: 1px solid #dee2e6 !important;
+    border-radius: 8px !important;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12) !important;
+    z-index: 1050 !important;
+}
+
+.o_partner_ledger_container .o_report_control_bar .dropdown-menu .dropdown-item,
+.o_report_control_bar .dropdown-menu .dropdown-item,
+.o_filter_pills_group .dropdown-menu .dropdown-item {
+    color: #212529 !important;
+    font-size: 12px !important;
+    padding: 7px 14px !important;
+    border-radius: 4px !important;
+}
+
+.o_partner_ledger_container .o_report_control_bar .dropdown-menu .dropdown-item:hover,
+.o_partner_ledger_container .o_report_control_bar .dropdown-menu .dropdown-item:focus,
+.o_report_control_bar .dropdown-menu .dropdown-item:hover,
+.o_report_control_bar .dropdown-menu .dropdown-item:focus,
+.o_filter_pills_group .dropdown-menu .dropdown-item:hover,
+.o_filter_pills_group .dropdown-menu .dropdown-item:focus {
+    background-color: #f1f5f9 !important;
+    color: #714B67 !important;
+}
+
+/* Search Box - Clean Community Input */
+.o_partner_ledger_container .o_report_control_bar .o_report_search_wrapper,
+.o_report_control_bar .o_report_search_wrapper {
+    position: relative;
+    min-width: 220px;
+}
+
+.o_partner_ledger_container .o_report_control_bar .o_report_search_wrapper i,
+.o_partner_ledger_container .o_report_control_bar .o_report_search_wrapper .fa,
+.o_report_control_bar .o_report_search_wrapper i,
+.o_report_control_bar .o_report_search_wrapper .fa {
+    position: absolute;
+    left: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #6c757d !important;
+    font-size: 12px !important;
+    pointer-events: none;
+    z-index: 2;
+}
+
+.o_partner_ledger_container .o_report_control_bar .o_report_search_input,
+.o_report_control_bar .o_report_search_input {
+    background-color: #ffffff !important;
+    border: 1px solid #ced4da !important;
+    color: #212529 !important;
+    border-radius: 20px !important;
+    padding: 6px 14px 6px 34px !important;
+    font-size: 12px !important;
+    width: 100% !important;
+    outline: none !important;
+    transition: all 0.15s ease !important;
+}
+
+.o_partner_ledger_container .o_report_control_bar .o_report_search_input::placeholder,
+.o_report_control_bar .o_report_search_input::placeholder {
+    color: #adb5bd !important;
+    opacity: 1 !important;
+}
+
+.o_partner_ledger_container .o_report_control_bar .o_report_search_input:focus,
+.o_report_control_bar .o_report_search_input:focus {
+    border-color: #714B67 !important;
+    background-color: #ffffff !important;
+    box-shadow: 0 0 0 2px rgba(113, 75, 103, 0.2) !important;
+    color: #212529 !important;
+}
+
+/* Table Card & Scrollable Container - Takes 100% of remaining screen height */
+.o_report_table_card {
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    display: flex !important;
+    flex-direction: column !important;
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
+    overflow: hidden !important;
+    margin-bottom: 0 !important;
+}
+
+.o_report_table_scrollable {
+    flex: 1 1 auto !important;
+    min-height: 0 !important;
+    height: 100% !important;
+    max-height: 100% !important;
+    overflow-y: auto !important;
+    overflow-x: auto !important;
+    scrollbar-width: thin;
+    scrollbar-color: #cbd5e1 #f1f5f9;
+}
+
+/* Modern Sleek Scrollbar */
+.o_report_table_scrollable::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+.o_report_table_scrollable::-webkit-scrollbar-track {
+    background: #f1f5f9;
+    border-radius: 4px;
+}
+
+.o_report_table_scrollable::-webkit-scrollbar-thumb {
+    background: #cbd5e1;
+    border-radius: 4px;
+}
+
+.o_report_table_scrollable::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+}
+
+/* ==========================================================================
+   Balance Sheet & P&L Enterprise Styling
+   ========================================================================== */
+.o_bs_table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 13px;
+    table-layout: fixed;
+}
+
+.o_bs_table thead th {
+    background-color: #f8f9fa !important;
+    color: #475569 !important;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 10px 18px;
+    border-bottom: 2px solid #dee2e6 !important;
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    white-space: nowrap;
+}
+
+/* Top-Level Section Header (ASSETS, LIABILITIES, EQUITY) */
+.o_bs_section_header td,
+.o_bs_section_header th {
+    background-color: #f1f5f9 !important;
+    color: #1e293b !important;
+    font-weight: 700 !important;
+    font-size: 13px !important;
+    padding: 10px 18px !important;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-top: 1px solid #e2e8f0 !important;
+    border-bottom: 1px solid #e2e8f0 !important;
+}
+
+/* Sub-category Header (Current Assets, Receivables, Payables) */
+.o_bs_group_row {
+    background-color: #f8fafc;
+    border-bottom: 1px solid #e2e8f0;
+    transition: background-color 0.15s ease;
+    cursor: pointer;
+}
+
+.o_bs_group_row:hover {
+    background-color: #f1f5f9;
+}
+
+.o_bs_group_row td,
+.o_bs_group_row th {
+    padding: 9px 18px;
+    font-weight: 600;
+    color: #0f172a;
+    font-size: 13px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+/* Account Detailed Rows */
+.o_bs_account_row {
+    background-color: #ffffff;
+    border-bottom: 1px solid #f1f5f9;
+    transition: background-color 0.15s ease;
+}
+
+.o_bs_account_row:hover {
+    background-color: #f8fafc;
+}
+
+.o_bs_account_row td,
+.o_bs_account_row th {
+    padding: 7px 18px;
+    font-size: 12px;
+    color: #334155;
+    vertical-align: middle;
+    border-bottom: 1px solid #f8fafc;
+}
+
+.o_bs_account_name {
+    font-weight: 500;
+    color: #1e293b;
+}
+
+.o_bs_account_row:hover .o_bs_account_name {
+    color: #4338ca;
+}
+
+/* Drill-down GL Icon */
+.o_bs_drilldown_icon {
+    font-size: 11px;
+    color: #6366f1;
+    margin-left: 8px;
+    opacity: 0.4;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+.o_bs_account_row:hover .o_bs_drilldown_icon {
+    opacity: 1;
+    color: #4338ca;
+    transform: scale(1.15);
+}
+
+/* Subtotal Row */
+.o_bs_subtotal_row {
+    background-color: #f8fafc;
+    border-top: 1px solid #cbd5e1;
+    border-bottom: 1px solid #cbd5e1;
+    font-weight: 700;
+    color: #0f172a;
+}
+
+.o_bs_subtotal_row td,
+.o_bs_subtotal_row th {
+    padding: 10px 18px;
+    font-size: 13px;
+    border-top: 1px solid #cbd5e1;
+    border-bottom: 1px solid #cbd5e1;
+}
+
+/* Grand Total Row (LIABILITIES + EQUITY) */
+.o_bs_grand_total_row {
+    background-color: #f1f5f9 !important;
+    color: #0f172a !important;
+    font-weight: 800 !important;
+    font-size: 14px !important;
+    border-top: 2px solid #cbd5e1 !important;
+    border-bottom: 2px solid #cbd5e1 !important;
+}
+
+.o_bs_grand_total_row td,
+.o_bs_grand_total_row th {
+    padding: 12px 18px !important;
+    color: #0f172a !important;
+}
+
+.o_ledger_table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    font-size: 13px;
+    table-layout: fixed;
+}
+
+/* Strict Columns Alignment */
+.o_ledger_table thead th {
+    background-color: #f8f9fa !important;
+    color: #475569 !important;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    padding: 10px 12px;
+    border-bottom: 2px solid #dee2e6 !important;
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    white-space: nowrap;
+}
+
+/* Partner Summary Header Row */
+.o_partner_group_header {
+    background-color: #f1f5f9;
+    font-weight: 600;
+    color: #0f172a;
+    border-top: 1px solid #cbd5e1;
+    border-bottom: 1px solid #cbd5e1;
+    transition: background-color 0.1s ease;
+}
+
+.o_partner_group_header:hover {
+    background-color: #e2e8f0;
+}
+
+.o_partner_group_header td {
+    padding: 10px 12px;
+    vertical-align: middle;
+}
+
+.o_partner_title_cell {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.o_toggle_caret {
+    cursor: pointer;
+    width: 20px;
+    height: 20px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 4px;
+    color: #475569;
+    transition: transform 0.2s ease, background-color 0.15s ease;
+}
+
+.o_toggle_caret:hover {
+    background-color: #cbd5e1;
+    color: #0f172a;
+}
+
+.o_toggle_caret.expanded {
+    transform: rotate(90deg);
+}
+
+.o_partner_name_link {
+    color: #0f172a;
+    font-weight: 700;
+    text-decoration: none;
+    font-size: 13px;
+    cursor: pointer;
+}
+.o_partner_name_link:hover {
+    color: #4338ca;
+    text-decoration: underline;
+}
+
+.o_partner_ref_badge {
+    background-color: #e0e7ff;
+    color: #3730a3;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+.o_partner_quick_actions {
+    display: inline-flex;
+    gap: 4px;
+    opacity: 0.6;
+    transition: opacity 0.15s ease;
+}
+
+.o_partner_group_header:hover .o_partner_quick_actions {
+    opacity: 1;
+}
+
+.o_partner_action_icon {
+    font-size: 11px;
+    padding: 3px 6px;
+    border-radius: 4px;
+    background-color: #ffffff;
+    color: #475569;
+    border: 1px solid #cbd5e1;
+    cursor: pointer;
+    transition: all 0.1s ease;
+}
+.o_partner_action_icon:hover {
+    background-color: #4338ca;
+    color: #ffffff;
+    border-color: #4338ca;
+}
+
+/* Initial Balance Row */
+.o_initial_balance_row {
+    background-color: #ffffff;
+    font-style: italic;
+    color: #64748b;
+    border-bottom: 1px dashed #e2e8f0;
+}
+
+.o_initial_balance_row td {
+    padding: 7px 12px 7px 32px;
+    font-size: 12px;
+}
+
+/* Move Lines */
+.o_move_item_row {
+    background-color: #ffffff;
+    color: #334155;
+    border-bottom: 1px solid #f1f5f9;
+    transition: background-color 0.1s ease;
+}
+
+.o_move_item_row:hover {
+    background-color: #f8fafc;
+}
+
+.o_move_item_row td {
+    padding: 7px 12px;
+    vertical-align: middle;
+    font-size: 12px;
+}
+
+.o_move_date_cell {
+    padding-left: 32px !important;
+}
+
+.o_move_link {
+    color: #2563eb;
+    text-decoration: none;
+    font-weight: 500;
+}
+.o_move_link:hover {
+    text-decoration: underline;
+    color: #1d4ed8;
+}
+
+/* Number Columns & Alignment */
+.o_col_num {
+    text-align: right !important;
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+}
+
+.o_num_positive {
+    color: #0f172a;
+    font-weight: 500;
+}
+
+.o_num_negative {
+    color: #dc2626 !important;
+    font-weight: 600;
+}
+
+.o_num_bold {
+    font-weight: 700 !important;
+}
+
+/* Grand Total Row */
+.o_report_grand_total_row,
+.o_report_grand_total {
+    background-color: #f1f5f9 !important;
+    color: #0f172a !important;
+    font-weight: 800;
+    font-size: 13px;
+    border-top: 2px solid #cbd5e1;
+    border-bottom: 2px solid #cbd5e1;
+    position: sticky;
+    bottom: 0;
+    z-index: 15;
+}
+
+.o_report_grand_total_row td,
+.o_report_grand_total td {
+    padding: 12px 14px;
+    color: #0f172a !important;
+}
+
+/* Summary Mode Cards & Tables */
+.o_summary_badge_customer {
+    background-color: #dbeafe;
+    color: #1e40af;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 12px;
+}
+
+.o_summary_badge_vendor {
+    background-color: #fef3c7;
+    color: #92400e;
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 12px;
+}
+
+.o_drilldown_link {
+    color: #2563eb;
+    cursor: pointer;
+    font-weight: 600;
+    text-decoration: none;
+    padding: 2px 4px;
+    border-radius: 4px;
+    transition: background-color 0.1s ease;
+}
+.o_drilldown_link:hover {
+    background-color: #eff6ff;
+    text-decoration: underline;
+}
+
+/* Arabic RTL Overrides */
+html[dir="rtl"] .o_partner_ledger_container,
+body.o_rtl .o_partner_ledger_container {
+    direction: rtl;
+    text-align: right;
+}
+
+html[dir="rtl"] .o_partner_ledger_container .o_report_control_bar .o_report_search_wrapper i,
+body.o_rtl .o_partner_ledger_container .o_report_control_bar .o_report_search_wrapper i {
+    left: auto !important;
+    right: 12px !important;
+}
+
+html[dir="rtl"] .o_partner_ledger_container .o_report_control_bar .o_report_search_input,
+body.o_rtl .o_partner_ledger_container .o_report_control_bar .o_report_search_input {
+    padding: 6px 34px 6px 14px !important;
+}
+
+html[dir="rtl"] .o_partner_ledger_container .o_report_control_bar .o_filter_chip.dropdown-toggle::after,
+body.o_rtl .o_partner_ledger_container .o_report_control_bar .o_filter_chip.dropdown-toggle::after {
+    margin-left: 0 !important;
+    margin-right: 6px !important;
+}
+
+html[dir="rtl"] .o_col_num,
+body.o_rtl .o_col_num {
+    text-align: left !important;
+}
+
+html[dir="rtl"] .o_initial_balance_row td,
+body.o_rtl .o_initial_balance_row td {
+    padding: 7px 32px 7px 12px;
+}
+
+html[dir="rtl"] .o_move_date_cell,
+body.o_rtl .o_move_date_cell {
+    padding-left: 12px !important;
+    padding-right: 32px !important;
+}
+
+/* ==========================================================================
+   General Ledger Specific Styles
+   ========================================================================== */
+.o_gl_account_header {
+    background-color: #f8fafc;
+    border-top: 1px solid #cbd5e1;
+    border-bottom: 1px solid #cbd5e1;
+    transition: background-color 0.15s ease;
+    cursor: pointer;
+}
+
+.o_gl_account_header:hover {
+    background-color: #f1f5f9;
+}
+
+.o_gl_account_header td {
+    padding: 10px 14px;
+    vertical-align: middle;
+}
+
+.o_gl_account_title {
+    font-weight: 700;
+    color: #0f172a;
+    font-size: 13px;
+}
+
+.o_gl_line_row {
+    background-color: #ffffff;
+    border-bottom: 1px solid #f1f5f9;
+    transition: background-color 0.1s ease;
+}
+
+.o_gl_line_row:hover {
+    background-color: #f8fafc;
+}
+
+.o_gl_line_row td {
+    padding: 7px 14px;
+    font-size: 12px;
+    color: #334155;
+    vertical-align: middle;
+}
+
+.o_gl_move_link {
+    color: #4338ca;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.o_gl_move_link:hover {
+    color: #312e81;
+    text-decoration: underline;
+}
+
+.o_gl_journal_item_btn {
+    font-size: 11px;
+    padding: 3px 8px;
+    border-radius: 5px;
+    border: 1px solid #6366f1;
+    color: #6366f1;
+    background-color: transparent;
+    transition: all 0.15s ease;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-weight: 500;
+}
+
+.o_gl_journal_item_btn:hover {
+    background-color: #714B67;
+    color: #ffffff;
+}
+
+/* ==========================================================================
+   Aged Receivable Specific Styles
+   ========================================================================== */
+.o_ar_partner_header {
+    background-color: #f8fafc;
+    border-top: 1px solid #cbd5e1;
+    border-bottom: 1px solid #cbd5e1;
+    transition: background-color 0.15s ease;
+    cursor: pointer;
+}
+
+.o_ar_partner_header:hover {
+    background-color: #f1f5f9;
+}
+
+.o_ar_partner_header td {
+    padding: 10px 14px;
+    vertical-align: middle;
+}
+
+.o_ar_partner_title {
+    font-weight: 700;
+    color: #0f172a;
+    font-size: 13px;
+}
+
+.o_ar_action_btn {
+    font-size: 11px;
+    padding: 3px 8px;
+    border-radius: 5px;
+    border: 1px solid #cbd5e1;
+    background-color: #ffffff;
+    color: #475569;
+    transition: all 0.15s ease;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-weight: 500;
+}
+
+.o_ar_action_btn:hover {
+    background-color: #f1f5f9;
+    color: #0f172a;
+    border-color: #94a3b8;
+}
+
+.o_ar_line_row {
+    background-color: #ffffff;
+    border-bottom: 1px solid #f1f5f9;
+    transition: background-color 0.1s ease;
+}
+
+.o_ar_line_row:hover {
+    background-color: #f8fafc;
+}
+
+.o_ar_line_row td {
+    padding: 7px 14px;
+    font-size: 12px;
+    color: #334155;
+    vertical-align: middle;
+}
+
+.o_ar_move_link {
+    color: #4338ca;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.o_ar_move_link:hover {
+    color: #312e81;
+    text-decoration: underline;
+}
+
+/* ==========================================================================
+   Cash Book Specific Styles
+   ========================================================================== */
+.o_cb_account_header {
+    background-color: #f8fafc;
+    border-top: 1px solid #cbd5e1;
+    border-bottom: 1px solid #cbd5e1;
+    transition: background-color 0.15s ease;
+    cursor: pointer;
+}
+
+.o_cb_account_header:hover {
+    background-color: #f1f5f9;
+}
+
+.o_cb_account_header td {
+    padding: 10px 14px;
+    vertical-align: middle;
+}
+
+.o_cb_account_title {
+    font-weight: 700;
+    color: #0f172a;
+    font-size: 13px;
+}
+
+.o_partner_ledger_container .o_cb_journal_item_btn,
+.o_cb_journal_item_btn {
+    font-size: 11px !important;
+    padding: 3px 10px !important;
+    border-radius: 6px !important;
+    border: 1px solid #714B67 !important;
+    color: #ffffff !important;
+    background-color: #714B67 !important;
+    transition: all 0.15s ease !important;
+    cursor: pointer !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+    font-weight: 600 !important;
+}
+
+.o_partner_ledger_container .o_cb_journal_item_btn:hover,
+.o_cb_journal_item_btn:hover {
+    background-color: #593b51 !important;
+    border-color: #593b51 !important;
+    color: #ffffff !important;
+}
+
+.o_partner_ledger_container .o_cb_journal_badge,
+.o_cb_journal_badge {
+    display: inline-flex !important;
+    align-items: center !important;
+    background-color: #e2e8f0 !important;
+    color: #0f172a !important;
+    border: 1px solid #94a3b8 !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    line-height: 1.2 !important;
+    padding: 3px 8px !important;
+    border-radius: 4px !important;
+    opacity: 1 !important;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05) !important;
+}
+
+.o_cb_line_row {
+    background-color: #ffffff;
+    border-bottom: 1px solid #f1f5f9;
+    transition: background-color 0.1s ease;
+}
+
+.o_cb_line_row:hover {
+    background-color: #f8fafc;
+}
+
+.o_cb_line_row td {
+    padding: 7px 14px;
+    font-size: 12px;
+    color: #334155;
+    vertical-align: middle;
+}
+
+.o_cb_move_link {
+    color: #4338ca;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.o_cb_move_link:hover {
+    color: #312e81;
+    text-decoration: underline;
+}
+
+/* ==========================================================================
+   Bank Book Specific Styles
+   ========================================================================== */
+.o_bb_account_header {
+    background-color: #f8fafc;
+    border-top: 1px solid #cbd5e1;
+    border-bottom: 1px solid #cbd5e1;
+    transition: background-color 0.15s ease;
+    cursor: pointer;
+}
+
+.o_bb_account_header:hover {
+    background-color: #f1f5f9;
+}
+
+.o_bb_account_header td {
+    padding: 10px 14px;
+    vertical-align: middle;
+}
+
+.o_bb_account_title {
+    font-weight: 700;
+    color: #0f172a;
+    font-size: 13px;
+}
+
+.o_partner_ledger_container .o_bb_journal_item_btn,
+.o_bb_journal_item_btn {
+    font-size: 11px !important;
+    padding: 3px 10px !important;
+    border-radius: 6px !important;
+    border: 1px solid #714B67 !important;
+    color: #ffffff !important;
+    background-color: #714B67 !important;
+    transition: all 0.15s ease !important;
+    cursor: pointer !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+    font-weight: 600 !important;
+}
+
+.o_partner_ledger_container .o_bb_journal_item_btn:hover,
+.o_bb_journal_item_btn:hover {
+    background-color: #593b51 !important;
+    border-color: #593b51 !important;
+    color: #ffffff !important;
+}
+
+.o_partner_ledger_container .o_bb_journal_badge,
+.o_bb_journal_badge {
+    display: inline-flex !important;
+    align-items: center !important;
+    background-color: #e2e8f0 !important;
+    color: #0f172a !important;
+    border: 1px solid #94a3b8 !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    line-height: 1.2 !important;
+    padding: 3px 8px !important;
+    border-radius: 4px !important;
+    opacity: 1 !important;
+    box-shadow: 0 1px 2px rgba(0,0,0,0.05) !important;
+}
+
+.o_bb_line_row {
+    background-color: #ffffff;
+    border-bottom: 1px solid #f1f5f9;
+    transition: background-color 0.1s ease;
+}
+
+.o_bb_line_row:hover {
+    background-color: #f8fafc;
+}
+
+.o_bb_line_row td {
+    padding: 7px 14px;
+    font-size: 12px;
+    color: #334155;
+    vertical-align: middle;
+}
+
+.o_bb_move_link {
+    color: #4338ca;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.o_bb_move_link:hover {
+    color: #312e81;
+    text-decoration: underline;
+}
+
+.o_partner_ledger_container .o_bb_account_code_badge,
+.o_bb_account_code_badge,
+.o_partner_ledger_container .o_cb_account_code_badge,
+.o_cb_account_code_badge,
+.o_partner_ledger_container .o_tb_account_code_badge,
+.o_tb_account_code_badge {
+    display: inline-block !important;
+    padding: 2px 8px !important;
+    font-size: 11px !important;
+    font-weight: 700 !important;
+    color: #0f172a !important;
+    background-color: #f1f5f9 !important;
+    border: 1px solid #cbd5e1 !important;
+    border-radius: 4px !important;
+    letter-spacing: 0.5px !important;
+    white-space: nowrap !important;
+    font-family: inherit !important;
+}
+
+/* ==========================================================================
+   Trial Balance - Enterprise Components
+   ========================================================================== */
+.o_tb_account_row {
+    background-color: #ffffff;
+    border-bottom: 1px solid #f1f5f9;
+    transition: background-color 0.1s ease;
+}
+
+.o_tb_account_row:hover {
+    background-color: #f8fafc;
+}
+
+.o_tb_account_row td {
+    padding: 8px 12px;
+    font-size: 12px;
+    color: #334155;
+    vertical-align: middle;
+}
+
+.o_tb_account_title {
+    font-weight: 600;
+    color: #0f172a;
+    font-size: 13px;
+}
+
+.o_tb_cell_amount {
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    text-align: right;
+}
+
+.o_tb_super_header th {
+    background-color: #f1f5f9 !important;
+    color: #1e293b !important;
+    font-weight: 700 !important;
+    font-size: 12px !important;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    text-align: center;
+    border-bottom: 1px solid #e2e8f0 !important;
+    border-left: 1px solid #e2e8f0;
+    border-right: 1px solid #e2e8f0;
+}
+
+.o_tb_sub_header th {
+    background-color: #f8fafc !important;
+    color: #64748b !important;
+    font-weight: 600 !important;
+    font-size: 11px !important;
+    text-transform: uppercase;
+    border-bottom: 2px solid #dee2e6 !important;
+    top: 36px !important;
+}
+
+.o_tb_action_btn {
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 4px !important;
+    padding: 2px 7px !important;
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    border-radius: 4px !important;
+    border: none !important;
+    cursor: pointer !important;
+    background-color: #e0e7ff !important;
+    color: #4338ca !important;
+    transition: all 0.15s ease !important;
+    text-decoration: none !important;
+}
+
+.o_tb_action_btn:hover {
+    background-color: #714B67 !important;
+    color: #ffffff !important;
+}
+
+.o_tb_balanced_badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background-color: #dcfce7;
+    color: #15803d;
+    padding: 3px 8px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+/* ==========================================================================
+   Tax Report Specific Styles
+   ========================================================================== */
+.o_tax_section_header {
+    background-color: #f1f5f9 !important;
+    color: #0f172a !important;
+    font-weight: 700 !important;
+    font-size: 12px !important;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-top: 1px solid #cbd5e1 !important;
+    border-bottom: 1px solid #cbd5e1 !important;
+}
+
+.o_tax_section_header td,
+.o_tax_section_header th {
+    padding: 10px 16px !important;
+    vertical-align: middle;
+}
+
+.o_tax_sales_accent {
+    border-left: 4px solid #3b82f6 !important;
+}
+
+.o_tax_purchase_accent {
+    border-left: 4px solid #f59e0b !important;
+}
+
+.o_tax_line_row {
+    background-color: #ffffff;
+    border-bottom: 1px solid #f1f5f9;
+    transition: background-color 0.1s ease;
+}
+
+.o_tax_line_row:hover {
+    background-color: #f8fafc;
+}
+
+.o_tax_line_row td {
+    padding: 8px 16px;
+    font-size: 12px;
+    color: #334155;
+    vertical-align: middle;
+}
+
+.o_tax_net_row {
+    background: #f1f5f9 !important;
+    color: #0f172a !important;
+    font-size: 13px !important;
+    font-weight: 700 !important;
+    border-top: 2px solid #cbd5e1 !important;
+}
+
+.o_tax_net_row td {
+    padding: 12px 16px !important;
+    vertical-align: middle;
+    color: #0f172a !important;
+}
+
+.o_tax_rate_badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 8px;
+    background-color: #e0e7ff;
+    color: #4338ca;
+    border-radius: 6px;
+    font-size: 11px;
+    font-weight: 600;
+}
+
+.o_tax_refundable_badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background-color: #dcfce7;
+    color: #15803d;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 700;
+    border: 1px solid #bbf7d0;
+}
+
+.o_tax_payable_badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background-color: #fee2e2;
+    color: #b91c1c;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 11px;
+    font-weight: 700;
+    border: 1px solid #fecaca;
 }
 
 

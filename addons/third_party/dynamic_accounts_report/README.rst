@@ -1,10 +1,10 @@
-.. image:: https://img.shields.io/badge/license-LGPL--3-blue.svg
+.. image:: https://img.shields.io/badge/licence-LGPL--3-green.svg
     :target: https://www.gnu.org/licenses/lgpl-3.0-standalone.html
     :alt: License: LGPL-3
 
-Odoo19 Dynamic Accounting Reports
-=================================
-* Dynamic financial reports for Odoo 19 community editions
+Dynamic Financial Reports
+=========================
+* Dynamic financial reports for Odoo 18 community editions
 
 Configuration
 =============
@@ -12,8 +12,8 @@ Configuration
 
 License
 -------
-General Public License, Version 3 (LGPL v3).
-(http://www.gnu.org/licenses/lgpl-3.0-standalone.html)
+Lesser General Public License, Version 3 (LGPL-3).
+(https://www.gnu.org/licenses/lgpl-3.0.en.html)
 
 Company
 -------
@@ -26,9 +26,7 @@ Credits
              (v15) Mily @ Cybrosys,
              (v16) Aneesh @ Cybrosys,
              (v17) Ammu Raj @ Cybrosys,
-             (v18) Bhagyadev @ Cybrosys,
-             (v19) Swetha Anand @ Cybrosys,
-    Contact: odoo@cybrosys.com
+             (v18) Bhagyadev @ Cybrosys, Contact: odoo@cybrosys.com
 
 Contacts
 --------

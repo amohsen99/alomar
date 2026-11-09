@@ -30,14 +30,12 @@ services:
   # Odoo Community Web Application
   # ---------------------------------------------------------------------------
   web:
-    # Option A (Default): Use official Community Docker Hub image
-    image: odoo:${ODOO_IMAGE_TAG:-19.0}
-    # Option B: Use custom Dockerfile to install python/system dependencies
-    # build:
-    #   context: .
-    #   dockerfile: Dockerfile
-    #   args:
-    #     ODOO_VERSION: ${ODOO_IMAGE_TAG:-19.0}
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        ODOO_VERSION: ${ODOO_IMAGE_TAG:-19.0}
+    image: ${COMPOSE_PROJECT_NAME:-alomar}-web:19.0-custom
     container_name: ${COMPOSE_PROJECT_NAME:-alomar}-web
     restart: unless-stopped
     depends_on:

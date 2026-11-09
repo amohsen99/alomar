@@ -1827,7 +1827,7 @@ msgstr ""
 #: model:ir.actions.client,name:dynamic_accounts_report.action_dynamic_profit_and_loss
 #: model:ir.ui.menu,name:dynamic_accounts_report.menu_profit_and_loss_report
 msgid "Profit and Loss"
-msgstr "تقرير خسارة الربح"
+msgstr "الأرباح والخسائر"
 
 #. module: dynamic_accounts_report
 #. odoo-javascript
@@ -2309,4 +2309,155 @@ msgstr "نشر"
 #: model_terms:ir.ui.view,arch_db:dynamic_accounts_report.tax_report
 #: model_terms:ir.ui.view,arch_db:dynamic_accounts_report.trial_balance
 msgid "to"
-msgstr "ل"
+msgstr "إلى"
+
+#. module: dynamic_accounts_report
+#. odoo-javascript
+#: code:addons/dynamic_accounts_report/static/src/xml/partner_ledger_view.xml:0
+msgid "Detailed"
+msgstr "تفصيلي"
+
+#. module: dynamic_accounts_report
+#. odoo-javascript
+#: code:addons/dynamic_accounts_report/static/src/xml/partner_ledger_view.xml:0
+msgid "Debt Summary"
+msgstr "إجمالي المديونية"
+
+#. module: dynamic_accounts_report
+#. odoo-javascript
+#: code:addons/dynamic_accounts_report/static/src/xml/partner_ledger_view.xml:0
+msgid "Print (PDF)"
+msgstr "طباعة (PDF)"
+
+#. module: dynamic_accounts_report
+#. odoo-javascript
+#: code:addons/dynamic_accounts_report/static/src/xml/partner_ledger_view.xml:0
+msgid "Export (XLSX)"
+msgstr "تصدير (XLSX)"
+
+#. module: dynamic_accounts_report
+#. odoo-javascript
+#: code:addons/dynamic_accounts_report/static/src/xml/partner_ledger_view.xml:0
+msgid "Fold All"
+msgstr "طي الكل"
+
+#. module: dynamic_accounts_report
+#. odoo-javascript
+#: code:addons/dynamic_accounts_report/static/src/xml/partner_ledger_view.xml:0
+msgid "Unfold All"
+msgstr "توسيع الكل"
+
+#. module: dynamic_accounts_report
+#. odoo-javascript
+#: code:addons/dynamic_accounts_report/static/src/xml/partner_ledger_view.xml:0
+msgid "Search partner, ref, code..."
+msgstr "البحث عن شريك، مرجع، كود..."
+
+#. module: dynamic_accounts_report
+#. odoo-javascript
+#: code:addons/dynamic_accounts_report/static/src/xml/partner_ledger_view.xml:0
+msgid "All Partners (الكل)"
+msgstr "كافة الشركاء"
+
+#. module: dynamic_accounts_report
+#. odoo-javascript
+#: code:addons/dynamic_accounts_report/static/src/xml/partner_ledger_view.xml:0
+msgid "Customers Only (عملاء)"
+msgstr "العملاء فقط"
+
+#. module: dynamic_accounts_report
+#. odoo-javascript
+#: code:addons/dynamic_accounts_report/static/src/xml/partner_ledger_view.xml:0
+msgid "Vendors Only (موردين)"
+msgstr "الموردين فقط"
+
+#. module: dynamic_accounts_report
+#. odoo-javascript
+#: code:addons/dynamic_accounts_report/static/src/xml/partner_ledger_view.xml:0
+msgid "Opening Balance (رصيد أول المدة)"
+msgstr "رصيد أول المدة"
+
+#. module: dynamic_accounts_report
+#. odoo-javascript
+#: code:addons/dynamic_accounts_report/static/src/xml/partner_ledger_view.xml:0
+msgid "Initial Balance (رصيد أول المدة)"
+msgstr "رصيد أول المدة"
+
+#. module: dynamic_accounts_report
+#. odoo-javascript
+#: code:addons/dynamic_accounts_report/static/src/xml/partner_ledger_view.xml:0
+msgid "Total Invoiced / Debit (إجمالي مدين)"
+msgstr "إجمالي حركة الفواتير (مدين)"
+
+#. module: dynamic_accounts_report
+#. odoo-javascript
+#: code:addons/dynamic_accounts_report/static/src/xml/partner_ledger_view.xml:0
+msgid "Total Paid / Credit (إجمالي دائن)"
+msgstr "إجمالي حركة السداد (دائن)"
+
+#. module: dynamic_accounts_report
+#. odoo-javascript
+#: code:addons/dynamic_accounts_report/static/src/xml/partner_ledger_view.xml:0
+msgid "Net Total Balance (صافي إجمالي الرصيد)"
+msgstr "صافي إجمالي الرصيد"
+
+#. module: dynamic_accounts_report
+#. odoo-javascript
+#: code:addons/dynamic_accounts_report/static/src/xml/partner_ledger_view.xml:0
+msgid "TOTAL / الإجمالي العام"
+msgstr "الإجمالي العام"
+
+#. module: dynamic_accounts_report
+#. odoo-javascript
+#: code:addons/dynamic_accounts_report/static/src/xml/partner_ledger_view.xml:0
+msgid "Partner"
+msgstr "الشريك"
+
+#. module: dynamic_accounts_report
+#. odoo-javascript
+#: code:addons/dynamic_accounts_report/static/src/xml/partner_ledger_view.xml:0
+msgid "Journal Items"
+msgstr "عناصر اليومية"
+
+#. module: dynamic_accounts_report
+#. odoo-javascript
+#: code:addons/dynamic_accounts_report/static/src/xml/partner_ledger_view.xml:0
+msgid "Invoices"
+msgstr "الفواتير"
+
+#. module: dynamic_accounts_report
+#. odoo-javascript
+#: code:addons/dynamic_accounts_report/static/src/xml/partner_ledger_view.xml:0
+msgid "Payments"
+msgstr "الدفعات والسداد"
+
+#. module: dynamic_accounts_report
+#. odoo-javascript
+#: code:addons/dynamic_accounts_report/static/src/xml/partner_ledger_view.xml:0
+msgid "Customer"
+msgstr "عميل"
+
+#. module: dynamic_accounts_report
+#. odoo-javascript
+#: code:addons/dynamic_accounts_report/static/src/xml/partner_ledger_view.xml:0
+msgid "Vendor"
+msgstr "مورد"
+
+#. module: dynamic_accounts_report
+#. odoo-javascript
+#: code:addons/dynamic_accounts_report/static/src/xml/partner_ledger_view.xml:0
+msgid "Invoiced (Debit)"
+msgstr "الفواتير (مدين)"
+
+#. module: dynamic_accounts_report
+#. odoo-javascript
+#: code:addons/dynamic_accounts_report/static/src/xml/partner_ledger_view.xml:0
+msgid "Paid (Credit)"
+msgstr "السداد (دائن)"
+
+#. module: dynamic_accounts_report
+#. odoo-javascript
+#: code:addons/dynamic_accounts_report/static/src/xml/partner_ledger_view.xml:0
+msgid "Net Balance"
+msgstr "صافي الرصيد"
+

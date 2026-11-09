@@ -1,278 +1,288 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!--    Report template for Aged Payable Report.-->
+    <!-- Template for numeric aging cells in Aged Payable -->
+    <template id="aged_payable_cell_num">
+        <td class="o_pdf_num" style="padding: 3.5px 5px; font-variant-numeric: tabular-nums; font-size: 8.5px; border-bottom: 1px solid #f1f5f9; border-right: 1px solid #f1f5f9;">
+            <t t-set="_val" t-value="float(str(amount).replace(',', '')) if (amount and str(amount) != '-') else 0.0"/>
+            <t t-if="abs(_val) &gt;= 0.005">
+                <span t-attf-style="{{ 'color: #dc2626; font-weight: 700;' if aging_level == 'critical' else ('color: #ea580c; font-weight: 600;' if aging_level == 'high' else ('color: #d97706; font-weight: 600;' if aging_level == 'medium' else 'color: #1e293b;')) }}">
+                    <t t-esc="'{:,.2f}'.format(_val)"/>
+                </span>
+            </t>
+            <t t-else="">
+                <span style="color: #cbd5e1;">-</span>
+            </t>
+        </td>
+    </template>
+
+    <!-- Master Aged Payable Report Template -->
     <template id="aged_payable">
-        <t t-call="web.html_container">
-            <t t-call="web.external_layout">
-                <t t-set="data_report_margin_top" t-value="12"/>
-                <t t-set="data_report_header_spacing" t-value="9"/>
-                <t t-set="data_report_dpi" t-value="110"/>
-                <div class="page">
-                    <h3>
-                        <center>
-                            <b>
-                                <span t-esc="report_name"/>
-                            </b>
-                        </center>
-                    </h3>
-                    <br/>
-                    <br/>
-                    <div class="filters">
-                        <table class="table table-sm table-reports">
-                            <thead class="filter_table"
-                                   style="background:#808080;">
-                                <tr>
-                                    <th>Date Range</th>
-                                    <th>Partner</th>
-                                </tr>
-                            </thead>
-                            <tbody style="font-size:11px;font-weight:100;">
-                                <tr>
-                                    <th>
-                                        <t t-if="filters['end_date']">
-                                            <t t-out="filters['end_date']"/>
-                                        </t>
-                                    </th>
-                                    <th>
-                                        <t t-foreach="filters['partner']"
-                                           t-as="selected_partner"
-                                           t-key="partner_index">
-                                            <t t-out="selected_partner['display_name']"/>
-                                            ,
-                                        </t>
-                                    </th>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <br/>
-                    <br/>
-                    <br/>
-                    <t t-if="move_lines">
-                        <t t-foreach="move_lines"
-                           t-as="move_line"
-                           t-key="partner_index">
-                            <table class="table table-sm table-reports">
-                                <thead style="background:#808080;">
-                                    <tr>
-                                        <th style="width:10%" colspan="6"/>
-                                        <th style="width:10%">Invoice Date</th>
-                                        <th style="width:10%">Amount Currency
-                                        </th>
-                                        <th style="width:10%">Currency</th>
-                                        <th style="width:10%">Account</th>
-                                        <th style="width:10%">Expected Date</th>
-                                        <th style="width:10%">At Date</th>
-                                        <th style="width:10%">1-30</th>
-                                        <th style="width:10%">31-60</th>
-                                        <th style="width:10%">61-90</th>
-                                        <th style="width:10%">91-120</th>
-                                        <th style="width:10%">Older</th>
-                                        <th style="width:10%">Total</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr class="border-bottom"
-                                        style="background:#D3D3D3;">
-                                        <th colspan="6"
-                                            style="border:0px solid transparent;border-left: thin solid #dee2e6;">
-                                            <div>
-                                                <span class="fw-bolder">
-                                                    <t t-esc="move_line"/>
-                                                </span>
-                                            </div>
-                                        </th>
-                                        <th style="border:0px solid transparent;"/>
-                                        <th style="border:0px solid transparent;"/>
-                                        <th style="border:0px solid transparent;"/>
-                                        <th style="border:0px solid transparent;"/>
-                                        <th style="border:0px solid transparent;"/>
-                                        <th style="border:0px solid transparent;font-size:11px;font-weight:100;">
-                                            <span>
-                                                <t t-if="total[move_line]['diff0_sum']"
-                                                   t-esc="total[move_line]['currency_id']"/>
-                                                <t t-if="total[move_line]['diff0_sum']"
-                                                   t-esc="total[move_line]['diff0_sum']"/>
-                                            </span>
-                                        </th>
-                                        <th style="border:0px solid transparent;font-size:11px;font-weight:100;">
-                                            <span>
-                                                <t t-if="total[move_line]['diff1_sum']"
-                                                   t-esc="total[move_line]['currency_id']"/>
-                                                <t t-if="total[move_line]['diff1_sum']"
-                                                   t-esc="total[move_line]['diff1_sum']"/>
-                                            </span>
-                                        </th>
-                                        <th style="border:0px solid transparent;font-size:11px;font-weight:100;">
-                                            <span>
-                                                <t t-if="total[move_line]['diff2_sum']"
-                                                   t-esc="total[move_line]['currency_id']"/>
-                                                <t t-if="total[move_line]['diff2_sum']"
-                                                   t-esc="total[move_line]['diff2_sum']"/>
-                                            </span>
-                                        </th>
-                                        <th style="border:0px solid transparent;font-size:11px;font-weight:100;">
-                                            <span>
-                                                <t t-if="total[move_line]['diff3_sum']"
-                                                   t-esc="total[move_line]['currency_id']"/>
-                                                <t t-if="total[move_line]['diff3_sum']"
-                                                   t-esc="total[move_line]['diff3_sum']"/>
-                                            </span>
-                                        </th>
-                                        <th style="border:0px solid transparent;font-size:11px;font-weight:100;">
-                                            <span>
-                                                <t t-if="total[move_line]['diff4_sum']"
-                                                   t-esc="total[move_line]['currency_id']"/>
-                                                <t t-if="total[move_line]['diff4_sum']"
-                                                   t-esc="total[move_line]['diff4_sum']"/>
-                                            </span>
-                                        </th>
-                                        <th style="border:0px solid transparent;font-size:11px;font-weight:100;">
-                                            <span>
-                                                <t t-if="total[move_line]['diff5_sum']"
-                                                   t-esc="total[move_line]['currency_id']"/>
-                                                <t t-if="total[move_line]['diff5_sum']"
-                                                   t-esc="total[move_line]['diff5_sum']"/>
-                                            </span>
-                                        </th>
-                                        <th style="border:0px solid transparent;border-right: thin solid #dee2e6;font-size:11px;font-weight:100;">
-                                            <span class="fw-bolder">
-                                                <t t-if="total[move_line]['credit_sum']"
-                                                   t-esc="total[move_line]['currency_id']"/>
-                                                <t t-if="total[move_line]['credit_sum']"
-                                                   t-esc="total[move_line]['credit_sum']"/>
-                                            </span>
-                                        </th>
-                                    </tr>
-                                    <t t-foreach="data[move_line]"
-                                       t-as="valuelist"
-                                       t-key="valuelist_index">
-                                        <tr class="border-bottom"
-                                            style="font-size:11px;font-weight:100;">
-                                            <th colspan="6">
-                                                <span>
-                                                    <t t-esc="valuelist['move_name']"/>
-                                                    <t t-esc="valuelist['name']"/>
-                                                </span>
-                                            </th>
-                                            <th>
-                                                <span>
-                                                    <t t-esc="valuelist['date']"/>
-                                                </span>
-                                            </th>
-                                            <th>
-                                                <span>
-                                                    <t t-esc="valuelist['amount_currency']"/>
-                                                </span>
-                                            </th>
-                                            <th>
-                                                <span>
-                                                    <t t-esc="valuelist['currency_id'][1]"/>
-                                                </span>
-                                            </th>
-                                            <th>
-                                                <span>
-                                                    <t t-esc="valuelist['account_id'][1]"/>
-                                                </span>
-                                            </th>
-                                            <th>
-                                                <span>
-                                                    <t t-if="valuelist['date_maturity']"
-                                                       t-esc="valuelist['date_maturity']"/>
-                                                </span>
-                                            </th>
-                                            <th>
-                                                <span>
-                                                    <t t-if="valuelist['diff0']"
-                                                       t-esc="total[move_line]['currency_id']"/>
-                                                    <t t-if="valuelist['diff0']"
-                                                       t-esc="valuelist['diff0']"/>
-                                                </span>
-                                            </th>
-                                            <th>
-                                                <span>
-                                                    <t t-if="valuelist['diff1']"
-                                                       t-esc="total[move_line]['currency_id']"/>
-                                                    <t t-if="valuelist['diff1']"
-                                                       t-esc="valuelist['diff1']"/>
-                                                </span>
-                                            </th>
-                                            <th>
-                                                <span>
-                                                    <t t-if="valuelist['diff2']"
-                                                       t-esc="total[move_line]['currency_id']"/>
-                                                    <t t-if="valuelist['diff2']"
-                                                       t-esc="valuelist['diff2']"/>
-                                                </span>
-                                            </th>
-                                            <th>
-                                                <span>
-                                                    <t t-if="valuelist['diff3']"
-                                                       t-esc="total[move_line]['currency_id']"/>
-                                                    <t t-if="valuelist['diff3']"
-                                                       t-esc="valuelist['diff3']"/>
-                                                </span>
-                                            </th>
-                                            <th>
-                                                <span>
-                                                    <t t-if="valuelist['diff4']"
-                                                       t-esc="total[move_line]['currency_id']"/>
-                                                    <t t-if="valuelist['diff4']"
-                                                       t-esc="valuelist['diff4']"/>
-                                                </span>
-                                            </th>
-                                            <th>
-                                                <span>
-                                                    <t t-if="valuelist['diff5']"
-                                                       t-esc="total[move_line]['currency_id']"/>
-                                                    <t t-if="valuelist['diff5']"
-                                                       t-esc="valuelist['diff5']"/>
-                                                </span>
-                                            </th>
-                                            <th/>
-                                        </tr>
+        <t t-call="dynamic_accounts_report.report_master_layout">
+            <t t-set="unfold_all" t-value="is_unfolded_all if is_unfolded_all is not None else (data.get('is_unfolded_all') if isinstance(data, dict) else None)"/>
+            <t t-set="exp_parts" t-value="expanded_partners if isinstance(expanded_partners, dict) else (data.get('expanded_partners', {}) if isinstance(data, dict) else {})"/>
+            <t t-set="report_title">Aged Payable</t>
+            <t t-set="report_subtitle">أعمار ديون الموردين والالتزامات المستحقة<t t-if="unfold_all is False"> - Summary (ملخص)</t><t t-else=""> - Detailed (تفصيلي)</t></t>
+
+            <!-- Main Aging Transactions Table -->
+            <table class="o_pdf_table o_ignore_layout_styling" style="width: 100%; border-collapse: collapse; margin-top: 6px; border: none;">
+                <thead>
+                    <tr class="o_pdf_sec_header">
+                        <th style="width: 17%; text-align: left; padding: 7px 6px; border-right: 1px solid rgba(255,255,255,0.2);">
+                            Entry &amp; Ref / القيد والبيان
+                        </th>
+                        <th style="width: 6.5%; text-align: center; padding: 7px 4px; border-right: 1px solid rgba(255,255,255,0.2);">
+                            Date / التاريخ
+                        </th>
+                        <th style="width: 6.5%; text-align: center; padding: 7px 4px; border-right: 1px solid rgba(255,255,255,0.2);">
+                            Due / الاستحقاق
+                        </th>
+                        <th style="width: 7.5%; text-align: left; padding: 7px 5px; border-right: 1px solid rgba(255,255,255,0.2);">
+                            Account / الحساب
+                        </th>
+                        <th style="width: 6.5%; text-align: right; padding: 7px 5px; border-right: 1px solid rgba(255,255,255,0.15);">
+                            Currency
+                        </th>
+                        <th style="width: 8%; text-align: right; padding: 7px 5px; border-right: 1px solid rgba(255,255,255,0.15);">
+                            At Date / جاري
+                        </th>
+                        <th style="width: 8%; text-align: right; padding: 7px 5px; border-right: 1px solid rgba(255,255,255,0.15);">
+                            1-30 Days
+                        </th>
+                        <th style="width: 8%; text-align: right; padding: 7px 5px; border-right: 1px solid rgba(255,255,255,0.15);">
+                            31-60 Days
+                        </th>
+                        <th style="width: 8%; text-align: right; padding: 7px 5px; border-right: 1px solid rgba(255,255,255,0.15);">
+                            61-90 Days
+                        </th>
+                        <th style="width: 8%; text-align: right; padding: 7px 5px; border-right: 1px solid rgba(255,255,255,0.15);">
+                            91-120 Days
+                        </th>
+                        <th style="width: 8%; text-align: right; padding: 7px 5px; border-right: 1px solid rgba(255,255,255,0.15);">
+                            +120 / متأخر
+                        </th>
+                        <th style="width: 8.5%; text-align: right; padding: 7px 6px;">
+                            Total / الإجمالي
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <t t-if="move_lines and len(move_lines) &gt; 0">
+                        <t t-foreach="move_lines" t-as="move_line">
+                            <t t-set="is_partner_open" t-value="exp_parts.get(move_line) if move_line in exp_parts else (unfold_all if unfold_all is not None else True)"/>
+                            <t t-set="p_tot" t-value="total.get(move_line, {}) if total else {}"/>
+                            <t t-set="p_d0" t-value="float(str(p_tot.get('diff0_sum', 0)).replace(',', '')) if p_tot.get('diff0_sum') else 0.0"/>
+                            <t t-set="p_d1" t-value="float(str(p_tot.get('diff1_sum', 0)).replace(',', '')) if p_tot.get('diff1_sum') else 0.0"/>
+                            <t t-set="p_d2" t-value="float(str(p_tot.get('diff2_sum', 0)).replace(',', '')) if p_tot.get('diff2_sum') else 0.0"/>
+                            <t t-set="p_d3" t-value="float(str(p_tot.get('diff3_sum', 0)).replace(',', '')) if p_tot.get('diff3_sum') else 0.0"/>
+                            <t t-set="p_d4" t-value="float(str(p_tot.get('diff4_sum', 0)).replace(',', '')) if p_tot.get('diff4_sum') else 0.0"/>
+                            <t t-set="p_d5" t-value="float(str(p_tot.get('diff5_sum', 0)).replace(',', '')) if p_tot.get('diff5_sum') else 0.0"/>
+                            <t t-set="p_crd" t-value="float(str(p_tot.get('credit_sum', 0)).replace(',', '')) if p_tot.get('credit_sum') else 0.0"/>
+
+                            <!-- Partner Group Summary Header Row -->
+                            <tr class="o_pdf_group_header" style="page-break-inside: avoid; background-color: #f1f5f9; border-top: 1.5px solid #cbd5e1; border-bottom: 1px solid #cbd5e1;">
+                                <td colspan="5" style="padding: 6px 8px; vertical-align: middle; border-right: 1px solid #cbd5e1;">
+                                    <span style="color: #4f46e5; margin-right: 4px;">
+                                        <t t-if="is_partner_open">▾</t>
+                                        <t t-else="">▸</t>
+                                    </span>
+                                    <strong style="color: #0f172a; font-size: 10.5px;">
+                                        <t t-esc="move_line"/>
+                                    </strong>
+                                    <span style="font-size: 8px; color: #9a3412; background: #ffedd5; padding: 1px 4px; border-radius: 3px; margin-left: 6px; font-weight: 600;">
+                                        Vendor / مورد
+                                    </span>
+                                </td>
+                                <!-- At Date -->
+                                <td class="o_pdf_num" style="padding: 6px 5px; font-weight: 700; color: #0f172a; font-size: 9px; border-right: 1px solid #cbd5e1;">
+                                    <t t-if="abs(p_d0) &gt;= 0.005"><t t-esc="'{:,.2f}'.format(p_d0)"/></t><t t-else="">-</t>
+                                </td>
+                                <!-- 1-30 -->
+                                <td class="o_pdf_num" style="padding: 6px 5px; font-weight: 700; color: #0f172a; font-size: 9px; border-right: 1px solid #cbd5e1;">
+                                    <t t-if="abs(p_d1) &gt;= 0.005"><t t-esc="'{:,.2f}'.format(p_d1)"/></t><t t-else="">-</t>
+                                </td>
+                                <!-- 31-60 -->
+                                <td class="o_pdf_num" style="padding: 6px 5px; font-weight: 700; color: #0f172a; font-size: 9px; border-right: 1px solid #cbd5e1;">
+                                    <t t-if="abs(p_d2) &gt;= 0.005"><t t-esc="'{:,.2f}'.format(p_d2)"/></t><t t-else="">-</t>
+                                </td>
+                                <!-- 61-90 -->
+                                <td class="o_pdf_num" style="padding: 6px 5px; font-weight: 700; font-size: 9px; border-right: 1px solid #cbd5e1;">
+                                    <t t-if="abs(p_d3) &gt;= 0.005">
+                                        <span style="color: #d97706;"><t t-esc="'{:,.2f}'.format(p_d3)"/></span>
                                     </t>
-                                </tbody>
-                            </table>
+                                    <t t-else="">-</t>
+                                </td>
+                                <!-- 91-120 -->
+                                <td class="o_pdf_num" style="padding: 6px 5px; font-weight: 700; font-size: 9px; border-right: 1px solid #cbd5e1;">
+                                    <t t-if="abs(p_d4) &gt;= 0.005">
+                                        <span style="color: #ea580c;"><t t-esc="'{:,.2f}'.format(p_d4)"/></span>
+                                    </t>
+                                    <t t-else="">-</t>
+                                </td>
+                                <!-- +120 -->
+                                <td class="o_pdf_num" style="padding: 6px 5px; font-weight: 700; font-size: 9px; border-right: 1px solid #cbd5e1;">
+                                    <t t-if="abs(p_d5) &gt;= 0.005">
+                                        <span style="color: #dc2626;"><t t-esc="'{:,.2f}'.format(p_d5)"/></span>
+                                    </t>
+                                    <t t-else="">-</t>
+                                </td>
+                                <!-- Total Balance -->
+                                <td class="o_pdf_num" style="padding: 6px 6px; font-weight: 800; font-size: 9.5px; color: #0f172a;">
+                                    <t t-if="abs(p_crd) &gt;= 0.005">
+                                        <t t-esc="'{:,.2f}'.format(p_crd)"/>
+                                    </t>
+                                    <t t-else="">0.00</t>
+                                </td>
+                            </tr>
+
+                            <!-- Partner Move Lines Detail -->
+                            <t t-if="is_partner_open and data and data.get(move_line)">
+                                <t t-foreach="data[move_line]" t-as="valuelist">
+                                    <tr class="o_pdf_account_row" style="page-break-inside: avoid;">
+                                        <!-- Entry & Narration -->
+                                        <td style="padding: 3.5px 6px; font-size: 8.5px; border-bottom: 1px solid #f8fafc; border-right: 1px solid #f1f5f9;">
+                                            <strong style="color: #1e293b; font-family: monospace;">
+                                                <t t-esc="valuelist.get('move_name') or '-'"/>
+                                            </strong>
+                                            <t t-if="valuelist.get('name') and valuelist.get('name') != valuelist.get('move_name')">
+                                                <span style="color: #64748b; font-size: 8px; margin-left: 3px;">
+                                                    (<t t-esc="valuelist.get('name')"/>)
+                                                </span>
+                                            </t>
+                                        </td>
+                                        <!-- Invoice Date -->
+                                        <td style="padding: 3.5px 4px; text-align: center; font-size: 8.5px; color: #64748b; border-bottom: 1px solid #f8fafc; border-right: 1px solid #f1f5f9; white-space: nowrap;">
+                                            <t t-esc="valuelist.get('date') or ''"/>
+                                        </td>
+                                        <!-- Due Date -->
+                                        <td style="padding: 3.5px 4px; text-align: center; font-size: 8.5px; color: #475569; border-bottom: 1px solid #f8fafc; border-right: 1px solid #f1f5f9; white-space: nowrap;">
+                                            <t t-esc="valuelist.get('date_maturity') or '-'"/>
+                                        </td>
+                                        <!-- Account Badge -->
+                                        <td style="padding: 3.5px 5px; font-size: 8px; border-bottom: 1px solid #f8fafc; border-right: 1px solid #f1f5f9;">
+                                            <t t-if="valuelist.get('account_id') and isinstance(valuelist.get('account_id'), (list, tuple))">
+                                                <span class="o_acc_code_badge" style="display: inline-block; font-family: monospace; font-weight: 600; color: #4f46e5; background: #eef2ff; border: 1px solid #c7d2fe; border-radius: 2px; padding: 0 3px;">
+                                                    <t t-esc="valuelist['account_id'][1].split(' ')[0]"/>
+                                                </span>
+                                            </t>
+                                            <t t-else="">-</t>
+                                        </td>
+                                        <!-- Amount Currency -->
+                                        <td class="o_pdf_num" style="padding: 3.5px 5px; font-size: 8px; color: #64748b; border-bottom: 1px solid #f8fafc; border-right: 1px solid #f1f5f9;">
+                                            <t t-set="_cur_amt" t-value="float(str(valuelist.get('amount_currency', 0)).replace(',', '')) if valuelist.get('amount_currency') else 0.0"/>
+                                            <t t-if="abs(_cur_amt) &gt;= 0.005">
+                                                <t t-esc="'{:,.2f}'.format(_cur_amt)"/>
+                                            </t>
+                                            <t t-else="">-</t>
+                                        </td>
+                                        <!-- At Date (Diff 0) -->
+                                        <t t-call="dynamic_accounts_report.aged_payable_cell_num">
+                                            <t t-set="amount" t-value="valuelist.get('diff0')"/>
+                                            <t t-set="aging_level" t-value="'normal'"/>
+                                        </t>
+                                        <!-- 1-30 Days (Diff 1) -->
+                                        <t t-call="dynamic_accounts_report.aged_payable_cell_num">
+                                            <t t-set="amount" t-value="valuelist.get('diff1')"/>
+                                            <t t-set="aging_level" t-value="'normal'"/>
+                                        </t>
+                                        <!-- 31-60 Days (Diff 2) -->
+                                        <t t-call="dynamic_accounts_report.aged_payable_cell_num">
+                                            <t t-set="amount" t-value="valuelist.get('diff2')"/>
+                                            <t t-set="aging_level" t-value="'normal'"/>
+                                        </t>
+                                        <!-- 61-90 Days (Diff 3) -->
+                                        <t t-call="dynamic_accounts_report.aged_payable_cell_num">
+                                            <t t-set="amount" t-value="valuelist.get('diff3')"/>
+                                            <t t-set="aging_level" t-value="'medium'"/>
+                                        </t>
+                                        <!-- 91-120 Days (Diff 4) -->
+                                        <t t-call="dynamic_accounts_report.aged_payable_cell_num">
+                                            <t t-set="amount" t-value="valuelist.get('diff4')"/>
+                                            <t t-set="aging_level" t-value="'high'"/>
+                                        </t>
+                                        <!-- +120 Days (Diff 5) -->
+                                        <t t-call="dynamic_accounts_report.aged_payable_cell_num">
+                                            <t t-set="amount" t-value="valuelist.get('diff5')"/>
+                                            <t t-set="aging_level" t-value="'critical'"/>
+                                        </t>
+                                        <!-- Line Total Credit -->
+                                        <td class="o_pdf_num" style="padding: 3.5px 6px; font-size: 8.5px; font-weight: 700; color: #0f172a; border-bottom: 1px solid #f8fafc;">
+                                            <t t-set="_line_crd" t-value="float(str(valuelist.get('credit', 0)).replace(',', '')) if valuelist.get('credit') else 0.0"/>
+                                            <t t-if="abs(_line_crd) &gt;= 0.005">
+                                                <t t-esc="'{:,.2f}'.format(_line_crd)"/>
+                                            </t>
+                                            <t t-else="">-</t>
+                                        </td>
+                                    </tr>
+                                </t>
+                            </t>
                         </t>
-                    </t>
-                    <table class="table table-sm table-reports">
-                        <tbody>
-                            <tr>
-                                <th style="width:60%;">Total</th>
-                                <th style="width:10%">
-                                    <t t-out="grand_total['currency']"/>
-                                    <t t-out="grand_total['diff0_sum']"/>
+
+                        <!-- Grand Total Summary Row -->
+                        <t t-if="grand_total">
+                            <t t-set="g_d0" t-value="float(str(grand_total.get('diff0_sum', 0)).replace(',', '')) if grand_total.get('diff0_sum') else 0.0"/>
+                            <t t-set="g_d1" t-value="float(str(grand_total.get('diff1_sum', 0)).replace(',', '')) if grand_total.get('diff1_sum') else 0.0"/>
+                            <t t-set="g_d2" t-value="float(str(grand_total.get('diff2_sum', 0)).replace(',', '')) if grand_total.get('diff2_sum') else 0.0"/>
+                            <t t-set="g_d3" t-value="float(str(grand_total.get('diff3_sum', 0)).replace(',', '')) if grand_total.get('diff3_sum') else 0.0"/>
+                            <t t-set="g_d4" t-value="float(str(grand_total.get('diff4_sum', 0)).replace(',', '')) if grand_total.get('diff4_sum') else 0.0"/>
+                            <t t-set="g_d5" t-value="float(str(grand_total.get('diff5_sum', 0)).replace(',', '')) if grand_total.get('diff5_sum') else 0.0"/>
+                            <t t-set="g_tot" t-value="float(str(grand_total.get('total_credit', 0)).replace(',', '')) if grand_total.get('total_credit') else 0.0"/>
+
+                            <tr class="o_pdf_grand_total" style="page-break-inside: avoid; background-color: #0f172a !important; color: #ffffff !important;">
+                                <th colspan="5" style="text-align: left; padding: 7px 8px; color: #ffffff; font-size: 10px; font-weight: 800; border-top: 2px solid #0f172a; border-bottom: 3px double #0f172a; background-color: #0f172a !important; border-right: 1px solid rgba(255,255,255,0.2);">
+                                    <span>TOTAL / الإجمالي العام</span>
                                 </th>
-                                <th style="width:10%">
-                                    <t t-out="grand_total['currency']"/>
-                                    <t t-out="grand_total['diff1_sum']"/>
+                                <th class="o_pdf_num" style="padding: 7px 5px; color: #ffffff; font-size: 9px; font-weight: 800; border-top: 2px solid #0f172a; border-bottom: 3px double #0f172a; background-color: #0f172a !important; border-right: 1px solid rgba(255,255,255,0.15);">
+                                    <t t-esc="'{:,.2f}'.format(g_d0)"/>
                                 </th>
-                                <th style="width:10%">
-                                    <t t-out="grand_total['currency']"/>
-                                    <t t-out="grand_total['diff2_sum']"/>
+                                <th class="o_pdf_num" style="padding: 7px 5px; color: #ffffff; font-size: 9px; font-weight: 800; border-top: 2px solid #0f172a; border-bottom: 3px double #0f172a; background-color: #0f172a !important; border-right: 1px solid rgba(255,255,255,0.15);">
+                                    <t t-esc="'{:,.2f}'.format(g_d1)"/>
                                 </th>
-                                <th style="width:10%">
-                                    <t t-out="grand_total['currency']"/>
-                                    <t t-out="grand_total['diff3_sum']"/>
+                                <th class="o_pdf_num" style="padding: 7px 5px; color: #ffffff; font-size: 9px; font-weight: 800; border-top: 2px solid #0f172a; border-bottom: 3px double #0f172a; background-color: #0f172a !important; border-right: 1px solid rgba(255,255,255,0.15);">
+                                    <t t-esc="'{:,.2f}'.format(g_d2)"/>
                                 </th>
-                                <th style="width:10%">
-                                    <t t-out="grand_total['currency']"/>
-                                    <t t-out="grand_total['diff4_sum']"/>
+                                <th class="o_pdf_num" style="padding: 7px 5px; color: #fbbf24; font-size: 9px; font-weight: 800; border-top: 2px solid #0f172a; border-bottom: 3px double #0f172a; background-color: #0f172a !important; border-right: 1px solid rgba(255,255,255,0.15);">
+                                    <t t-esc="'{:,.2f}'.format(g_d3)"/>
                                 </th>
-                                <th style="width:10%">
-                                    <t t-out="grand_total['currency']"/>
-                                    <t t-out="grand_total['diff5_sum']"/>
+                                <th class="o_pdf_num" style="padding: 7px 5px; color: #fdba74; font-size: 9px; font-weight: 800; border-top: 2px solid #0f172a; border-bottom: 3px double #0f172a; background-color: #0f172a !important; border-right: 1px solid rgba(255,255,255,0.15);">
+                                    <t t-esc="'{:,.2f}'.format(g_d4)"/>
                                 </th>
-                                <th style="width:10%">
-                                    <t t-out="grand_total['currency']"/>
-                                    <t t-out="grand_total['total_credit']"/>
+                                <th class="o_pdf_num" style="padding: 7px 5px; color: #fca5a5; font-size: 9px; font-weight: 800; border-top: 2px solid #0f172a; border-bottom: 3px double #0f172a; background-color: #0f172a !important; border-right: 1px solid rgba(255,255,255,0.15);">
+                                    <t t-esc="'{:,.2f}'.format(g_d5)"/>
+                                </th>
+                                <th class="o_pdf_num" style="padding: 7px 6px; color: #ffffff; font-size: 10px; font-weight: 800; border-top: 2px solid #0f172a; border-bottom: 3px double #0f172a; background-color: #0f172a !important;">
+                                    <t t-esc="'{:,.2f}'.format(g_tot)"/>
                                 </th>
                             </tr>
-                        </tbody>
-                    </table>
+                        </t>
+                    </t>
+                    <t t-else="">
+                        <tr>
+                            <td colspan="12" style="text-align: center; padding: 24px; color: #94a3b8; font-weight: 500;">
+                                No aged payable transactions found for the selected period.
+                            </td>
+                        </tr>
+                    </t>
+                </tbody>
+            </table>
+
+            <!-- Executive Summary & Audit Seal (Div-based, zero table borders) -->
+            <div style="margin-top: 14px; page-break-inside: avoid; width: 100%; box-sizing: border-box; background-color: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 8px 14px; overflow: hidden;">
+                <div style="float: left; width: 62%;">
+                    <t t-set="_g_tot" t-value="float(str(grand_total.get('total_credit', 0)).replace(',', '')) if grand_total else 0.0"/>
+                    <t t-set="_g_overdue" t-value="(g_d1 + g_d2 + g_d3 + g_d4 + g_d5) if grand_total else 0.0"/>
+                    <span style="display: inline-block; background-color: #dcfce7; color: #15803d; border: 1px solid #bbf7d0; font-weight: 700; font-size: 11px; padding: 3px 8px; border-radius: 4px;">
+                        ✓ VERIFIED / تقرير أعمار ديون الموردين معتمد
+                    </span>
+                    <span style="font-size: 10px; color: #475569; margin-left: 8px;">
+                        Total Payable: <strong style="color: #0f172a;"><t t-esc="'{:,.2f}'.format(_g_tot)"/></strong> | Overdue (&gt;0d): <strong style="color: #dc2626;"><t t-esc="'{:,.2f}'.format(_g_overdue)"/></strong> <t t-esc="(res_company.currency_id.name if res_company and res_company.currency_id else 'EGP')"/>
+                    </span>
                 </div>
-            </t>
+                <div style="float: right; width: 38%; text-align: right; font-size: 10px; color: #64748b; padding-top: 2px;">
+                    <span>Active Vendors: <strong style="color: #0f172a;"><t t-esc="len(move_lines) if move_lines else 0"/></strong></span>
+                    | <span>Currency: <strong style="color: #0f172a;"><t t-esc="(res_company.currency_id.name if res_company and res_company.currency_id else 'EGP')"/></strong></span>
+                </div>
+                <div style="clear: both;"/>
+            </div>
         </t>
     </template>
 </odoo>

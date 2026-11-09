@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<odoo>
+    <record id="res_users_view_form_apps_menu_preferences_inherit_am" model="ir.ui.view">
+        <field name="name">res.users.apps.menu.preferences.form.inherit.am</field>
+        <field name="model">res.users</field>
+        <field name="inherit_id" ref="web_responsive.res_users_view_form_apps_menu_preferences" />
+        <field name="arch" type="xml">
+            <!-- Hide Search Type field -->
+            <xpath expr="//field[@name='apps_menu_search_type']" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <!-- Hide Search Type Help table -->
+            <xpath expr="//form/div[hasclass('mt-3')]" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+        </field>
+    </record>
+</odoo>

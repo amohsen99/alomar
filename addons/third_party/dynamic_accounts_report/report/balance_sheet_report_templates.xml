@@ -1,922 +1,577 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!-- Balance Sheet Template -->
-    <!-- This template defines the structure and layout of a balance sheet
-    report -->
-    <template id="dynamic_accounts_report.balance_sheet">
-        <t t-call="web.html_container">
-            <t t-call="web.external_layout">
+    <!--
+    Balance Sheet (Statement of Financial Position) Report Template - Enterprise Edition
+    Inherits / Calls the Master Layout with 4-Level Financial Hierarchy and Legible Styling.
+    -->
+    <template id="balance_sheet">
+        <!-- Normalize data whether passed as state or wrapped in {'data': state} -->
+        <t t-set="d" t-value="data.get('data') if (data and isinstance(data, dict) and isinstance(data.get('data'), dict) and 'datas' in data.get('data')) else data"/>
+        <t t-set="data" t-value="d"/>
+        <t t-set="unfold_all" t-value="data.get('is_unfolded_all') if isinstance(data, dict) else None"/>
+        <t t-set="exp_groups" t-value="data.get('expanded_groups') if (isinstance(data, dict) and isinstance(data.get('expanded_groups'), dict)) else {}"/>
 
-                <t t-set="data_report_dpi" t-value="110"/>
-                <div class="page">
-                    <h3>
-                        <span t-esc="report_name"/><!-- Report title -->
-                    </h3>
-                    <br/>
-                    <table cellspacing="0" width="100%"
-                           style="border: 1px solid white; text-align: left;">
-                        <thead>
-                            <!-- Table header -->
-                            <tr class="o_heading">
-                                <th colspan="6"/>
-                                <t t-if="data['year']">
-                                    <t t-foreach="data['year']"
-                                       t-as="periodData"
-                                       t-key="periodData_index">
-                                        <th class="text-end">
-                                            <t t-esc="periodData"/>
-                                        </th>
-                                    </t>
-                                </t>
-                            </tr>
-                            <tr class="o_heading">
-                                <th colspan="6"/>
-                                <t t-if="data['year']">
-                                    <t t-foreach="data['year']"
-                                       t-as="periodData"
-                                       t-key="periodData_index">
-                                        <th class="text-end">Balance</th>
-                                    </t>
-                                </t>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <!-- Table body -->
-                            <tr style="border-bottom: 1.5px solid black;">
-                                <th colspan="6" style="font-weight: normal;">
-                                    <span style="font-weight: bolder; margin-left: 2%;">
-                                        ASSETS
-                                    </span>
+        <!-- Dynamic Visibility Flags per Group -->
+        <t t-set="show_asset_cash" t-value="exp_groups.get('asset_cash') if 'asset_cash' in exp_groups else (unfold_all if unfold_all is not None else True)"/>
+        <t t-set="show_asset_receivable" t-value="exp_groups.get('asset_receivable') if 'asset_receivable' in exp_groups else (unfold_all if unfold_all is not None else True)"/>
+        <t t-set="show_asset_current" t-value="exp_groups.get('asset_current') if 'asset_current' in exp_groups else (unfold_all if unfold_all is not None else True)"/>
+        <t t-set="show_asset_prepayments" t-value="exp_groups.get('asset_prepayments') if 'asset_prepayments' in exp_groups else (unfold_all if unfold_all is not None else True)"/>
+        <t t-set="show_asset_fixed" t-value="exp_groups.get('asset_fixed') if 'asset_fixed' in exp_groups else (unfold_all if unfold_all is not None else True)"/>
+        <t t-set="show_asset_non_current" t-value="exp_groups.get('asset_non_current') if 'asset_non_current' in exp_groups else (unfold_all if unfold_all is not None else True)"/>
+        <t t-set="show_liability_current" t-value="exp_groups.get('liability_current') if 'liability_current' in exp_groups else (unfold_all if unfold_all is not None else True)"/>
+        <t t-set="show_liability_payable" t-value="exp_groups.get('liability_payable') if 'liability_payable' in exp_groups else (unfold_all if unfold_all is not None else True)"/>
+        <t t-set="show_liability_non_current" t-value="exp_groups.get('liability_non_current') if 'liability_non_current' in exp_groups else (unfold_all if unfold_all is not None else True)"/>
+        <t t-set="show_equity_unaffected" t-value="exp_groups.get('equity_unaffected') if 'equity_unaffected' in exp_groups else (unfold_all if unfold_all is not None else True)"/>
+        <t t-set="show_equity" t-value="exp_groups.get('equity') if 'equity' in exp_groups else (unfold_all if unfold_all is not None else True)"/>
+
+        <t t-set="is_all_folded" t-value="not (show_asset_cash or show_asset_receivable or show_asset_current or show_asset_prepayments or show_asset_fixed or show_asset_non_current or show_liability_current or show_liability_payable or show_liability_non_current or show_equity_unaffected or show_equity)"/>
+        <t t-set="is_all_unfolded" t-value="show_asset_cash and show_asset_receivable and show_asset_current and show_asset_prepayments and show_asset_fixed and show_asset_non_current and show_liability_current and show_liability_payable and show_liability_non_current and show_equity_unaffected and show_equity"/>
+
+        <t t-call="dynamic_accounts_report.report_master_layout">
+            <t t-set="report_title" t-value="report_name or (data.get('title') if isinstance(data, dict) else None) or 'Balance Sheet'"/>
+            <t t-set="report_subtitle" t-value="'Statement of Financial Position / قائمة المركز المالي' + (' - Summary (ملخص)' if is_all_folded else (' - Detailed (تفصيلي)' if is_all_unfolded else ''))"/>
+
+            <table class="o_pdf_table o_ignore_layout_styling">
+                <thead>
+                    <tr>
+                        <th style="width: 65%; text-align: left; padding-left: 10px;">
+                            Account / Category (الحساب / التصنيف المالي)
+                        </th>
+                        <t t-if="data and data.get('year')">
+                            <t t-foreach="data['year']" t-as="period">
+                                <th class="o_pdf_num" style="width: 35%;">
+                                    <div><t t-esc="period"/></div>
+                                    <small style="font-weight: 500; opacity: 0.85;">Balance (الرصيد)</small>
                                 </th>
-                                <th colspan="3"/>
-                            </tr>
-                            <tr style="border-bottom: 1px solid gainsboro;">
-                                <th colspan="6" style="font-weight: normal;">
-                                    <span style="font-weight: bolder; margin-left: 4%;">
-                                        Current Assets
-                                    </span>
-                                </th>
-                                <th colspan="3"/>
-                            </tr>
-                            <tr style="border-bottom: 1px solid gainsboro;">
-                                <th colspan="6" style="font-weight: normal;">
-                                    <span style="margin-left: 6%;">Bank and Cash
-                                        Accounts
-                                    </span>
-                                </th>
-                                <t t-foreach="data['datas']" t-as="datas"
-                                   t-key="datas_index">
-                                    <th class="text-end"
-                                        style="font-weight: normal;">
-                                        <span>
-                                            <t t-esc="datas['asset_cash'][1]"/>
-                                        </span>
-                                    </th>
-                                </t>
-                            </tr>
-                            <t t-foreach="data['datas'][0]['asset_cash'][0]"
-                               t-as="datas" t-key="datas_index">
-                                <t t-if="datas['amount'] != '0.00'">
-                                    <tr style="border-bottom: 1px solid gainsboro;">
-                                        <th colspan="6"
-                                            style="font-weight: normal;">
-                                            <span style="margin-left: 8%;">
-                                                <t t-esc="datas['name']"/>
-                                            </span>
-                                        </th>
-                                        <!-- Assuming you want to iterate over all values to display -->
-                                        <t t-foreach="data['datas']"
-                                           t-as="values" t-key="values_index">
-                                            <t t-foreach="values['asset_cash'][0]"
-                                               t-as="account"
-                                               t-key="account_index">
-                                                <t t-if="account['name'] == datas['name']">
-                                                    <th class="text-end"
-                                                        style="font-weight: normal;">
-                                                        <span>
-                                                            <t t-esc="account['amount']"/>
-                                                        </span>
-                                                    </th>
-                                                </t>
+                            </t>
+                        </t>
+                        <t t-else="">
+                            <th class="o_pdf_num" style="width: 35%;">Balance</th>
+                        </t>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- ==================== 1. ASSETS (الأصول) ==================== -->
+                    <tr class="o_pdf_sec_header">
+                        <td style="padding-left: 10px;">1. ASSETS (الأصول)</td>
+                        <t t-if="data and data.get('datas')">
+                            <t t-foreach="data['datas']" t-as="val">
+                                <td class="o_pdf_num"><t t-esc="val.get('total_assets') or '0.00'"/></td>
+                            </t>
+                        </t>
+                    </tr>
+
+                    <!-- 1.1 Current Assets Subheader -->
+                    <tr class="o_pdf_group_header">
+                        <td style="padding-left: 18px; font-weight: 800;">
+                            1.1 Current Assets (الأصول المتداولة)
+                        </td>
+                        <t t-if="data and data.get('datas')">
+                            <t t-foreach="data['datas']" t-as="val">
+                                <td class="o_pdf_num"><t t-esc="val.get('total_current_asset') or '0.00'"/></td>
+                            </t>
+                        </t>
+                    </tr>
+
+                    <!-- 1.1.1 Bank and Cash Accounts -->
+                    <tr class="o_pdf_group_header" style="background-color: #f8fafc !important;">
+                        <td style="padding-left: 28px;">
+                            <span style="color: #4f46e5; margin-right: 4px;">
+                                <t t-if="show_asset_cash">▾</t>
+                                <t t-else="">▸</t>
+                            </span> 1.1.1 Bank &amp; Cash Accounts (النقدية وما في حكمها)
+                        </td>
+                        <t t-if="data and data.get('datas')">
+                            <t t-foreach="data['datas']" t-as="val">
+                                <td class="o_pdf_num"><t t-esc="val.get('asset_cash', [None, '0.00'])[1]"/></td>
+                            </t>
+                        </t>
+                    </tr>
+                    <!-- Bank and Cash Accounts List -->
+                    <t t-if="show_asset_cash and data and data.get('datas') and len(data['datas']) &gt; 0">
+                        <t t-foreach="data['datas'][0].get('asset_cash', [[], None])[0]" t-as="acc">
+                            <t t-if="acc.get('amount') not in ('0.00', '0', 0)">
+                                <tr class="o_pdf_account_row">
+                                    <td style="padding-left: 42px;">
+                                        <span class="o_acc_code_badge"><t t-esc="acc['name'].split(' - ')[0] if ' - ' in acc['name'] else ''"/></span>
+                                        <span style="color: #1e293b;"><t t-esc="acc['name'].split(' - ')[1] if ' - ' in acc['name'] else acc['name']"/></span>
+                                    </td>
+                                    <t t-foreach="data['datas']" t-as="p_val">
+                                        <t t-foreach="p_val.get('asset_cash', [[], None])[0]" t-as="sub_acc">
+                                            <t t-if="sub_acc['name'] == acc['name']">
+                                                <td class="o_pdf_num"><t t-esc="sub_acc['amount']"/></td>
                                             </t>
                                         </t>
-                                    </tr>
-                                </t>
+                                    </t>
+                                </tr>
                             </t>
-                            <tr style="border-bottom: 1px solid gainsboro;">
-                                <th colspan="6" style="font-weight: normal;">
-                                    <span style="margin-left: 6%;">Receivables
-                                    </span>
-                                </th>
-                                <t t-foreach="data['datas']" t-as="datas"
-                                   t-key="datas_index">
-                                    <th class="text-end"
-                                        style="font-weight: normal;">
-                                        <span>
-                                            <t t-esc="datas['asset_receivable'][1]"/>
-                                        </span>
-                                    </th>
-                                </t>
-                            </tr>
-                            <t t-foreach="data['datas']" t-as="value"
-                               t-key="value_index">
-                                <t t-if="value_index == 0">
-                                    <t t-foreach="value['asset_receivable'][0]"
-                                       t-as="datas" t-key="datas_index">
-                                        <t t-set="account_name"
-                                           t-value="datas['name']"/>
-                                        <t t-set="account_value" t-value="0"/>
-                                        <t t-foreach="data['datas']"
-                                           t-as="values"
-                                           t-key="values_index">
-                                            <t t-foreach="values['asset_receivable'][0]"
-                                               t-as="datas" t-key="datas_index">
-                                                <t t-if="account_name == datas['name']">
-                                                    <t t-if="datas['amount'] != '0.00'">
-                                                        <t t-set="account_value"
-                                                           t-value="1"/>
-                                                    </t>
-                                                </t>
+                        </t>
+                    </t>
+
+                    <!-- 1.1.2 Receivables -->
+                    <tr class="o_pdf_group_header" style="background-color: #f8fafc !important;">
+                        <td style="padding-left: 28px;">
+                            <span style="color: #4f46e5; margin-right: 4px;">
+                                <t t-if="show_asset_receivable">▾</t>
+                                <t t-else="">▸</t>
+                            </span> 1.1.2 Receivables (العملاء والمدينون)
+                        </td>
+                        <t t-if="data and data.get('datas')">
+                            <t t-foreach="data['datas']" t-as="val">
+                                <td class="o_pdf_num"><t t-esc="val.get('asset_receivable', [None, '0.00'])[1]"/></td>
+                            </t>
+                        </t>
+                    </tr>
+                    <!-- Receivables Accounts List -->
+                    <t t-if="show_asset_receivable and data and data.get('datas') and len(data['datas']) &gt; 0">
+                        <t t-foreach="data['datas'][0].get('asset_receivable', [[], None])[0]" t-as="acc">
+                            <t t-if="acc.get('amount') not in ('0.00', '0', 0)">
+                                <tr class="o_pdf_account_row">
+                                    <td style="padding-left: 42px;">
+                                        <span class="o_acc_code_badge"><t t-esc="acc['name'].split(' - ')[0] if ' - ' in acc['name'] else ''"/></span>
+                                        <span style="color: #1e293b;"><t t-esc="acc['name'].split(' - ')[1] if ' - ' in acc['name'] else acc['name']"/></span>
+                                    </td>
+                                    <t t-foreach="data['datas']" t-as="p_val">
+                                        <t t-foreach="p_val.get('asset_receivable', [[], None])[0]" t-as="sub_acc">
+                                            <t t-if="sub_acc['name'] == acc['name']">
+                                                <td class="o_pdf_num"><t t-esc="sub_acc['amount']"/></td>
                                             </t>
                                         </t>
-                                        <t t-if="account_value == 1">
-                                            <tr style="border-bottom: 1px solid gainsboro;">
-                                                <t t-foreach="data['datas']"
-                                                   t-as="values"
-                                                   t-key="values_index">
-                                                    <t t-foreach="values['asset_receivable'][0]"
-                                                       t-as="datas"
-                                                       t-key="datas_index">
-                                                        <t t-if="account_name == datas['name']">
-                                                            <th colspan="6"
-                                                                style="font-weight: normal;">
-                                                                <span style="margin-left: 8%;">
-                                                                    <t t-esc="datas['name']"/>
-                                                                </span>
-                                                            </th>
-                                                            <th class="text-end"
-                                                                style="font-weight: normal;">
-                                                                <span>
-                                                                    <t t-esc="datas['amount']"/>
-                                                                </span>
-                                                            </th>
-                                                        </t>
-                                                    </t>
-                                                </t>
-                                            </tr>
-                                        </t>
                                     </t>
-                                </t>
+                                </tr>
                             </t>
-                            <tr style="border-bottom: 1px solid gainsboro;">
-                                <th colspan="6" style="font-weight: normal;">
-                                    <span style="margin-left: 6%;">Current
-                                        Assets
-                                    </span>
-                                </th>
-                                <t t-foreach="data['datas']" t-as="datas"
-                                   t-key="datas_index">
-                                    <th class="text-end"
-                                        style="font-weight: normal;">
-                                        <span>
-                                            <t t-esc="datas['asset_current'][1]"/>
-                                        </span>
-                                    </th>
-                                </t>
-                            </tr>
-                            <t t-foreach="data['datas']" t-as="value"
-                               t-key="value_index">
-                                <t t-if="value_index == 0">
-                                    <t t-foreach="value['asset_current'][0]"
-                                       t-as="datas" t-key="datas_index">
-                                        <t t-set="account_name"
-                                           t-value="datas['name']"/>
-                                        <t t-set="account_value" t-value="0"/>
-                                        <t t-foreach="data['datas']"
-                                           t-as="values"
-                                           t-key="values_index">
-                                            <t t-foreach="values['asset_current'][0]"
-                                               t-as="datas" t-key="datas_index">
-                                                <t t-if="account_name == datas['name']">
-                                                    <t t-if="datas['amount'] != '0.00'">
-                                                        <t t-set="account_value"
-                                                           t-value="1"/>
-                                                    </t>
-                                                </t>
+                        </t>
+                    </t>
+
+                    <!-- 1.1.3 Other Current Assets / Inventory -->
+                    <tr class="o_pdf_group_header" style="background-color: #f8fafc !important;">
+                        <td style="padding-left: 28px;">
+                            <span style="color: #4f46e5; margin-right: 4px;">
+                                <t t-if="show_asset_current">▾</t>
+                                <t t-else="">▸</t>
+                            </span> 1.1.3 Inventory &amp; Other Current Assets (المخزون والأصول المتداولة الأخرى)
+                        </td>
+                        <t t-if="data and data.get('datas')">
+                            <t t-foreach="data['datas']" t-as="val">
+                                <td class="o_pdf_num"><t t-esc="val.get('asset_current', [None, '0.00'])[1]"/></td>
+                            </t>
+                        </t>
+                    </tr>
+                    <!-- Other Current Assets List -->
+                    <t t-if="show_asset_current and data and data.get('datas') and len(data['datas']) &gt; 0">
+                        <t t-foreach="data['datas'][0].get('asset_current', [[], None])[0]" t-as="acc">
+                            <t t-if="acc.get('amount') not in ('0.00', '0', 0)">
+                                <tr class="o_pdf_account_row">
+                                    <td style="padding-left: 42px;">
+                                        <span class="o_acc_code_badge"><t t-esc="acc['name'].split(' - ')[0] if ' - ' in acc['name'] else ''"/></span>
+                                        <span style="color: #1e293b;"><t t-esc="acc['name'].split(' - ')[1] if ' - ' in acc['name'] else acc['name']"/></span>
+                                    </td>
+                                    <t t-foreach="data['datas']" t-as="p_val">
+                                        <t t-foreach="p_val.get('asset_current', [[], None])[0]" t-as="sub_acc">
+                                            <t t-if="sub_acc['name'] == acc['name']">
+                                                <td class="o_pdf_num"><t t-esc="sub_acc['amount']"/></td>
                                             </t>
                                         </t>
-                                        <t t-if="account_value == 1">
-                                            <tr style="border-bottom: 1px solid gainsboro;">
-                                                <t t-foreach="data['datas']"
-                                                   t-as="values"
-                                                   t-key="values_index">
-                                                    <t t-foreach="values['asset_current'][0]"
-                                                       t-as="datas"
-                                                       t-key="datas_index">
-                                                        <t t-if="account_name == datas['name']">
-                                                            <th colspan="6"
-                                                                style="font-weight: normal;">
-                                                                <span style="margin-left: 8%;">
-                                                                    <t t-esc="datas['name']"/>
-                                                                </span>
-                                                            </th>
-                                                            <th class="text-end"
-                                                                style="font-weight: normal;">
-                                                                <span>
-                                                                    <t t-esc="datas['amount']"/>
-                                                                </span>
-                                                            </th>
-                                                        </t>
-                                                    </t>
-                                                </t>
-                                            </tr>
-                                        </t>
                                     </t>
-                                </t>
+                                </tr>
                             </t>
-                            <tr style="border-bottom: 1px solid gainsboro;">
-                                <th colspan="6" style="font-weight: normal;">
-                                    <span style="margin-left: 6%;">Prepayments
-                                    </span>
-                                </th>
-                                <t t-foreach="data['datas']" t-as="datas"
-                                   t-key="datas_index">
-                                    <th class="text-end"
-                                        style="font-weight: normal;">
-                                        <span>
-                                            <t t-esc="datas['asset_prepayments'][1]"/>
-                                        </span>
-                                    </th>
-                                </t>
-                            </tr>
-                            <t t-foreach="data['datas']" t-as="value"
-                               t-key="value_index">
-                                <t t-if="value_index == 0">
-                                    <t t-foreach="value['asset_prepayments'][0]"
-                                       t-as="datas" t-key="datas_index">
-                                        <t t-set="account_name"
-                                           t-value="datas['name']"/>
-                                        <t t-set="account_value" t-value="0"/>
-                                        <t t-foreach="data['datas']"
-                                           t-as="values"
-                                           t-key="values_index">
-                                            <t t-foreach="values['asset_prepayments'][0]"
-                                               t-as="datas" t-key="datas_index">
-                                                <t t-if="account_name == datas['name']">
-                                                    <t t-if="datas['amount'] != '0.00'">
-                                                        <t t-set="account_value"
-                                                           t-value="1"/>
-                                                    </t>
-                                                </t>
+                        </t>
+                    </t>
+
+                    <!-- 1.1.4 Prepayments -->
+                    <tr class="o_pdf_group_header" style="background-color: #f8fafc !important;">
+                        <td style="padding-left: 28px;">
+                            <span style="color: #4f46e5; margin-right: 4px;">
+                                <t t-if="show_asset_prepayments">▾</t>
+                                <t t-else="">▸</t>
+                            </span> 1.1.4 Prepayments (المصروفات المدفوعة مقدماً)
+                        </td>
+                        <t t-if="data and data.get('datas')">
+                            <t t-foreach="data['datas']" t-as="val">
+                                <td class="o_pdf_num"><t t-esc="val.get('asset_prepayments', [None, '0.00'])[1]"/></td>
+                            </t>
+                        </t>
+                    </tr>
+                    <!-- Prepayments List -->
+                    <t t-if="show_asset_prepayments and data and data.get('datas') and len(data['datas']) &gt; 0">
+                        <t t-foreach="data['datas'][0].get('asset_prepayments', [[], None])[0]" t-as="acc">
+                            <t t-if="acc.get('amount') not in ('0.00', '0', 0)">
+                                <tr class="o_pdf_account_row">
+                                    <td style="padding-left: 42px;">
+                                        <span class="o_acc_code_badge"><t t-esc="acc['name'].split(' - ')[0] if ' - ' in acc['name'] else ''"/></span>
+                                        <span style="color: #1e293b;"><t t-esc="acc['name'].split(' - ')[1] if ' - ' in acc['name'] else acc['name']"/></span>
+                                    </td>
+                                    <t t-foreach="data['datas']" t-as="p_val">
+                                        <t t-foreach="p_val.get('asset_prepayments', [[], None])[0]" t-as="sub_acc">
+                                            <t t-if="sub_acc['name'] == acc['name']">
+                                                <td class="o_pdf_num"><t t-esc="sub_acc['amount']"/></td>
                                             </t>
                                         </t>
-                                        <t t-if="account_value == 1">
-                                            <tr style="border-bottom: 1px solid gainsboro;">
-                                                <t t-foreach="data['datas']"
-                                                   t-as="values"
-                                                   t-key="values_index">
-                                                    <t t-foreach="values['asset_prepayments'][0]"
-                                                       t-as="datas"
-                                                       t-key="datas_index">
-                                                        <t t-if="account_name == datas['name']">
-                                                            <th colspan="6"
-                                                                style="font-weight: normal;">
-                                                                <span style="margin-left: 8%;">
-                                                                    <t t-esc="datas['name']"/>
-                                                                </span>
-                                                            </th>
-                                                            <th class="text-end"
-                                                                style="font-weight: normal;">
-                                                                <span>
-                                                                    <t t-esc="datas['amount']"/>
-                                                                </span>
-                                                            </th>
-                                                        </t>
-                                                    </t>
-                                                </t>
-                                            </tr>
-                                        </t>
                                     </t>
-                                </t>
+                                </tr>
                             </t>
-                            <tr style="border-bottom: 1px solid gainsboro;">
-                                <th colspan="6" style="font-weight: normal;">
-                                    <span style="font-weight: bolder; margin-left: 4%;">
-                                        Total Current Assets
-                                    </span>
-                                </th>
-                                <t t-foreach="data['datas']" t-as="datas"
-                                   t-key="datas_index">
-                                    <th class="text-end">
-                                        <span style="font-weight: bolder; margin-left: 4%;">
-                                            <t t-esc="datas['total_current_asset']"/>
-                                        </span>
-                                    </th>
-                                </t>
-                            </tr>
-                            <tr style="border-bottom: 1px solid gainsboro;">
-                                <th colspan="6" style="font-weight: normal;">
-                                    <span style="margin-left: 6%;">Plus Fixed
-                                        Assets
-                                    </span>
-                                </th>
-                                <t t-foreach="data['datas']" t-as="datas"
-                                   t-key="datas_index">
-                                    <th class="text-end"
-                                        style="font-weight: normal;">
-                                        <span>
-                                            <t t-esc="datas['asset_fixed'][1]"/>
-                                        </span>
-                                    </th>
-                                </t>
-                            </tr>
-                            <t t-foreach="data['datas']" t-as="value"
-                               t-key="value_index">
-                                <t t-if="value_index == 0">
-                                    <t t-foreach="value['asset_fixed'][0]"
-                                       t-as="datas" t-key="datas_index">
-                                        <t t-set="account_name"
-                                           t-value="datas['name']"/>
-                                        <t t-set="account_value" t-value="0"/>
-                                        <t t-foreach="data['datas']"
-                                           t-as="values"
-                                           t-key="values_index">
-                                            <t t-foreach="values['asset_fixed'][0]"
-                                               t-as="datas" t-key="datas_index">
-                                                <t t-if="account_name == datas['name']">
-                                                    <t t-if="datas['amount'] != '0.00'">
-                                                        <t t-set="account_value"
-                                                           t-value="1"/>
-                                                    </t>
-                                                </t>
+                        </t>
+                    </t>
+
+                    <!-- Subtotal Current Assets -->
+                    <tr class="o_pdf_subtotal_row">
+                        <td style="padding-left: 18px; font-weight: 700;">TOTAL CURRENT ASSETS (إجمالي الأصول المتداولة)</td>
+                        <t t-if="data and data.get('datas')">
+                            <t t-foreach="data['datas']" t-as="val">
+                                <td class="o_pdf_num" style="font-weight: 700;"><t t-esc="val.get('total_current_asset') or '0.00'"/></td>
+                            </t>
+                        </t>
+                    </tr>
+
+                    <!-- 1.2 Non-Current Assets Subheader -->
+                    <tr class="o_pdf_group_header">
+                        <td style="padding-left: 18px; font-weight: 800;">
+                            1.2 Non-Current Assets (الأصول غير المتداولة)
+                        </td>
+                        <t t-if="data and data.get('datas')">
+                            <t t-foreach="data['datas']" t-as="val">
+                                <td class="o_pdf_num"/>
+                            </t>
+                        </t>
+                    </tr>
+
+                    <!-- 1.2.1 Fixed Assets -->
+                    <tr class="o_pdf_group_header" style="background-color: #f8fafc !important;">
+                        <td style="padding-left: 28px;">
+                            <span style="color: #4f46e5; margin-right: 4px;">
+                                <t t-if="show_asset_fixed">▾</t>
+                                <t t-else="">▸</t>
+                            </span> 1.2.1 Fixed Assets &amp; Equipment (الأصول الثابتة)
+                        </td>
+                        <t t-if="data and data.get('datas')">
+                            <t t-foreach="data['datas']" t-as="val">
+                                <td class="o_pdf_num"><t t-esc="val.get('asset_fixed', [None, '0.00'])[1]"/></td>
+                            </t>
+                        </t>
+                    </tr>
+                    <!-- Fixed Assets List -->
+                    <t t-if="show_asset_fixed and data and data.get('datas') and len(data['datas']) &gt; 0">
+                        <t t-foreach="data['datas'][0].get('asset_fixed', [[], None])[0]" t-as="acc">
+                            <t t-if="acc.get('amount') not in ('0.00', '0', 0)">
+                                <tr class="o_pdf_account_row">
+                                    <td style="padding-left: 42px;">
+                                        <span class="o_acc_code_badge"><t t-esc="acc['name'].split(' - ')[0] if ' - ' in acc['name'] else ''"/></span>
+                                        <span style="color: #1e293b;"><t t-esc="acc['name'].split(' - ')[1] if ' - ' in acc['name'] else acc['name']"/></span>
+                                    </td>
+                                    <t t-foreach="data['datas']" t-as="p_val">
+                                        <t t-foreach="p_val.get('asset_fixed', [[], None])[0]" t-as="sub_acc">
+                                            <t t-if="sub_acc['name'] == acc['name']">
+                                                <td class="o_pdf_num"><t t-esc="sub_acc['amount']"/></td>
                                             </t>
                                         </t>
-                                        <t t-if="account_value == 1">
-                                            <tr style="border-bottom: 1px solid gainsboro;">
-                                                <t t-foreach="data['datas']"
-                                                   t-as="values"
-                                                   t-key="values_index">
-                                                    <t t-foreach="values['asset_fixed'][0]"
-                                                       t-as="datas"
-                                                       t-key="datas_index">
-                                                        <t t-if="account_name == datas['name']">
-                                                            <th colspan="6"
-                                                                style="font-weight: normal;">
-                                                                <span style="margin-left: 8%;">
-                                                                    <t t-esc="datas['name']"/>
-                                                                </span>
-                                                            </th>
-                                                            <th class="text-end"
-                                                                style="font-weight: normal;">
-                                                                <span>
-                                                                    <t t-esc="datas['amount']"/>
-                                                                </span>
-                                                            </th>
-                                                        </t>
-                                                    </t>
-                                                </t>
-                                            </tr>
-                                        </t>
                                     </t>
-                                </t>
+                                </tr>
                             </t>
-                            <tr style="border-bottom: 1px solid gainsboro;">
-                                <th colspan="6" style="font-weight: normal;">
-                                    <span style="margin-left: 6%;">Plus
-                                        Non-current Assets
-                                    </span>
-                                </th>
-                                <t t-foreach="data['datas']" t-as="datas"
-                                   t-key="datas_index">
-                                    <th class="text-end"
-                                        style="font-weight: normal;">
-                                        <span>
-                                            <t t-esc="datas['asset_non_current'][1]"/>
-                                        </span>
-                                    </th>
-                                </t>
-                            </tr>
-                            <t t-foreach="data['datas']" t-as="value"
-                               t-key="value_index">
-                                <t t-if="value_index == 0">
-                                    <t t-foreach="value['asset_non_current'][0]"
-                                       t-as="datas" t-key="datas_index">
-                                        <t t-set="account_name"
-                                           t-value="datas['name']"/>
-                                        <t t-set="account_value" t-value="0"/>
-                                        <t t-foreach="data['datas']"
-                                           t-as="values"
-                                           t-key="values_index">
-                                            <t t-foreach="values['asset_non_current'][0]"
-                                               t-as="datas" t-key="datas_index">
-                                                <t t-if="account_name == datas['name']">
-                                                    <t t-if="datas['amount'] != '0.00'">
-                                                        <t t-set="account_value"
-                                                           t-value="1"/>
-                                                    </t>
-                                                </t>
+                        </t>
+                    </t>
+
+                    <!-- 1.2.2 Non-Current Assets -->
+                    <tr class="o_pdf_group_header" style="background-color: #f8fafc !important;">
+                        <td style="padding-left: 28px;">
+                            <span style="color: #4f46e5; margin-right: 4px;">
+                                <t t-if="show_asset_non_current">▾</t>
+                                <t t-else="">▸</t>
+                            </span> 1.2.2 Other Non-Current Assets (أصول غير متداولة أخرى)
+                        </td>
+                        <t t-if="data and data.get('datas')">
+                            <t t-foreach="data['datas']" t-as="val">
+                                <td class="o_pdf_num"><t t-esc="val.get('asset_non_current', [None, '0.00'])[1]"/></td>
+                            </t>
+                        </t>
+                    </tr>
+                    <!-- Non-Current Assets List -->
+                    <t t-if="show_asset_non_current and data and data.get('datas') and len(data['datas']) &gt; 0">
+                        <t t-foreach="data['datas'][0].get('asset_non_current', [[], None])[0]" t-as="acc">
+                            <t t-if="acc.get('amount') not in ('0.00', '0', 0)">
+                                <tr class="o_pdf_account_row">
+                                    <td style="padding-left: 42px;">
+                                        <span class="o_acc_code_badge"><t t-esc="acc['name'].split(' - ')[0] if ' - ' in acc['name'] else ''"/></span>
+                                        <span style="color: #1e293b;"><t t-esc="acc['name'].split(' - ')[1] if ' - ' in acc['name'] else acc['name']"/></span>
+                                    </td>
+                                    <t t-foreach="data['datas']" t-as="p_val">
+                                        <t t-foreach="p_val.get('asset_non_current', [[], None])[0]" t-as="sub_acc">
+                                            <t t-if="sub_acc['name'] == acc['name']">
+                                                <td class="o_pdf_num"><t t-esc="sub_acc['amount']"/></td>
                                             </t>
                                         </t>
-                                        <t t-if="account_value == 1">
-                                            <tr style="border-bottom: 1px solid gainsboro;">
-                                                <t t-foreach="data['datas']"
-                                                   t-as="values"
-                                                   t-key="values_index">
-                                                    <t t-foreach="values['asset_non_current'][0]"
-                                                       t-as="datas"
-                                                       t-key="datas_index">
-                                                        <t t-if="account_name == datas['name']">
-                                                            <th colspan="6"
-                                                                style="font-weight: normal;">
-                                                                <span style="margin-left: 8%;">
-                                                                    <t t-esc="datas['name']"/>
-                                                                </span>
-                                                            </th>
-                                                            <th class="text-end"
-                                                                style="font-weight: normal;">
-                                                                <span>
-                                                                    <t t-esc="datas['amount']"/>
-                                                                </span>
-                                                            </th>
-                                                        </t>
-                                                    </t>
-                                                </t>
-                                            </tr>
-                                        </t>
                                     </t>
-                                </t>
+                                </tr>
                             </t>
-                            <tr style="border-bottom: 1px solid black;">
-                                <th colspan="6" style="font-weight: normal;">
-                                    <span style="font-weight: bolder; margin-left: 4%;">
-                                        Total Assets
-                                    </span>
-                                </th>
-                                <t t-foreach="data['datas']" t-as="datas"
-                                   t-key="datas_index">
-                                    <th class="text-end">
-                                        <span style="font-weight: bolder; margin-left: 4%;">
-                                            <t t-esc="datas['total_assets']"/>
-                                        </span>
-                                    </th>
-                                </t>
-                            </tr>
-                            <tr style="border-bottom: 1.5px solid black;">
-                                <th colspan="6" style="font-weight: normal;">
-                                    <span style="font-weight: bolder; margin-left: 2%;">
-                                        LIABILITIES
-                                    </span>
-                                </th>
-                                <th colspan="3"/>
-                            </tr>
-                            <tr style="border-bottom: 1px solid gainsboro;">
-                                <th colspan="6" style="font-weight: normal;">
-                                    <span style="font-weight: bolder; margin-left: 4%;">
-                                        Current Liabilities
-                                    </span>
-                                </th>
-                                <th colspan="3"/>
-                            </tr>
-                            <tr style="border-bottom: 1px solid gainsboro;">
-                                <th colspan="6" style="font-weight: normal;">
-                                    <span style="margin-left: 6%;">Current
-                                        Liabilities
-                                    </span>
-                                </th>
-                                <t t-foreach="data['datas']" t-as="datas"
-                                   t-key="datas_index">
-                                    <th class="text-end"
-                                        style="font-weight: normal;">
-                                        <span>
-                                            <t t-esc="datas['liability_current'][1]"/>
-                                        </span>
-                                    </th>
-                                </t>
-                            </tr>
-                            <t t-foreach="data['datas']" t-as="value"
-                               t-key="value_index">
-                                <t t-if="value_index == 0">
-                                    <t t-foreach="value['liability_current'][0]"
-                                       t-as="datas" t-key="datas_index">
-                                        <t t-set="account_name"
-                                           t-value="datas['name']"/>
-                                        <t t-set="account_value" t-value="0"/>
-                                        <t t-foreach="data['datas']"
-                                           t-as="values"
-                                           t-key="values_index">
-                                            <t t-foreach="values['liability_current'][0]"
-                                               t-as="datas" t-key="datas_index">
-                                                <t t-if="account_name == datas['name']">
-                                                    <t t-if="datas['amount'] != '0.00'">
-                                                        <t t-set="account_value"
-                                                           t-value="1"/>
-                                                    </t>
-                                                </t>
+                        </t>
+                    </t>
+
+                    <!-- Grand Total Assets -->
+                    <tr class="o_pdf_grand_total">
+                        <td style="padding-left: 10px; font-weight: 800;">
+                            TOTAL ASSETS (إجمالي الأصول)
+                        </td>
+                        <t t-if="data and data.get('datas')">
+                            <t t-foreach="data['datas']" t-as="val">
+                                <td class="o_pdf_num" style="font-size: 12px; font-weight: 800; color: #6ee7b7;">
+                                    <t t-esc="val.get('total_assets') or '0.00'"/>
+                                </td>
+                            </t>
+                        </t>
+                    </tr>
+
+                    <!-- ==================== 2. LIABILITIES (الالتزامات) ==================== -->
+                    <tr class="o_pdf_sec_header">
+                        <td style="padding-left: 10px;">2. LIABILITIES (الالتزامات)</td>
+                        <t t-if="data and data.get('datas')">
+                            <t t-foreach="data['datas']" t-as="val">
+                                <td class="o_pdf_num"><t t-esc="val.get('total_liability') or '0.00'"/></td>
+                            </t>
+                        </t>
+                    </tr>
+
+                    <!-- 2.1 Current Liabilities Subheader -->
+                    <tr class="o_pdf_group_header">
+                        <td style="padding-left: 18px; font-weight: 800;">
+                            2.1 Current Liabilities (الالتزامات المتداولة)
+                        </td>
+                        <t t-if="data and data.get('datas')">
+                            <t t-foreach="data['datas']" t-as="val">
+                                <td class="o_pdf_num"><t t-esc="val.get('total_current_liability') or '0.00'"/></td>
+                            </t>
+                        </t>
+                    </tr>
+
+                    <!-- 2.1.1 Current Liabilities & Accruals -->
+                    <tr class="o_pdf_group_header" style="background-color: #f8fafc !important;">
+                        <td style="padding-left: 28px;">
+                            <span style="color: #4f46e5; margin-right: 4px;">
+                                <t t-if="show_liability_current">▾</t>
+                                <t t-else="">▸</t>
+                            </span> 2.1.1 Current Liabilities &amp; Accruals (الالتزامات المتداولة والمستحقات)
+                        </td>
+                        <t t-if="data and data.get('datas')">
+                            <t t-foreach="data['datas']" t-as="val">
+                                <td class="o_pdf_num"><t t-esc="val.get('liability_current', [None, '0.00'])[1]"/></td>
+                            </t>
+                        </t>
+                    </tr>
+                    <!-- Current Liabilities Accounts List -->
+                    <t t-if="show_liability_current and data and data.get('datas') and len(data['datas']) &gt; 0">
+                        <t t-foreach="data['datas'][0].get('liability_current', [[], None])[0]" t-as="acc">
+                            <t t-if="acc.get('amount') not in ('0.00', '0', 0)">
+                                <tr class="o_pdf_account_row">
+                                    <td style="padding-left: 42px;">
+                                        <span class="o_acc_code_badge"><t t-esc="acc['name'].split(' - ')[0] if ' - ' in acc['name'] else ''"/></span>
+                                        <span style="color: #1e293b;"><t t-esc="acc['name'].split(' - ')[1] if ' - ' in acc['name'] else acc['name']"/></span>
+                                    </td>
+                                    <t t-foreach="data['datas']" t-as="p_val">
+                                        <t t-foreach="p_val.get('liability_current', [[], None])[0]" t-as="sub_acc">
+                                            <t t-if="sub_acc['name'] == acc['name']">
+                                                <td class="o_pdf_num"><t t-esc="sub_acc['amount']"/></td>
                                             </t>
                                         </t>
-                                        <t t-if="account_value == 1">
-                                            <tr style="border-bottom: 1px solid gainsboro;">
-                                                <t t-foreach="data['datas']"
-                                                   t-as="values"
-                                                   t-key="values_index">
-                                                    <t t-foreach="values['liability_current'][0]"
-                                                       t-as="datas"
-                                                       t-key="datas_index">
-                                                        <t t-if="account_name == datas['name']">
-                                                            <th colspan="6"
-                                                                style="font-weight: normal;">
-                                                                <span style="margin-left: 8%;">
-                                                                    <t t-esc="datas['name']"/>
-                                                                </span>
-                                                            </th>
-                                                            <th class="text-end"
-                                                                style="font-weight: normal;">
-                                                                <span>
-                                                                    <t t-esc="datas['amount']"/>
-                                                                </span>
-                                                            </th>
-                                                        </t>
-                                                    </t>
-                                                </t>
-                                            </tr>
-                                        </t>
                                     </t>
-                                </t>
+                                </tr>
                             </t>
-                            <tr style="border-bottom: 1px solid gainsboro;">
-                                <th colspan="6" style="font-weight: normal;">
-                                    <span style="margin-left: 6%;">Payables
-                                    </span>
-                                </th>
-                                <t t-foreach="data['datas']" t-as="datas"
-                                   t-key="datas_index">
-                                    <th class="text-end"
-                                        style="font-weight: normal;">
-                                        <span>
-                                            <t t-esc="datas['liability_payable'][1]"/>
-                                        </span>
-                                    </th>
-                                </t>
-                            </tr>
-                            <t t-foreach="data['datas']" t-as="value"
-                               t-key="value_index">
-                                <t t-if="value_index == 0">
-                                    <t t-foreach="value['liability_payable'][0]"
-                                       t-as="datas" t-key="datas_index">
-                                        <t t-set="account_name"
-                                           t-value="datas['name']"/>
-                                        <t t-set="account_value" t-value="0"/>
-                                        <t t-foreach="data['datas']"
-                                           t-as="values"
-                                           t-key="values_index">
-                                            <t t-foreach="values['liability_payable'][0]"
-                                               t-as="datas" t-key="datas_index">
-                                                <t t-if="account_name == datas['name']">
-                                                    <t t-if="datas['amount'] != '0.00'">
-                                                        <t t-set="account_value"
-                                                           t-value="1"/>
-                                                    </t>
-                                                </t>
+                        </t>
+                    </t>
+
+                    <!-- 2.1.2 Trade Payables -->
+                    <tr class="o_pdf_group_header" style="background-color: #f8fafc !important;">
+                        <td style="padding-left: 28px;">
+                            <span style="color: #4f46e5; margin-right: 4px;">
+                                <t t-if="show_liability_payable">▾</t>
+                                <t t-else="">▸</t>
+                            </span> 2.1.2 Trade Payables (الموردون والدائنون)
+                        </td>
+                        <t t-if="data and data.get('datas')">
+                            <t t-foreach="data['datas']" t-as="val">
+                                <td class="o_pdf_num"><t t-esc="val.get('liability_payable', [None, '0.00'])[1]"/></td>
+                            </t>
+                        </t>
+                    </tr>
+                    <!-- Trade Payables List -->
+                    <t t-if="show_liability_payable and data and data.get('datas') and len(data['datas']) &gt; 0">
+                        <t t-foreach="data['datas'][0].get('liability_payable', [[], None])[0]" t-as="acc">
+                            <t t-if="acc.get('amount') not in ('0.00', '0', 0)">
+                                <tr class="o_pdf_account_row">
+                                    <td style="padding-left: 42px;">
+                                        <span class="o_acc_code_badge"><t t-esc="acc['name'].split(' - ')[0] if ' - ' in acc['name'] else ''"/></span>
+                                        <span style="color: #1e293b;"><t t-esc="acc['name'].split(' - ')[1] if ' - ' in acc['name'] else acc['name']"/></span>
+                                    </td>
+                                    <t t-foreach="data['datas']" t-as="p_val">
+                                        <t t-foreach="p_val.get('liability_payable', [[], None])[0]" t-as="sub_acc">
+                                            <t t-if="sub_acc['name'] == acc['name']">
+                                                <td class="o_pdf_num"><t t-esc="sub_acc['amount']"/></td>
                                             </t>
                                         </t>
-                                        <t t-if="account_value == 1">
-                                            <tr style="border-bottom: 1px solid gainsboro;">
-                                                <t t-foreach="data['datas']"
-                                                   t-as="values"
-                                                   t-key="values_index">
-                                                    <t t-foreach="values['liability_payable'][0]"
-                                                       t-as="datas"
-                                                       t-key="datas_index">
-                                                        <t t-if="account_name == datas['name']">
-                                                            <th colspan="6"
-                                                                style="font-weight: normal;">
-                                                                <span style="margin-left: 8%;">
-                                                                    <t t-esc="datas['name']"/>
-                                                                </span>
-                                                            </th>
-                                                            <th class="text-end"
-                                                                style="font-weight: normal;">
-                                                                <span>
-                                                                    <t t-esc="datas['amount']"/>
-                                                                </span>
-                                                            </th>
-                                                        </t>
-                                                    </t>
-                                                </t>
-                                            </tr>
-                                        </t>
                                     </t>
-                                </t>
+                                </tr>
                             </t>
-                            <tr style="border-bottom: 1px solid gainsboro;">
-                                <th colspan="6" style="font-weight: normal;">
-                                    <span style="font-weight: bolder; margin-left: 4%;">
-                                        Total Current Liabilities
-                                    </span>
-                                </th>
-                                <t t-foreach="data['datas']" t-as="datas"
-                                   t-key="datas_index">
-                                    <th class="text-end">
-                                        <span style="font-weight: bolder; margin-left: 4%;">
-                                            <t t-esc="datas['total_current_liability']"/>
-                                        </span>
-                                    </th>
-                                </t>
-                            </tr>
-                            <tr style="border-bottom: 1px solid gainsboro;">
-                                <th colspan="6" style="font-weight: normal;">
-                                    <span style="margin-left: 6%;">Plus
-                                        Non-current Liabilities
-                                    </span>
-                                </th>
-                                <t t-foreach="data['datas']" t-as="datas"
-                                   t-key="datas_index">
-                                    <th class="text-end"
-                                        style="font-weight: normal;">
-                                        <span>
-                                            <t t-esc="datas['liability_non_current'][1]"/>
-                                        </span>
-                                    </th>
-                                </t>
-                            </tr>
-                            <t t-foreach="data['datas']" t-as="value"
-                               t-key="value_index">
-                                <t t-if="value_index == 0">
-                                    <t t-foreach="value['liability_non_current'][0]"
-                                       t-as="datas" t-key="datas_index">
-                                        <t t-set="account_name"
-                                           t-value="datas['name']"/>
-                                        <t t-set="account_value" t-value="0"/>
-                                        <t t-foreach="data['datas']"
-                                           t-as="values"
-                                           t-key="values_index">
-                                            <t t-foreach="values['liability_non_current'][0]"
-                                               t-as="datas" t-key="datas_index">
-                                                <t t-if="account_name == datas['name']">
-                                                    <t t-if="datas['amount'] != '0.00'">
-                                                        <t t-set="account_value"
-                                                           t-value="1"/>
-                                                    </t>
-                                                </t>
+                        </t>
+                    </t>
+
+                    <!-- Subtotal Current Liabilities -->
+                    <tr class="o_pdf_subtotal_row">
+                        <td style="padding-left: 18px; font-weight: 700;">TOTAL CURRENT LIABILITIES (إجمالي الالتزامات المتداولة)</td>
+                        <t t-if="data and data.get('datas')">
+                            <t t-foreach="data['datas']" t-as="val">
+                                <td class="o_pdf_num" style="font-weight: 700;"><t t-esc="val.get('total_current_liability') or '0.00'"/></td>
+                            </t>
+                        </t>
+                    </tr>
+
+                    <!-- 2.2 Non-Current Liabilities -->
+                    <tr class="o_pdf_group_header">
+                        <td style="padding-left: 18px; font-weight: 800;">
+                            2.2 Non-Current Liabilities (الالتزامات غير المتداولة / طويلة الأجل)
+                        </td>
+                        <t t-if="data and data.get('datas')">
+                            <t t-foreach="data['datas']" t-as="val">
+                                <td class="o_pdf_num"><t t-esc="val.get('liability_non_current', [None, '0.00'])[1]"/></td>
+                            </t>
+                        </t>
+                    </tr>
+                    <!-- Non-Current Liabilities List -->
+                    <t t-if="show_liability_non_current and data and data.get('datas') and len(data['datas']) &gt; 0">
+                        <t t-foreach="data['datas'][0].get('liability_non_current', [[], None])[0]" t-as="acc">
+                            <t t-if="acc.get('amount') not in ('0.00', '0', 0)">
+                                <tr class="o_pdf_account_row">
+                                    <td style="padding-left: 42px;">
+                                        <span class="o_acc_code_badge"><t t-esc="acc['name'].split(' - ')[0] if ' - ' in acc['name'] else ''"/></span>
+                                        <span style="color: #1e293b;"><t t-esc="acc['name'].split(' - ')[1] if ' - ' in acc['name'] else acc['name']"/></span>
+                                    </td>
+                                    <t t-foreach="data['datas']" t-as="p_val">
+                                        <t t-foreach="p_val.get('liability_non_current', [[], None])[0]" t-as="sub_acc">
+                                            <t t-if="sub_acc['name'] == acc['name']">
+                                                <td class="o_pdf_num"><t t-esc="sub_acc['amount']"/></td>
                                             </t>
                                         </t>
-                                        <t t-if="account_value == 1">
-                                            <tr style="border-bottom: 1px solid gainsboro;">
-                                                <t t-foreach="data['datas']"
-                                                   t-as="values"
-                                                   t-key="values_index">
-                                                    <t t-foreach="values['liability_non_current'][0]"
-                                                       t-as="datas"
-                                                       t-key="datas_index">
-                                                        <t t-if="account_name == datas['name']">
-                                                            <th colspan="6"
-                                                                style="font-weight: normal;">
-                                                                <span style="margin-left: 8%;">
-                                                                    <t t-esc="datas['name']"/>
-                                                                </span>
-                                                            </th>
-                                                            <th class="text-end"
-                                                                style="font-weight: normal;">
-                                                                <span>
-                                                                    <t t-esc="datas['amount']"/>
-                                                                </span>
-                                                            </th>
-                                                        </t>
-                                                    </t>
-                                                </t>
-                                            </tr>
-                                        </t>
                                     </t>
-                                </t>
+                                </tr>
                             </t>
-                            <tr style="border-bottom: 1px solid black;">
-                                <th colspan="6" style="font-weight: normal;">
-                                    <span style="font-weight: bolder; margin-left: 4%;">
-                                        Total LIABILITIES
-                                    </span>
-                                </th>
-                                <t t-foreach="data['datas']" t-as="datas"
-                                   t-key="datas_index">
-                                    <th class="text-end">
-                                        <span style="font-weight: bolder; margin-left: 4%;">
-                                            <t t-esc="datas['total_liability']"/>
-                                        </span>
-                                    </th>
-                                </t>
-                            </tr>
-                            <tr style="border-bottom: 1.5px solid black;">
-                                <th colspan="6" style="font-weight: normal;">
-                                    <span style="font-weight: bolder; margin-left: 2%;">
-                                        EQUITY
-                                    </span>
-                                </th>
-                                <th colspan="3"/>
-                            </tr>
-                            <tr style="border-bottom: 1px solid gainsboro;">
-                                <th colspan="6" style="font-weight: normal;">
-                                    <span style="font-weight: bolder; margin-left: 4%;">
-                                        Unallocated Earnings
-                                    </span>
-                                </th>
-                                <th colspan="3"/>
-                            </tr>
-                            <tr style="border-bottom: 1px solid gainsboro;">
-                                <th colspan="6" style="font-weight: normal;">
-                                    <span style="margin-left: 6%;">Current
-                                        Earnings
-                                    </span>
-                                </th>
-                                <t t-foreach="data['datas']" t-as="datas"
-                                   t-key="datas_index">
-                                    <th class="text-end"
-                                        style="font-weight: normal;">
-                                        <span>
-                                            <t t-esc="datas['total_earnings']"/>
-                                        </span>
-                                    </th>
-                                </t>
-                            </tr>
-                            <tr style="border-bottom: 1px solid gainsboro;">
-                                <th colspan="6" style="font-weight: normal;">
-                                    <span style="margin-left: 6%;">Current
-                                        Allocated Earnings
-                                    </span>
-                                </th>
-                                <t t-foreach="data['datas']" t-as="datas"
-                                   t-key="datas_index">
-                                    <th class="text-end"
-                                        style="font-weight: normal;">
-                                        <span>
-                                            <t t-esc="datas['equity_unaffected'][1]"/>
-                                        </span>
-                                    </th>
-                                </t>
-                            </tr>
-                            <t t-foreach="data['datas']" t-as="value"
-                               t-key="value_index">
-                                <t t-if="value_index == 0">
-                                    <t t-foreach="value['equity_unaffected'][0]"
-                                       t-as="datas" t-key="datas_index">
-                                        <t t-set="account_name"
-                                           t-value="datas['name']"/>
-                                        <t t-set="account_value" t-value="0"/>
-                                        <t t-foreach="data['datas']"
-                                           t-as="values"
-                                           t-key="values_index">
-                                            <t t-foreach="values['equity_unaffected'][0]"
-                                               t-as="datas" t-key="datas_index">
-                                                <t t-if="account_name == datas['name']">
-                                                    <t t-if="datas['amount'] != '0.00'">
-                                                        <t t-set="account_value"
-                                                           t-value="1"/>
-                                                    </t>
-                                                </t>
+                        </t>
+                    </t>
+
+                    <!-- Grand Total Liabilities -->
+                    <tr class="o_pdf_subtotal_row" style="background-color: #cbd5e1 !important;">
+                        <td style="padding-left: 10px; font-weight: 800;">
+                            TOTAL LIABILITIES (إجمالي الالتزامات)
+                        </td>
+                        <t t-if="data and data.get('datas')">
+                            <t t-foreach="data['datas']" t-as="val">
+                                <td class="o_pdf_num" style="font-weight: 800;"><t t-esc="val.get('total_liability') or '0.00'"/></td>
+                            </t>
+                        </t>
+                    </tr>
+
+                    <!-- ==================== 3. EQUITY (حقوق الملكية) ==================== -->
+                    <tr class="o_pdf_sec_header">
+                        <td style="padding-left: 10px;">3. EQUITY (حقوق الملكية)</td>
+                        <t t-if="data and data.get('datas')">
+                            <t t-foreach="data['datas']" t-as="val">
+                                <td class="o_pdf_num"><t t-esc="val.get('total_equity') or '0.00'"/></td>
+                            </t>
+                        </t>
+                    </tr>
+
+                    <!-- 3.1 Unallocated / Current Year Earnings -->
+                    <tr class="o_pdf_group_header">
+                        <td style="padding-left: 20px;">
+                            <span style="color: #4f46e5; margin-right: 4px;">
+                                <t t-if="show_equity_unaffected">▾</t>
+                                <t t-else="">▸</t>
+                            </span> 3.1 Unallocated / Current Year Earnings (أرباح وخسائر العام)
+                        </td>
+                        <t t-if="data and data.get('datas')">
+                            <t t-foreach="data['datas']" t-as="val">
+                                <td class="o_pdf_num"><t t-esc="val.get('total_unallocated_earning') or '0.00'"/></td>
+                            </t>
+                        </t>
+                    </tr>
+                    <!-- Unallocated Accounts List -->
+                    <t t-if="show_equity_unaffected and data and data.get('datas') and len(data['datas']) &gt; 0">
+                        <t t-foreach="data['datas'][0].get('equity_unaffected', [[], None])[0]" t-as="acc">
+                            <t t-if="acc.get('amount') not in ('0.00', '0', 0)">
+                                <tr class="o_pdf_account_row">
+                                    <td style="padding-left: 42px;">
+                                        <span class="o_acc_code_badge"><t t-esc="acc['name'].split(' - ')[0] if ' - ' in acc['name'] else ''"/></span>
+                                        <span style="color: #1e293b;"><t t-esc="acc['name'].split(' - ')[1] if ' - ' in acc['name'] else acc['name']"/></span>
+                                    </td>
+                                    <t t-foreach="data['datas']" t-as="p_val">
+                                        <t t-foreach="p_val.get('equity_unaffected', [[], None])[0]" t-as="sub_acc">
+                                            <t t-if="sub_acc['name'] == acc['name']">
+                                                <td class="o_pdf_num"><t t-esc="sub_acc['amount']"/></td>
                                             </t>
                                         </t>
-                                        <t t-if="account_value == 1">
-                                            <tr style="border-bottom: 1px solid gainsboro;">
-                                                <t t-foreach="data['datas']"
-                                                   t-as="values"
-                                                   t-key="values_index">
-                                                    <t t-foreach="values['equity_unaffected'][0]"
-                                                       t-as="datas"
-                                                       t-key="datas_index">
-                                                        <t t-if="account_name == datas['name']">
-                                                            <th colspan="6"
-                                                                style="font-weight: normal;">
-                                                                <span style="margin-left: 8%;">
-                                                                    <t t-esc="datas['name']"/>
-                                                                </span>
-                                                            </th>
-                                                            <th class="text-end"
-                                                                style="font-weight: normal;">
-                                                                <span>
-                                                                    <t t-esc="datas['amount']"/>
-                                                                </span>
-                                                            </th>
-                                                        </t>
-                                                    </t>
-                                                </t>
-                                            </tr>
-                                        </t>
                                     </t>
-                                </t>
+                                </tr>
                             </t>
-                            <tr style="border-bottom: 1px solid gainsboro;">
-                                <th colspan="6" style="font-weight: normal;">
-                                    <span style="font-weight: bolder; margin-left: 4%;">
-                                        Total Unallocated Earnings
-                                    </span>
-                                </th>
-                                <t t-foreach="data['datas']" t-as="datas"
-                                   t-key="datas_index">
-                                    <th class="text-end">
-                                        <span style="font-weight: bolder; margin-left: 4%;">
-                                            <t t-esc="datas['total_unallocated_earning']"/>
-                                        </span>
-                                    </th>
-                                </t>
-                            </tr>
-                            <tr style="border-bottom: 1px solid gainsboro;">
-                                <th colspan="6" style="font-weight: normal;">
-                                    <span style="margin-left: 6%;">Retained
-                                        Earnings
-                                    </span>
-                                </th>
-                                <t t-foreach="data['datas']" t-as="datas"
-                                   t-key="datas_index">
-                                    <th class="text-end"
-                                        style="font-weight: normal;">
-                                        <span>
-                                            <t t-esc="datas['equity'][1]"/>
-                                        </span>
-                                    </th>
-                                </t>
-                            </tr>
-                            <t t-foreach="data['datas']" t-as="value"
-                               t-key="value_index">
-                                <t t-if="value_index == 0">
-                                    <t t-foreach="value['equity'][0]"
-                                       t-as="datas" t-key="datas_index">
-                                        <t t-set="account_name"
-                                           t-value="datas['name']"/>
-                                        <t t-set="account_value" t-value="0"/>
-                                        <t t-foreach="data['datas']"
-                                           t-as="values"
-                                           t-key="values_index">
-                                            <t t-foreach="values['equity'][0]"
-                                               t-as="datas" t-key="datas_index">
-                                                <t t-if="account_name == datas['name']">
-                                                    <t t-if="datas['amount'] != '0.00'">
-                                                        <t t-set="account_value"
-                                                           t-value="1"/>
-                                                    </t>
-                                                </t>
+                        </t>
+                    </t>
+
+                    <!-- 3.2 Capital and Reserves -->
+                    <tr class="o_pdf_group_header">
+                        <td style="padding-left: 20px;">
+                            <span style="color: #4f46e5; margin-right: 4px;">
+                                <t t-if="show_equity">▾</t>
+                                <t t-else="">▸</t>
+                            </span> 3.2 Capital &amp; Reserves (رأس المال والاحتياطيات)
+                        </td>
+                        <t t-if="data and data.get('datas')">
+                            <t t-foreach="data['datas']" t-as="val">
+                                <td class="o_pdf_num"><t t-esc="val.get('equity', [None, '0.00'])[1]"/></td>
+                            </t>
+                        </t>
+                    </tr>
+                    <!-- Capital Accounts List -->
+                    <t t-if="show_equity and data and data.get('datas') and len(data['datas']) &gt; 0">
+                        <t t-foreach="data['datas'][0].get('equity', [[], None])[0]" t-as="acc">
+                            <t t-if="acc.get('amount') not in ('0.00', '0', 0)">
+                                <tr class="o_pdf_account_row">
+                                    <td style="padding-left: 42px;">
+                                        <span class="o_acc_code_badge"><t t-esc="acc['name'].split(' - ')[0] if ' - ' in acc['name'] else ''"/></span>
+                                        <span style="color: #1e293b;"><t t-esc="acc['name'].split(' - ')[1] if ' - ' in acc['name'] else acc['name']"/></span>
+                                    </td>
+                                    <t t-foreach="data['datas']" t-as="p_val">
+                                        <t t-foreach="p_val.get('equity', [[], None])[0]" t-as="sub_acc">
+                                            <t t-if="sub_acc['name'] == acc['name']">
+                                                <td class="o_pdf_num"><t t-esc="sub_acc['amount']"/></td>
                                             </t>
                                         </t>
-                                        <t t-if="account_value == 1">
-                                            <tr style="border-bottom: 1px solid gainsboro;">
-                                                <t t-foreach="data['datas']"
-                                                   t-as="values"
-                                                   t-key="values_index">
-                                                    <t t-foreach="values['equity'][0]"
-                                                       t-as="datas"
-                                                       t-key="datas_index">
-                                                        <t t-if="account_name == datas['name']">
-                                                            <th colspan="6"
-                                                                style="font-weight: normal;">
-                                                                <span style="margin-left: 8%;">
-                                                                    <t t-esc="datas['name']"/>
-                                                                </span>
-                                                            </th>
-                                                            <th class="text-end"
-                                                                style="font-weight: normal;">
-                                                                <span>
-                                                                    <t t-esc="datas['amount']"/>
-                                                                </span>
-                                                            </th>
-                                                        </t>
-                                                    </t>
-                                                </t>
-                                            </tr>
-                                        </t>
                                     </t>
-                                </t>
+                                </tr>
                             </t>
-                            <tr style="border-bottom: 1px solid black;">
-                                <th colspan="6" style="font-weight: normal;">
-                                    <span style="font-weight: bolder; margin-left: 4%;">
-                                        Total EQUITY
-                                    </span>
-                                </th>
-                                <t t-foreach="data['datas']" t-as="datas"
-                                   t-key="datas_index">
-                                    <th class="text-end">
-                                        <span style="font-weight: bolder; margin-left: 4%;">
-                                            <t t-esc="datas['total_equity']"/>
-                                        </span>
-                                    </th>
-                                </t>
-                            </tr>
-                            <tr style="border-bottom: 1px solid black;">
-                                <th colspan="6" style="font-weight: normal;">
-                                    <span style="font-weight: bolder; margin-left: 4%;">
-                                        LIABILITIES + EQUITY
-                                    </span>
-                                </th>
-                                <t t-foreach="data['datas']" t-as="datas"
-                                   t-key="datas_index">
-                                    <th class="text-end">
-                                        <span style="font-weight: bolder; margin-left: 4%;">
-                                            <t t-esc="datas['total_balance']"/>
-                                        </span>
-                                    </th>
-                                </t>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </t>
+                        </t>
+                    </t>
+
+                    <!-- Grand Total Equity -->
+                    <tr class="o_pdf_subtotal_row" style="background-color: #cbd5e1 !important;">
+                        <td style="padding-left: 10px; font-weight: 800;">
+                            TOTAL EQUITY (إجمالي حقوق الملكية)
+                        </td>
+                        <t t-if="data and data.get('datas')">
+                            <t t-foreach="data['datas']" t-as="val">
+                                <td class="o_pdf_num" style="font-weight: 800;"><t t-esc="val.get('total_equity') or '0.00'"/></td>
+                            </t>
+                        </t>
+                    </tr>
+
+                    <!-- ==================== FINAL TOTAL LIABILITIES & EQUITY ==================== -->
+                    <tr class="o_pdf_grand_total">
+                        <td style="padding-left: 10px; font-weight: 800;">
+                            TOTAL LIABILITIES &amp; EQUITY (إجمالي الالتزامات وحقوق الملكية)
+                        </td>
+                        <t t-if="data and data.get('datas')">
+                            <t t-foreach="data['datas']" t-as="val">
+                                <td class="o_pdf_num" style="font-size: 12px; font-weight: 800; color: #6ee7b7;">
+                                    <t t-esc="val.get('total_balance') or '0.00'"/>
+                                </td>
+                            </t>
+                        </t>
+                    </tr>
+                </tbody>
+            </table>
         </t>
     </template>
 </odoo>

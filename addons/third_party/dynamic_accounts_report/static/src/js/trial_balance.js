@@ -1,550 +1,414 @@
 /** @odoo-module */
-const { Component } = owl;
 import { registry } from "@web/core/registry";
 import { useService } from "@web/core/utils/hooks";
-import { useRef, useState, useEffect } from "@odoo/owl";
-import { BlockUI } from "@web/core/ui/block_ui";
+import { Component, useRef, useState, onWillStart } from "@odoo/owl";
 import { download } from "@web/core/network/download";
+
 const actionRegistry = registry.category("actions");
 const today = luxon.DateTime.now();
-let monthNamesShort = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+const monthNamesShort = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
-class TrialBalance extends owl.Component {
-    async setup() {
+class TrialBalance extends Component {
+    setup() {
         super.setup(...arguments);
-        this.initial_render = true;
         this.orm = useService('orm');
         this.action = useService('action');
         this.tbody = useRef('tbody');
-        this.end_date = useRef('date_to');
-        this.start_date = useRef('date_from');
-        this.period = useRef('periods');
-        this.period_year = useRef('period_year');
-        this.unfoldButton = useRef('unfoldButton');
+        this.startDateRef = useRef('start_date');
+        this.endDateRef = useRef('end_date');
+        this.periodRef = useRef('periods');
+        this.periodYearRef = useRef('period_year');
+
+        const now = new Date();
+        const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+        const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
+
         this.state = useState({
-            move_line: null,
-            default_report: true,
-            data: null,
-            total: null,
-            journals: null,
-            accounts: null,
-            selected_analytic: [],
-            analytic_account: null,
+            data: [],
+            totals: {},
+            journals: [],
             selected_journal_list: [],
+            selected_analytic: [],
             selected_analytic_account_rec: [],
             date_range: 'month',
             date_type: 'month',
+            start_date: startOfMonth.toISOString().split('T')[0],
+            end_date: endOfMonth.toISOString().split('T')[0],
+            date_filter_label: 'This Month',
             apply_comparison: false,
             comparison_type: null,
-            date_viewed: [],
             comparison_number: null,
-            options: null,
-            method: {
-                        'accural': true
-                    },
+            date_viewed: [monthNamesShort[now.getMonth()] + ' ' + now.getFullYear()],
+            options: {},
+            method: { 'accrual': true },
+            currency: 'LE',
+            search_query: '',
+            target_move: 'posted',
+            title: this.props.action ? this.props.action.display_name : 'Trial Balance',
         });
-        this.load_data(self.initial_render = true);
 
+        onWillStart(async () => {
+            await this.load_data();
+        });
     }
+
     async load_data() {
-        /**
-         * Loads the data for the trial balance report.
-         */
-        let move_line_list = []
-        let move_lines_total = ''
-        var self = this;
-        var action_title = self.props.action.display_name;
         try {
-            var self = this;
-            var today = new Date();
-            var startOfMonth = new Date(today.getFullYear(), today.getMonth(), 1);
-            var endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-            self.state.data = await self.orm.call("account.trial.balance", "view_report", []);
-            self.start_date.el.value = startOfMonth.getFullYear() + '-' + String(startOfMonth.getMonth() + 1).padStart(2, '0') + '-' + String(startOfMonth.getDate()).padStart(2, '0');
-            self.end_date.el.value = endOfMonth.getFullYear() + '-' + String(endOfMonth.getMonth() + 1).padStart(2, '0') + '-' + String(endOfMonth.getDate()).padStart(2, '0');
-            self.state.date_viewed.push(monthNamesShort[today.getMonth()] + '  ' + today.getFullYear())
-            self.state.journals = self.state.data[1]['journal_ids']
-            self.state.accounts = self.state.data[0]
-            $.each(self.state.data, function (index, value) {
-                self.state.journals = value.journal_ids
-            })
-        }
-        catch (el) {
-            window.location.href;
-        }
-    }
-    async applyFilter(val, ev, is_delete) {
-        /**
-         * Asynchronously applies filters and loads data for the trial balance report.
-         * Modifies state variables based on the selected filter options.
-         * Updates 'move_line_list' and 'move_lines_total'.
-         * Sets the start and end date inputs based on selected filter options.
-         * Appends the selected date ranges to 'state.date_viewed'.
-         * Updates 'state.journals' based on the selected journal filter.
-         * Retrieves data using the 'account.trial.balance' API with the selected filter values.
-         * Updates 'state.data' with the retrieved data.
-         * Handles the comparison logic and updates 'state.date_viewed' accordingly.
-         * Reverses the order of 'state.date_viewed' if data exists.
-         *
-         * @param {any} val - The selected filter value or event.
-         * @param {Event} ev - The event object triggered by the filter.
-         * @param {boolean} is_delete - Flag indicating if the filter is being deleted.
-         * @returns {Promise<void>} Resolves when the filter is applied and data is loaded.
-         */
-        if (ev && ev.target && ev.target.attributes["data-value"] && ev.target.attributes["data-value"].value == 'no comparison') {
-            const lastIndex = this.state.date_viewed.length - 1;
-            this.state.date_viewed.splice(0, lastIndex);
-        }
-        if (ev) {
-            if (ev.input && ev.input.attributes.placeholder.value == 'Account' && !is_delete) {
-                this.state.selected_analytic.push(val[0].id)
-                this.state.selected_analytic_account_rec.push(val[0])
-            } else if (is_delete) {
-                let index = this.state.selected_analytic_account_rec.indexOf(val)
-                this.state.selected_analytic_account_rec.splice(index, 1)
-                this.state.selected_analytic = this.state.selected_analytic_account_rec.map((rec) => rec.id)
-            }
-        }
-        else {
-            if (val && val.target.name === 'start_date') {
-                this.state.date_viewed = []
-                this.state.date_viewed.push('From' + ' ' + this.formatDate(this.start_date.el.value) + ' ' + 'To' + ' ' + this.formatDate(this.end_date.el.value))
-                this.state.date_range = {
-                    ...this.state.date_range,
-                    start_date: val.target.value
-                };
-            } else if (val && val.target.name === 'end_date') {
-                this.state.date_viewed = []
-                this.state.date_viewed.push('From' + ' ' + this.formatDate(this.start_date.el.value) + 'To' + ' ' + this.formatDate(this.end_date.el.value))
-                this.state.date_range = {
-                    ...this.state.date_range,
-                    end_date: val.target.value
-                };
-            } else if (val && val.target.attributes["data-value"].value == 'month') {
-                this.start_date.el.value = today.startOf('month').toFormat('yyyy-MM-dd')
-                this.end_date.el.value = today.endOf('month').toFormat('yyyy-MM-dd')
-                this.state.date_viewed = []
-                this.state.date_viewed.push(today.monthShort + ' ' + today.c.year)
-                this.state.date_type = val.target.attributes["data-value"].value
-                this.state.comparison_type = this.state.date_type
-                this.state.date_range = {
-                    start_date: this.start_date.el.value,
-                    end_date: this.end_date.el.value
-                };
-            } else if (val && val.target.attributes["data-value"].value == 'year') {
-                this.start_date.el.value = today.startOf('year').toFormat('yyyy-MM-dd')
-                this.end_date.el.value = today.endOf('year').toFormat('yyyy-MM-dd')
-                this.state.date_viewed = []
-                this.state.date_viewed.push(today.c.year)
-                this.state.date_type = val.target.attributes["data-value"].value
-                this.state.comparison_type = this.state.date_type
-                this.state.date_range = {
-                    start_date: this.start_date.el.value,
-                    end_date: this.end_date.el.value
-                };
-            } else if (val && val.target.attributes["data-value"].value == 'quarter') {
-                this.start_date.el.value = today.startOf('quarter').toFormat('yyyy-MM-dd')
-                this.end_date.el.value = today.endOf('quarter').toFormat('yyyy-MM-dd')
-                this.state.date_viewed = []
-                this.state.date_viewed.push('Q' + ' ' + today.quarter)
-                this.state.comparison_type = this.state.date_type
-                this.state.date_type = val.target.attributes["data-value"].value
-                this.state.date_range = {
-                    start_date: this.start_date.el.value,
-                    end_date: this.end_date.el.value
-                };
-            } else if (val && val.target.attributes["data-value"].value == 'last-month') {
-                this.start_date.el.value = today.startOf('month').minus({ days: 1 }).startOf('month').toFormat('yyyy-MM-dd')
-                this.end_date.el.value = today.startOf('month').minus({ days: 1 }).toFormat('yyyy-MM-dd')
-                this.state.date_viewed = []
-                this.state.date_viewed.push(today.startOf('month').minus({ days: 1 }).monthShort + ' ' + today.startOf('month').minus({ days: 1 }).c.year)
-                this.state.date_type = 'month'
-                this.state.comparison_type = this.state.date_type
-                this.state.date_range = {
-                    start_date: this.start_date.el.value,
-                    end_date: this.end_date.el.value
-                };
-            } else if (val && val.target.attributes["data-value"].value == 'last-year') {
-                this.start_date.el.value = today.startOf('year').minus({ days: 1 }).startOf('year').toFormat('yyyy-MM-dd')
-                this.end_date.el.value = today.startOf('year').minus({ days: 1 }).toFormat('yyyy-MM-dd')
-                this.state.date_viewed = []
-                this.state.date_viewed.push(today.startOf('year').minus({ days: 1 }).c.year)
-                this.state.date_type = 'year'
-                this.state.comparison_type = this.state.date_type
-                this.state.date_range = {
-                    start_date: this.start_date.el.value,
-                    end_date: this.end_date.el.value
-                };
-            } else if (val && val.target.attributes["data-value"].value == 'last-quarter') {
-                this.start_date.el.value = today.startOf('quarter').minus({ days: 1 }).startOf('quarter').toFormat('yyyy-MM-dd')
-                this.end_date.el.value = today.startOf('quarter').minus({ days: 1 }).toFormat('yyyy-MM-dd')
-                this.state.date_viewed = []
-                this.state.date_viewed.push('Q' + ' ' + today.startOf('quarter').minus({ days: 1 }).quarter)
-                this.state.date_type = 'quarter'
-                this.state.comparison_type = this.state.date_type
-                this.state.date_range = {
-                    start_date: this.start_date.el.value,
-                    end_date: this.end_date.el.value
-                };
-            } else if (val && val.target.attributes["data-value"].value == 'journal') {
-                if (!val.target.classList.contains("selected-filter")) {
-                    this.state.selected_journal_list.push(parseInt(val.target.attributes["data-id"].value, 10))
-                    val.target.classList.add("selected-filter");
-                } else {
-                    const updatedList = this.state.selected_journal_list.filter(item => item !== parseInt(val.target.attributes["data-id"].value, 10));
-                    this.state.selected_journal_list = updatedList
-                    val.target.classList.remove("selected-filter");
+            const result = await this.orm.call("account.trial.balance", "view_report", []);
+            if (result && Array.isArray(result)) {
+                this.state.data = result[0] || [];
+                if (result[1] && result[1]['journal_ids']) {
+                    this.state.journals = result[1]['journal_ids'];
                 }
-            } else if (val && val.target.attributes["data-value"].value === 'draft') {
-                if (val.target.classList.contains("selected-filter")) {
-                    const { draft, ...updatedAccount } = this.state.options;
-                    this.state.options = updatedAccount;
-                    val.target.classList.remove("selected-filter");
-                } else {
-                    this.state.options = {
-                        ...this.state.options,
-                        'draft': true
-                    };
-                    val.target.classList.add("selected-filter");
-                }
-            }else if (val.target.attributes["data-value"].value === 'cash-basis') {
-                if (val.target.classList.contains("selected-filter")) {
-                    const { cash, ...updatedAccount } = this.state.method;
-                    this.state.method = updatedAccount;
-                    val.target.classList.remove("selected-filter");
-                } else {
-                    this.state.method = {
-                        ...this.state.method,
-                        'cash': true
-                    };
-                    val.target.classList.add("selected-filter");
+                this.state.totals = result[2] || {};
+                if (this.state.totals && this.state.totals.currency) {
+                    this.state.currency = this.state.totals.currency;
                 }
             }
-        }
-        if (this.state.apply_comparison == true) {
-            if (this.state.comparison_type == 'year') {
-                this.state.date_viewed = []
-                if (this.start_date.el.value) {
-                    var current_year = new Date(this.start_date.el.value).getFullYear();
-                    var month = new Date(this.start_date.el.value).getMonth();
-                } else {
-                    var current_year = new Date(today).getFullYear();
-                    var month = new Date(today).getMonth()
-                }
-                this.state.comparison_number = this.period_year.el.value
-                for (var i = this.state.comparison_number; i >= 0; i--) {
-                    var date = monthNamesShort[month] + ' ' + (current_year - i);
-                    this.state.date_viewed.push(date);
-                }
-            } else if (this.state.comparison_type == 'month') {
-                this.state.date_viewed = []
-                this.state.comparison_number = this.period.el.value
-            } else if (this.state.comparison_type == 'quarter') {
-                this.state.date_viewed = []
-                this.state.comparison_number = this.period.el.value
-            }
-        }
-        this.state.data = await this.orm.call("account.trial.balance", "get_filter_values", [this.start_date.el.value, this.end_date.el.value, this.state.comparison_number, this.state.comparison_type, this.state.selected_journal_list, this.state.selected_analytic, this.state.options,this.state.method,]);
-        this.state.default_report = false
-        var date_viewed = []
-        if (date_viewed.length !== 0) {
-            this.state.date_viewed = date_viewed.reverse()
+        } catch (error) {
+            console.error("Error loading trial balance:", error);
         }
     }
-    onPeriodChange(ev) {
-        /**
-         * Event handler for period change.
-         * Updates the value of 'period_year' element based on the event target value.
-         *
-         * @param {Event} ev - Event object triggered by the period change.
-         * @returns {void} No explicit return value.
-         */
-        this.period_year.el.value = ev.target.value
+
+    get displayed_accounts() {
+        if (!this.state.data) return [];
+        if (!this.state.search_query) return this.state.data;
+        const q = this.state.search_query.toLowerCase();
+        return this.state.data.filter(item => {
+            return (item.account && item.account.toLowerCase().includes(q)) ||
+                   (item.account_code && item.account_code.toLowerCase().includes(q)) ||
+                   (item.account_name && item.account_name.toLowerCase().includes(q));
+        });
     }
-    onPeriodYearChange(ev) {
-        /**
-         * Event handler for period year change.
-         * Updates the value of 'period' element based on the event target value.
-         *
-         * @param {Event} ev - Event object triggered by the period year change.
-         * @returns {void} No explicit return value.
-         */
-        this.period.el.value = ev.target.value
+
+    get total_period_debit() {
+        if (!this.state.data) return 0;
+        return this.state.data.reduce((acc, item) => acc + (this.parseNumber(item.total_debit) || 0), 0);
     }
-    applyComparisonPeriod(ev) {
-        /**
-         * Applies a comparison period and triggers data filtering.
-         * Sets 'apply_comparison' flag to true and updates 'comparison_type'.
-         * Invokes 'applyFilter' method to apply filters and load data.
-         *
-         * @param {Event} ev - Event object triggering the comparison period application.
-         * @returns {void} No explicit return value.
-         */
-        this.state.apply_comparison = true
-        this.state.comparison_type = this.state.date_type
-        this.applyFilter(null, ev)
+
+    get total_period_credit() {
+        if (!this.state.data) return 0;
+        return this.state.data.reduce((acc, item) => acc + (this.parseNumber(item.total_credit) || 0), 0);
     }
-    applyComparisonYear(ev) {
-        /**
-         * Applies a comparison year and triggers data filtering.
-         * Sets 'apply_comparison' flag to true and updates 'comparison_type' to 'year'.
-         * Invokes 'applyFilter' method to apply filters and load data.
-         *
-         * @param {Event} ev - Event object triggering the comparison year application.
-         * @returns {void} No explicit return value.
-         */
-        this.state.apply_comparison = true
-        this.state.comparison_type = 'year'
-        this.applyFilter(null, ev)
+
+    get total_end_debit() {
+        if (!this.state.data) return 0;
+        return this.state.data.reduce((acc, item) => acc + (this.parseNumber(item.end_total_debit) || 0), 0);
     }
-    sumByKey(data, key) {
-        if (!Array.isArray(data)) return 0;
-        return data.reduce((acc, item) => {
-            let raw = item[key];
-            if (typeof raw === 'string') {
-                raw = raw.replace(/,/g, ''); // remove commas
-            }
-            const val = parseFloat(raw);
-            return acc + (isNaN(val) ? 0 : val);
-        }, 0);
+
+    get total_end_credit() {
+        if (!this.state.data) return 0;
+        return this.state.data.reduce((acc, item) => acc + (this.parseNumber(item.end_total_credit) || 0), 0);
     }
+
+    get is_balanced() {
+        const periodDiff = Math.abs(this.total_period_debit - this.total_period_credit);
+        const endDiff = Math.abs(this.total_end_debit - this.total_end_credit);
+        return periodDiff < 0.05 && endDiff < 0.05;
+    }
+
     get comparison_number_range() {
-        /**
-         * Generates an array of numbers representing a comparison number range.
-         * The range includes numbers from 1 up to the 'comparison_number' value in the state.
-         *
-         * @returns {Array} An array of numbers representing the comparison number range.
-         */
         const range = [];
-        for (let i = 1; i <= this.state.comparison_number; i++) {
+        const num = parseInt(this.state.comparison_number, 10) || 0;
+        for (let i = 1; i <= num; i++) {
             range.push(i);
         }
         return range;
     }
+
+    parseNumber(val) {
+        if (val === undefined || val === null || val === '') return 0;
+        if (typeof val === 'number') return val;
+        let num = parseFloat(String(val).replace(/,/g, ''));
+        return isNaN(num) ? 0 : num;
+    }
+
+    formatNumber(val) {
+        const num = this.parseNumber(val);
+        return num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    formatAmount(val) {
+        const num = this.parseNumber(val);
+        if (Math.abs(num) < 0.001) return '-';
+        return num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    onSearchInput(ev) {
+        this.state.search_query = (ev.target.value || '').trim();
+    }
+
+    async applyDatePreset(preset, label) {
+        this.state.date_type = preset;
+        this.state.date_filter_label = label || preset;
+        const now = luxon.DateTime.now();
+
+        if (preset === 'month') {
+            this.state.start_date = now.startOf('month').toFormat('yyyy-MM-dd');
+            this.state.end_date = now.endOf('month').toFormat('yyyy-MM-dd');
+            this.state.date_viewed = [now.monthShort + ' ' + now.year];
+        } else if (preset === 'quarter') {
+            this.state.start_date = now.startOf('quarter').toFormat('yyyy-MM-dd');
+            this.state.end_date = now.endOf('quarter').toFormat('yyyy-MM-dd');
+            this.state.date_viewed = ['Q' + now.quarter + ' ' + now.year];
+        } else if (preset === 'year') {
+            this.state.start_date = now.startOf('year').toFormat('yyyy-MM-dd');
+            this.state.end_date = now.endOf('year').toFormat('yyyy-MM-dd');
+            this.state.date_viewed = [String(now.year)];
+        } else if (preset === 'last-month') {
+            const prev = now.minus({ months: 1 });
+            this.state.start_date = prev.startOf('month').toFormat('yyyy-MM-dd');
+            this.state.end_date = prev.endOf('month').toFormat('yyyy-MM-dd');
+            this.state.date_viewed = [prev.monthShort + ' ' + prev.year];
+        } else if (preset === 'last-quarter') {
+            const prev = now.minus({ quarters: 1 });
+            this.state.start_date = prev.startOf('quarter').toFormat('yyyy-MM-dd');
+            this.state.end_date = prev.endOf('quarter').toFormat('yyyy-MM-dd');
+            this.state.date_viewed = ['Q' + prev.quarter + ' ' + prev.year];
+        } else if (preset === 'last-year') {
+            const prev = now.minus({ years: 1 });
+            this.state.start_date = prev.startOf('year').toFormat('yyyy-MM-dd');
+            this.state.end_date = prev.endOf('year').toFormat('yyyy-MM-dd');
+            this.state.date_viewed = [String(prev.year)];
+        }
+
+        if (this.startDateRef && this.startDateRef.el) this.startDateRef.el.value = this.state.start_date;
+        if (this.endDateRef && this.endDateRef.el) this.endDateRef.el.value = this.state.end_date;
+
+        await this.fetchFilteredData();
+    }
+
+    async applyCustomDate() {
+        const startVal = this.startDateRef && this.startDateRef.el ? this.startDateRef.el.value : '';
+        const endVal = this.endDateRef && this.endDateRef.el ? this.endDateRef.el.value : '';
+        this.state.start_date = startVal;
+        this.state.end_date = endVal;
+
+        if (startVal && endVal) {
+            this.state.date_filter_label = `${startVal} to ${endVal}`;
+            this.state.date_viewed = [`${startVal} to ${endVal}`];
+        } else if (startVal) {
+            this.state.date_filter_label = `From ${startVal}`;
+            this.state.date_viewed = [`From ${startVal}`];
+        } else if (endVal) {
+            this.state.date_filter_label = `Until ${endVal}`;
+            this.state.date_viewed = [`Until ${endVal}`];
+        } else {
+            this.state.date_filter_label = 'Date Range';
+        }
+
+        await this.fetchFilteredData();
+    }
+
+    async toggleJournalFilter(journalId) {
+        const list = [...this.state.selected_journal_list];
+        const idx = list.indexOf(journalId);
+        if (idx > -1) {
+            list.splice(idx, 1);
+        } else {
+            list.push(journalId);
+        }
+        this.state.selected_journal_list = list;
+        await this.fetchFilteredData();
+    }
+
+    async applyTargetMove(target) {
+        this.state.target_move = target;
+        if (target === 'draft') {
+            this.state.options = { ...this.state.options, draft: true };
+        } else {
+            const { draft, ...rest } = this.state.options;
+            this.state.options = rest;
+        }
+        await this.fetchFilteredData();
+    }
+
+    async applyMethod(methodName) {
+        if (methodName === 'cash-basis') {
+            this.state.method = { 'cash': true };
+        } else {
+            this.state.method = { 'accrual': true };
+        }
+        await this.fetchFilteredData();
+    }
+
+    onPeriodChange(ev) {
+        if (this.periodYearRef && this.periodYearRef.el) {
+            this.periodYearRef.el.value = ev.target.value;
+        }
+    }
+
+    onPeriodYearChange(ev) {
+        if (this.periodRef && this.periodRef.el) {
+            this.periodRef.el.value = ev.target.value;
+        }
+    }
+
+    async applyComparisonPeriod(ev) {
+        const val = this.periodRef && this.periodRef.el ? this.periodRef.el.value : '1';
+        this.state.apply_comparison = true;
+        this.state.comparison_type = this.state.date_type || 'month';
+        this.state.comparison_number = val;
+        await this.fetchFilteredData();
+    }
+
+    async applyComparisonYear(ev) {
+        const val = this.periodYearRef && this.periodYearRef.el ? this.periodYearRef.el.value : '1';
+        this.state.apply_comparison = true;
+        this.state.comparison_type = 'year';
+        this.state.comparison_number = val;
+        await this.fetchFilteredData();
+    }
+
     async applyComparison(ev) {
-        /**
-         * Disables comparison mode, resets comparison settings, and triggers data filtering.
-         * Sets 'apply_comparison' flag to false and clears 'comparison_type' and 'comparison_number'.
-         * Removes all date view entries except the current month/year.
-         * Invokes 'applyFilter' method to apply filters and load data.
-         *
-         * @param {Event} ev - Event object triggering the comparison mode removal.
-         * @returns {void} No explicit return value.
-         */
-        this.state.apply_comparison = false
-        this.state.comparison_type = null
-        this.state.comparison_number = null
-        const lastIndex = this.state.date_viewed.length - 1;
-        this.state.date_viewed.splice(0, lastIndex);
-        this.applyFilter(null, ev)
-    }
-    getDomain() {
-        return [];
-    }
-    async printPdf(ev) {
-        /**
-         * Asynchronously generates and prints a PDF report.
-         * Triggers an action to generate a PDF report based on the current state and settings.
-         *
-         * @param {Event} ev - Event object triggering the PDF report generation.
-         * @returns {Promise} A promise that resolves after the PDF report action is triggered.
-         */
-        ev.preventDefault();
-        var self = this;
-        var action_title = self.props.action.display_name;
-        let comparison_number_range = self.comparison_number_range
-        let data_viewed = self.state.date_viewed
-        if (self.state.apply_comparison) {
-             if (self.comparison_number_range.length > 10) {
-                comparison_number_range = self.comparison_number_range.slice(-10);
-                data_viewed = self.state.date_viewed.slice(-11);
-             }
-         }
-
-        // 🔥 Normalize data before sending to QWeb
-        let normalizedData = self.state.data;
-        if (normalizedData && !Array.isArray(normalizedData)) {
-            // case: dict → wrap as [[dict]]
-            normalizedData = [[normalizedData]];
-        } else if (Array.isArray(normalizedData) && normalizedData.length && !Array.isArray(normalizedData[0])) {
-            // case: [dict, dict] → wrap as [[dict, dict]]
-            normalizedData = [normalizedData];
+        this.state.apply_comparison = false;
+        this.state.comparison_type = null;
+        this.state.comparison_number = null;
+        if (this.state.date_viewed.length > 1) {
+            this.state.date_viewed = [this.state.date_viewed[this.state.date_viewed.length - 1]];
         }
-        // if already [[dict, dict]], leave as is
-
-        return self.action.doAction({
-            'type': 'ir.actions.report',
-            'report_type': 'qweb-pdf',
-            'report_name': 'dynamic_accounts_report.trial_balance',
-            'report_file': 'dynamic_accounts_report.trial_balance',
-            'data': {
-                'data': normalizedData,   // ✅ always consistent
-                'date_viewed': data_viewed,
-                'filters': this.filter(),
-                'apply_comparison': self.state.apply_comparison,
-                'comparison_number_range': comparison_number_range,
-                'title': action_title,
-                'report_name': self.props.action.display_name
-            },
-            'display_name': self.props.action.display_name,
-        });
+        await this.fetchFilteredData();
     }
 
-    filter() {
-    var self=this;
-    let startDate, endDate;
-    let startYear, startMonth, startDay, endYear, endMonth, endDay;
-        if (self.state.date_range){
-            const today = new Date();
-            if (self.state.date_range === 'year') {
-                startDate = new Date(today.getFullYear(), 0, 1);
-                endDate = new Date(today.getFullYear(), 11, 31);
-            } else if (self.state.date_range === 'quarter') {
-                const currentQuarter = Math.floor(today.getMonth() / 3);
-                startDate = new Date(today.getFullYear(), currentQuarter * 3, 1);
-                endDate = new Date(today.getFullYear(), (currentQuarter + 1) * 3, 0);
-            } else if (self.state.date_range === 'month') {
-                startDate = new Date(today.getFullYear(), today.getMonth(), 1);
-                endDate = new Date(today.getFullYear(), today.getMonth() + 1, 0);
-            } else if (self.state.date_range === 'last-month') {
-                startDate = new Date(today.getFullYear(), today.getMonth() - 1, 1);
-                endDate = new Date(today.getFullYear(), today.getMonth(), 0);
-            } else if (self.state.date_range === 'last-year') {
-                startDate = new Date(today.getFullYear() - 1, 0, 1);
-                endDate = new Date(today.getFullYear() - 1, 11, 31);
-            } else if (self.state.date_range === 'last-quarter') {
-                const lastQuarter = Math.floor((today.getMonth() - 3) / 3);
-                startDate = new Date(today.getFullYear(), lastQuarter * 3, 1);
-                endDate = new Date(today.getFullYear(), (lastQuarter + 1) * 3, 0);
+    async fetchFilteredData() {
+        try {
+            const result = await this.orm.call("account.trial.balance", "get_filter_values", [
+                this.state.start_date,
+                this.state.end_date,
+                this.state.comparison_number,
+                this.state.comparison_type,
+                this.state.selected_journal_list,
+                this.state.selected_analytic,
+                this.state.options,
+                this.state.method,
+            ]);
+            if (result && Array.isArray(result)) {
+                this.state.data = result[0] || [];
+                this.state.totals = result[1] || {};
+                if (this.state.totals && this.state.totals.currency) {
+                    this.state.currency = this.state.totals.currency;
+                }
             }
-        // Get the date components for start and end dates
-        if (startDate) {
-        startYear = startDate.getFullYear();
-        startMonth = startDate.getMonth() + 1;
-        startDay = startDate.getDate();
+        } catch (error) {
+            console.error("Error filtering trial balance:", error);
         }
-        if (endDate) {
-        endYear = endDate.getFullYear();
-        endMonth = endDate.getMonth() + 1;
-        endDay = endDate.getDate();
-        }
-        }
-        const selectedJournalIDs = Object.values(self.state.selected_journal_list);
-        const selectedJournalNames = selectedJournalIDs.map((journalID) => {
-          const journal = self.state.journals[journalID];
-          return journal ? journal.name : ''; // Return the name if journal exists, otherwise an empty string
-        });
-        let filters = {
-            'journal': selectedJournalNames,
-            'account': self.state.selected_analytic_account_rec,
-            'options': self.state.options,
-            'comparison_type': self.state.comparison_type,
-            'comparison_number_range': self.state.comparison_number,
-            'start_date': null,
-            'end_date': null,
-        };
-        // Check if start and end dates are available before adding them to the filters object
-        if (startYear !== undefined && startMonth !== undefined && startDay !== undefined &&
-            endYear !== undefined && endMonth !== undefined && endDay !== undefined) {
-            filters['start_date'] = `${startYear}-${startMonth < 10 ? '0' : ''}${startMonth}-${startDay < 10 ? '0' : ''}${startDay}`;
-            filters['end_date'] = `${endYear}-${endMonth < 10 ? '0' : ''}${endMonth}-${endDay < 10 ? '0' : ''}${endDay}`;
-        }
-        return filters
     }
 
-    async print_xlsx(ev) {
-        ev?.preventDefault && ev.preventDefault();
-        const self = this;
-        const action_title = self.props.action.display_name;
-
-        // Normalize data like PDF
-        let normalizedData = self.state.data;
-        if (normalizedData && !Array.isArray(normalizedData)) {
-            normalizedData = [[normalizedData]];
-        } else if (Array.isArray(normalizedData) && normalizedData.length && !Array.isArray(normalizedData[0])) {
-            normalizedData = [normalizedData];
-        }
-
-        // Limit comparison range if too long
-        let comparison_number_range = self.comparison_number_range;
-        let data_viewed = self.state.date_viewed;
-        if (self.state.apply_comparison && self.comparison_number_range.length > 10) {
-            comparison_number_range = self.comparison_number_range.slice(-10);
-            data_viewed = self.state.date_viewed.slice(-11);
-        }
-
-        const datas = {
-            data: normalizedData,
-            date_viewed: data_viewed,
-            filters: self.filter(),
-            apply_comparison: self.state.apply_comparison,
-            comparison_number_range: comparison_number_range,
-            title: action_title,
-            report_name: action_title,
-        };
-
-        const action = {
-            data: {
-                model: 'account.trial.balance',
-                data: JSON.stringify(datas),
-                output_format: 'xlsx',
-                report_action: self.props.action.xml_id,
-                report_name: action_title,
-            },
-        };
-
-        const block = new BlockUI();
-
-        await download({
-            url: '/dynamic_accounts_report/xlsx_report',
-            data: action.data,
-            complete: () => block.unblock(),
-            error: (error) => self.call('crash_manager', 'rpc_error', error),
+    gotoJournalItem(accountId, ev) {
+        if (ev) ev.stopPropagation();
+        const id = typeof accountId === 'number' ? accountId : parseInt(accountId || (ev && ev.target.dataset.id), 10);
+        if (!id) return;
+        return this.action.doAction({
+            type: "ir.actions.act_window",
+            res_model: 'account.move.line',
+            name: "Journal Items",
+            views: [[false, "list"]],
+            domain: [["account_id", "=", id]],
+            context: { search_default_posted: 1 },
+            target: "current",
         });
     }
-    async show_gl(ev) {
-    /**
-    * Shows the General Ledger view by triggering an action.
-    *
-    * @param {Event} ev - The event object triggered by the action.
-    * @returns {Promise} - A promise that resolves to the result of the action.
-    */
+
+    gotoGeneralLedger(accountId, ev) {
+        if (ev) ev.stopPropagation();
         return this.action.doAction({
             type: 'ir.actions.client',
             name: 'General Ledger',
             tag: 'gen_l',
         });
     }
-    formatDate(dateString) {
-    /**
-     * Formats a date string in "YYYY-MM-DD" format to "DD/MM/YYYY" format.
-     *
-     * @param {string} dateString - The date string to be formatted.
-     * @returns {string} The formatted date in "DD/MM/YYYY" format.
-     */
-        const date = new Date(dateString);
-        const day = date.getDate().toString().padStart(2, '0');
-        const month = (date.getMonth() + 1).toString().padStart(2, '0');
-        const year = date.getFullYear();
-        return `${day}/${month}/${year}`;
+
+    filter() {
+        const selectedJournalIDs = Object.values(this.state.selected_journal_list);
+        const selectedJournalNames = selectedJournalIDs.map(id => {
+            const j = this.state.journals.find(item => item.id === id);
+            return j ? j.name : '';
+        }).filter(Boolean);
+
+        return {
+            'journal': selectedJournalNames,
+            'account': this.state.selected_analytic_account_rec,
+            'options': this.state.options,
+            'comparison_type': this.state.comparison_type,
+            'comparison_number_range': this.state.comparison_number,
+            'start_date': this.state.start_date,
+            'end_date': this.state.end_date,
+        };
     }
-    gotoJournalItem(ev) {
-        /**
-         * Navigates to the journal items list view based on the selected event target.
-         *
-         * @param {Event} ev - The event object triggered by the action.
-         * @returns {Promise} - A promise that resolves to the result of the action.
-         */
+
+    normalizeReportData(rawData) {
+        let accounts = Array.isArray(rawData) && Array.isArray(rawData[0]) ? rawData[0] : rawData;
+        return accounts.map(acc => ({
+            ...acc,
+            initial_total_debit: this.parseNumber(acc.initial_total_debit),
+            initial_total_credit: this.parseNumber(acc.initial_total_credit),
+            total_debit: this.parseNumber(acc.total_debit),
+            total_credit: this.parseNumber(acc.total_credit),
+            end_total_debit: this.parseNumber(acc.end_total_debit),
+            end_total_credit: this.parseNumber(acc.end_total_credit),
+        }));
+    }
+
+    async printPdf(ev) {
+        if (ev) ev.preventDefault();
+        const action_title = this.props.action ? this.props.action.display_name : 'Trial Balance';
+        let comparison_number_range = this.comparison_number_range;
+        let data_viewed = this.state.date_viewed;
+
+        if (this.state.apply_comparison && this.comparison_number_range.length > 10) {
+            comparison_number_range = this.comparison_number_range.slice(-10);
+            data_viewed = this.state.date_viewed.slice(-11);
+        }
+
         return this.action.doAction({
-            type: "ir.actions.act_window",
-            res_model: 'account.move.line',
-            name: "Journal Items",
-            views: [[false, "list"]],
-            domain: [["account_id", "=", parseInt(ev.target.attributes["data-id"].value, 10)]],
-            context: { group_by: ["account_id"] },
-            target: "current",
+            'type': 'ir.actions.report',
+            'report_type': 'qweb-pdf',
+            'report_name': 'dynamic_accounts_report.trial_balance',
+            'report_file': 'dynamic_accounts_report.trial_balance',
+            'data': {
+                'data': this.normalizeReportData(this.state.data),
+                'totals': this.state.totals,
+                'date_viewed': data_viewed,
+                'filters': this.filter(),
+                'apply_comparison': this.state.apply_comparison,
+                'comparison_number_range': comparison_number_range,
+                'title': action_title,
+                'report_name': action_title,
+            },
+            'display_name': action_title,
+        });
+    }
+
+    async print_xlsx() {
+        const action_title = this.props.action ? this.props.action.display_name : 'Trial Balance';
+        const datas = {
+            'data': this.normalizeReportData(this.state.data),
+            'totals': this.state.totals,
+            'date_viewed': this.state.date_viewed,
+            'filters': this.filter(),
+            'apply_comparison': this.state.apply_comparison,
+            'comparison_number_range': this.comparison_number_range,
+            'title': action_title,
+            'report_name': action_title,
+        };
+        const action = {
+            'data': {
+                'model': 'account.trial.balance',
+                'data': JSON.stringify(datas),
+                'output_format': 'xlsx',
+                'report_action': this.props.action ? this.props.action.xml_id : 'dynamic_accounts_report.action_trial_balance',
+                'report_name': action_title,
+            },
+        };
+        await download({
+            url: '/xlsx_report',
+            data: action.data,
         });
     }
 }
+
 TrialBalance.template = 'trl_b_template_new';
+TrialBalance.defaultProps = {
+    resIds: [],
+};
 actionRegistry.add("trl_b", TrialBalance);

@@ -3,8 +3,8 @@
 #
 #    Cybrosys Technologies Pvt. Ltd.
 #
-#    Copyright (C) 2025-TODAY Cybrosys Technologies(<https://www.cybrosys.com>).
-#    Author: Swetha Anand (odoo@cybrosys.com)
+#    Copyright (C) 2023-TODAY Cybrosys Technologies(<https://www.cybrosys.com>).
+#    Author: Ammu Raj (odoo@cybrosys.com)
 #
 #    You can modify it under the terms of the GNU LESSER
 #    GENERAL PUBLIC LICENSE (LGPL v3), Version 3.
@@ -107,7 +107,7 @@ class ProfitLossReport(models.TransientModel):
                             'parent_state', 'in', target_move),
                             ('date', '>=', f'{current_year - count}-01-01'),
                             ('date', '<=', f'{current_year - count}-12-31')])
-                lists = [{'id': rec.id, 'value': [int(i) for i in
+                lists = [{'id': rec.id, 'value': [eval(i) for i in
                                                   rec.analytic_distribution.keys()]}
                          for rec in account_move_lines if
                          rec.analytic_distribution]
@@ -203,7 +203,7 @@ class ProfitLossReport(models.TransientModel):
                  ('date', '>=', date_from),
                  ('date', '<=', date_to)])
             lists = [{'id': rec.id,
-                      'value': [int(i) for i in
+                      'value': [eval(i) for i in
                                 rec.analytic_distribution.keys()]}
                      for rec in account_move_lines if
                      rec.analytic_distribution]
@@ -279,7 +279,7 @@ class ProfitLossReport(models.TransientModel):
                 'total_balance': "{:,.2f}".format(total),
                 **account_entries}
             datas.append(data)
-        filters = self._get_filter_data()
+        filters = self._get_filter_data(financial_report_id)
         return data, filters, datas
 
     def _get_entries(self, account_move_lines, account_ids, account_type):
@@ -392,30 +392,38 @@ class ProfitLossReport(models.TransientModel):
             filter.append({'target_move': self.target_move})
         return filter
 
-    def _get_filter_data(self):
+    def _get_filter_data(self, rec=None):
         """
             Retrieve the filter data for journals and accounts.
-
             :return: A dictionary containing the filter data.
             """
         journal_ids = self.env['account.journal'].search([])
-        journal = [{'id': journal.id, 'name': journal.name} for journal in
-                   journal_ids]
+        journal = [{'id': j.id, 'name': j.name} for j in journal_ids]
 
         account_ids = self.env['account.account'].search([])
-        account = [{'id': account.id, 'name': account.name} for account in
-                   account_ids]
+        account = [{'id': a.id, 'name': a.name} for a in account_ids]
 
         analytic_ids = self.env['account.analytic.account'].search([])
-        analytic = [{'id': analytic.id, 'name': analytic.name} for analytic in
-                    analytic_ids]
+        analytic = [{'id': an.id, 'name': an.name} for an in analytic_ids]
 
-        filter = {
+        filter_dict = {
             'journal': journal,
+            'journals': journal,
             'account': account,
-            'analytic': analytic
+            'accounts': account,
+            'analytic': analytic,
+            'analytics': analytic,
+            'date_from': str(rec.date_from) if rec and rec.date_from else False,
+            'date_to': str(rec.date_to) if rec and rec.date_to else False,
+            'target_move': rec.target_move if rec else 'posted',
+            'target_move_name': 'Posted Entries Only' if (not rec or rec.target_move == 'posted') else 'All Entries (Draft & Posted)',
+            'selected_journals': rec.journal_ids.mapped('name') if rec and rec.journal_ids else [],
+            'selected_accounts': rec.account_ids.mapped('name') if rec and rec.account_ids else [],
+            'selected_analytics': rec.analytic_ids.mapped('name') if rec and rec.analytic_ids else [],
+            'company_name': (rec.company_id.name if rec and rec.company_id else self.env.company.name),
+            'company_currency': (rec.company_id.currency_id.name if rec and rec.company_id else self.env.company.currency_id.name),
         }
-        return filter
+        return filter_dict
 
     @api.model
     def comparison_filter(self, options, count):
@@ -451,13 +459,15 @@ class ProfitLossReport(models.TransientModel):
         return last_year_date_list
 
     @api.model
-    def get_xlsx_report(self, data, response, report_name, report_action):
+    def get_xlsx_report(self, data, response, report_name=None, report_action=None, **kwargs):
         """Generate and return an XLSX report based on the provided data.
             :param data: The report data in JSON format.
             :param report_name: Name of the report.
             :param response: The response object to write the generated report to.
             """
-        data = json.loads(data)
+        if isinstance(data, (str, bytes)):
+
+            data = json.loads(data)
         output = io.BytesIO()
         workbook = xlsxwriter.Workbook(output, {'in_memory': True})
         sheet = workbook.add_worksheet()
@@ -470,12 +480,6 @@ class ProfitLossReport(models.TransientModel):
              'border': 1,
              'border_color': 'black'})
         side_heading_sub.set_indent(1)
-        # Filter formats
-        filter_heading = workbook.add_format(
-            {'align': 'center', 'bold': True, 'font_size': '9px', 'border': 1,
-             'bg_color': '#D3D3D3'})
-        filter_text = workbook.add_format(
-            {'align': 'left', 'font_size': '9px', 'border': 1})
         txt_name = workbook.add_format({'font_size': '10px', 'border': 1})
         txt_name_left = workbook.add_format(
             {'align': 'left', 'font_size': '10px', 'border': 1})
@@ -492,77 +496,20 @@ class ProfitLossReport(models.TransientModel):
             sheet.write(5, col + 1, 'Balance', sub_heading)
             col += 1
         col = 0
-        current_row = 0
-
-        # Report Title
-        sheet.merge_range(current_row, 0, current_row, 5, report_name, sub_heading)
-        current_row += 1
         if data:
             if report_action == 'dynamic_accounts_report.action_dynamic_profit_and_loss':
-
-                # --- FILTERS TABLE BELOW REPORT NAME ---
-                # Filter table headers
-                sheet.write(current_row, 0, 'Date Range', filter_heading)
-                sheet.write(current_row, 1, 'Comparison', filter_heading)
-                sheet.write(current_row, 2, 'Account', filter_heading)
-                sheet.write(current_row, 3, 'Journal', filter_heading)
-                sheet.write(current_row, 4, 'Analytic Account', filter_heading)
-                sheet.write(current_row, 5, 'Target move', filter_heading)
-                current_row += 1
-
-                # Filter values
-                # Date Range
-                date_range = ''
-                if data.get('date_from') and data.get('date_to'):
-                    date_range = f"{data.get('date_from')} – {data.get('date_to')}"
-                elif data.get('date_range'):
-                    date_range = data.get('date_range')
-                else:
-                    date_range = 'All'
-                sheet.write(current_row, 0, date_range, filter_text)
-
-                # Comparison
-                comparison = data.get('comparison', '-') if data.get('comparison') else '-'
-                sheet.write(current_row, 1, comparison, filter_text)
-
-                # Account
-                account_ids = data.get('account_ids')
-                account_text = ', '.join(map(str, account_ids)) if account_ids else 'All'
-                sheet.write(current_row, 2, account_text,filter_text)
-
-                # Journal
-                journal_ids = data.get('journal_ids')
-                journal_text = ', '.join(map(str, journal_ids)) if journal_ids else 'All'
-                sheet.write(current_row, 3, journal_text,filter_text)
-
-                # Analytic Account
-                analytic_ids = data.get('analytic_ids')
-                analytic_text = ', '.join(map(str, analytic_ids)) if analytic_ids else 'All'
-                sheet.write(current_row, 4, analytic_text,filter_text)
-
-                # Target move
-                target_text = data.get('target', 'All') if data.get('target') else 'All'
-                sheet.write(current_row, 5, target_text, filter_text)
-
-                current_row += 2  # Leave a blank row
-
-                # --- REPORT TITLE ---
-
-                sheet.write(current_row, col, 'Net Profit', sub_heading)
+                sheet.write(6, col, 'Net Profit', sub_heading)
                 for datas in data['datas']:
-                    sheet.write(current_row, col + 1, datas['total'], side_heading_sub)
-                    current_row += 1
+                    sheet.write(6, col + 1, datas['total'], side_heading_sub)
                     col += 1
                 col = 0
-                sheet.write(current_row, col, 'Income', side_heading_sub)
-                sheet.write(current_row, col + 1, ' ', side_heading_sub)
-                current_row += 1
-                sheet.write(current_row, col, 'Operating Income', txt_name_left)
+                sheet.write(7, col, 'Income', side_heading_sub)
+                sheet.write(7, col + 1, ' ', side_heading_sub)
+                sheet.write(8, col, 'Operating Income', txt_name_left)
                 for datas in data['datas']:
-                    sheet.write(current_row, col + 1, datas['income'][1], txt_name)
-                    current_row += 1
+                    sheet.write(8, col + 1, datas['income'][1], txt_name)
                     col += 1
-                row = current_row
+                row = 8
                 index = 0
                 for datas in data['datas']:
                     if index == 0:

@@ -2,477 +2,541 @@
 <templates>
     <!--
     The pl_template_new template for the PartnerLedger component.
-    @param {Object} state - The state object containing the component's state data.
+    Enterprise-grade styling, responsive layout, detailed running balance & debt summary views.
     -->
     <t t-name="pl_template_new" owl="1">
-        <div class="container">
-            <div class="fin_report">
-                <!-- Filter View -->
-                <div class="filter_view_pl pt-3 pb-5">
-                    <!-- Title -->
-                    <div class="">
-                        <h2 class="text-uppercase" style="padding:10px">
-                            <t t-esc="props.action.name"/>
-                        </h2>
+        <div class="o_partner_ledger_container">
+            <!-- Header Control Bar (Enterprise Dark Bar) -->
+            <div class="o_report_control_bar">
+                <div class="o_report_header_left">
+                    <h2 class="o_report_main_title">
+                        <i class="fa fa-book me-2"/>
+                        <t t-esc="state.title || props.action.name"/>
+                    </h2>
+                    <!-- Action Buttons -->
+                    <button type="button"
+                            class="o_btn_report_action o_btn_pdf"
+                            t-on-click="printPdf"
+                            title="Export PDF Report">
+                        <i class="fa fa-file-pdf-o"/> Print (PDF)
+                    </button>
+                    <button type="button"
+                            class="o_btn_report_action o_btn_xlsx"
+                            t-on-click="print_xlsx"
+                            title="Export XLSX Spreadsheet">
+                        <i class="fa fa-file-excel-o"/> Export (XLSX)
+                    </button>
+
+                    <!-- Report Mode Switcher: Detailed vs Summary -->
+                    <div class="o_report_mode_switcher ms-2">
+                        <button type="button"
+                                class="o_report_mode_btn"
+                                t-att-class="state.report_mode === 'detailed' ? 'active' : ''"
+                                t-on-click="() => this.setReportMode('detailed')">
+                            <i class="fa fa-th-list"/> Detailed
+                        </button>
+                        <button type="button"
+                                class="o_report_mode_btn"
+                                t-att-class="state.report_mode === 'summary' ? 'active' : ''"
+                                t-on-click="() => this.setReportMode('summary')">
+                            <i class="fa fa-list-alt"/> Debt Summary
+                        </button>
                     </div>
-                    <div style="margin-right: 10px; margin-left: 10px;margin-bottom: 15px;display: flex;">
-                        <div class="sub_container_left" style="width:70%;">
-                            <div class="report_print">
-                                <!-- Print (PDF) Button -->
-                                <button type="button"
-                                        class="btn btn-primary btn-report-print"
-                                        t-on-click="printPdf"
-                                        style="margin-right: 8px;">
-                                    Print (PDF)
+
+                    <!-- Unfold/Fold Toggle -->
+                    <t t-if="state.report_mode === 'detailed'">
+                        <button type="button"
+                                class="btn btn-sm btn-outline-light ms-2"
+                                style="font-size: 11px; padding: 4px 10px; border-radius: 6px;"
+                                t-on-click="unfoldAll">
+                            <i t-attf-class="fa fa-{{ state.is_unfolded_all ? 'compress' : 'expand' }} me-1"/>
+                            <t t-esc="state.is_unfolded_all ? 'Fold All' : 'Unfold All'"/>
+                        </button>
+                    </t>
+                </div>
+
+                <div class="d-flex align-items-center flex-wrap gap-2">
+                    <!-- Real-Time Search Box -->
+                    <div class="o_report_search_wrapper">
+                        <i class="fa fa-search"/>
+                        <input type="text"
+                               class="o_report_search_input"
+                               placeholder="Search partner, ref, code..."
+                               t-att-value="state.search_query"
+                               t-on-input="onSearchInput"/>
+                    </div>
+
+                    <!-- Filter Pills -->
+                    <div class="o_filter_pills_group">
+                        <!-- Partner Type Filter -->
+                        <div class="dropdown">
+                            <button type="button"
+                                    class="btn o_filter_chip dropdown-toggle"
+                                    data-bs-toggle="dropdown"
+                                    aria-expanded="false">
+                                <i class="fa fa-users"/>
+                                <t t-esc="state.partner_type_label"/>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-end shadow-sm" role="menu">
+                                <button class="dropdown-item"
+                                        type="button"
+                                        t-att-data-value="'all_types'"
+                                        t-on-click="applyFilter">
+                                    <i class="fa fa-globe me-2 text-primary"/> All Partners (الكل)
                                 </button>
-                                <!-- Export (XLSX) Button -->
-                                <button type="button"
-                                        class="btn btn-primary btn-report-print"
-                                        t-on-click="print_xlsx">
-                                    Export (XLSX)
+                                <button class="dropdown-item"
+                                        type="button"
+                                        t-att-data-value="'receivable'"
+                                        t-on-click="applyFilter">
+                                    <i class="fa fa-user me-2 text-success"/> Customers Only (عملاء)
+                                </button>
+                                <button class="dropdown-item"
+                                        type="button"
+                                        t-att-data-value="'payable'"
+                                        t-on-click="applyFilter">
+                                    <i class="fa fa-truck me-2 text-warning"/> Vendors Only (موردين)
                                 </button>
                             </div>
-
                         </div>
-                        <div class="d-flex justify-content-end">
-                            <!-- Time Range -->
-                            <div class="">
-                                <div class="time_range" style="">
-                                    <a type="button" class="dropdown-toggle"
-                                       data-bs-toggle="dropdown">
-                                        <!-- Date Range Dropdown -->
-                                        <span class="fa fa-calendar"
-                                              title="Dates"
-                                              role="img"
-                                              aria-label="Dates"/>
-                                        Date Range
-                                    </a>
-                                    <div class="dropdown-menu" role="menu">
-                                        <!-- Date Range Options -->
-                                        <div class="list-group">
-                                            <!-- This Month Button -->
-                                            <button class="report-filter-button"
-                                                    t-att-data-value="'month'"
-                                                    type="button"
-                                                    t-on-click="applyFilter">
-                                                This Month
-                                            </button>
-                                            <!-- This Quarter Button -->
-                                            <button class="report-filter-button"
-                                                    t-att-data-value="'quarter'"
-                                                    type="button"
-                                                    t-on-click="applyFilter">
-                                                This Quarter
-                                            </button>
-                                            <!-- This Year Button -->
-                                            <button class="report-filter-button"
-                                                    t-att-data-value="'year'"
-                                                    type="button"
-                                                    t-on-click="applyFilter">
-                                                This Year
-                                            </button>
-                                            <!-- Separator -->
-                                            <div role="separator"
-                                                 class="dropdown-divider"/>
-                                            <!-- Last Month Button -->
-                                            <button class="report-filter-button"
-                                                    t-att-data-value="'last-month'"
-                                                    type="button"
-                                                    t-on-click="applyFilter">
-                                                Last month
-                                            </button>
-                                            <!-- Last Quarter Button -->
-                                            <button class="report-filter-button"
-                                                    t-att-data-value="'last-quarter'"
-                                                    type="button"
-                                                    t-on-click="applyFilter">
-                                                Last quarter
-                                            </button>
-                                            <!-- Last Year Button -->
-                                            <button class="report-filter-button"
-                                                    t-att-data-value="'last-year'"
-                                                    type="button"
-                                                    t-on-click="applyFilter">
-                                                Last year
-                                            </button>
-                                            <!-- Separator -->
-                                            <div role="separator"
-                                                 class="dropdown-divider"/>
-                                            <!-- Start Date -->
-                                            <label class="" for="date_from">
-                                                Start
-                                                Date :
-                                            </label>
-                                            <div class="input-group date"
-                                                 t-ref="date_from"
-                                                 data-target-input="nearest">
 
-                                                <input type="date"
-                                                       id="start_date"
-                                                       t-on-change="applyFilter"
-                                                       style="border:none;border-bottom: 1px solid #000;padding: 5px;outline: none;"
-                                                       name="start_date"/>
-                                            </div>
-                                            <!-- End Date -->
-                                            <label class="" for="date_to">End
-                                                Date
-                                                :
-                                            </label>
-                                            <div class="input-group date"
-                                                 t-ref="date_to"
-                                                 data-target-input="nearest">
-                                                <input type="date" id="end_date"
-                                                       t-on-change="applyFilter"
-                                                       style="border:none;border-bottom: 1px solid #000;padding: 5px;outline: none;"
-                                                       name="end_date"/>
-                                            </div>
-                                        </div>
-                                    </div>
+                        <!-- Date Range Filter -->
+                        <div class="dropdown">
+                            <button type="button"
+                                    class="btn o_filter_chip dropdown-toggle"
+                                    data-bs-toggle="dropdown"
+                                    aria-expanded="false">
+                                <i class="fa fa-calendar"/>
+                                <t t-esc="state.date_range_label"/>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-end shadow-sm p-3" style="min-width: 260px;" role="menu">
+                                <div class="list-group list-group-flush mb-2">
+                                    <button class="dropdown-item py-1" t-att-data-value="'month'" type="button" t-on-click="applyFilter">This Month</button>
+                                    <button class="dropdown-item py-1" t-att-data-value="'quarter'" type="button" t-on-click="applyFilter">This Quarter</button>
+                                    <button class="dropdown-item py-1" t-att-data-value="'year'" type="button" t-on-click="applyFilter">This Year</button>
+                                    <div class="dropdown-divider my-1"/>
+                                    <button class="dropdown-item py-1" t-att-data-value="'last-month'" type="button" t-on-click="applyFilter">Last Month</button>
+                                    <button class="dropdown-item py-1" t-att-data-value="'last-quarter'" type="button" t-on-click="applyFilter">Last Quarter</button>
+                                    <button class="dropdown-item py-1" t-att-data-value="'last-year'" type="button" t-on-click="applyFilter">Last Year</button>
+                                </div>
+                                <div class="dropdown-divider my-2"/>
+                                <div class="mb-2">
+                                    <label class="form-label text-muted small mb-1" for="start_date">Start Date</label>
+                                    <input type="date" id="start_date" name="start_date" class="form-control form-control-sm" t-on-change="applyFilter"/>
+                                </div>
+                                <div>
+                                    <label class="form-label text-muted small mb-1" for="end_date">End Date</label>
+                                    <input type="date" id="end_date" name="end_date" class="form-control form-control-sm" t-on-change="applyFilter"/>
                                 </div>
                             </div>
-                            <!-- Account Dropdown -->
-                            <div class="px-2">
-                                <div class="account" style="">
-                                    <a type="button" class="dropdown-toggle"
-                                       data-bs-toggle="dropdown">
-                                        <span class="fa fa-user"
-                                              title="Accounts"
-                                              role="img" aria-label="Dates"/>
-                                        Account
-                                        <t t-if="state.account">:
-                                            <t t-foreach="state.account"
-                                               t-as="account_key"
-                                               t-key="account_key_index">
-                                                <t t-esc="account_key"/>
-                                                <t t-if="account_key_index != Object.keys(state.account).length - 1">
-                                                    ,
-                                                </t>
+                        </div>
+
+                        <!-- Specific Partners Filter -->
+                        <div class="dropdown">
+                            <button type="button"
+                                    class="btn o_filter_chip dropdown-toggle"
+                                    data-bs-toggle="dropdown"
+                                    aria-expanded="false">
+                                <i class="fa fa-user-circle"/> Partners
+                                <t t-if="state.selected_partner and state.selected_partner.length > 0">
+                                    (<t t-esc="state.selected_partner.length"/>)
+                                </t>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-end shadow-sm p-2" style="width: 300px; max-height: 380px; overflow-y: auto;" role="menu">
+                                <div class="mb-2">
+                                    <input type="text"
+                                           class="form-control form-control-sm"
+                                           placeholder="Search partners..."
+                                           t-on-input="searchPartners"/>
+                                </div>
+                                <t t-if="state.selected_partner_rec and state.selected_partner_rec.length > 0">
+                                    <div class="mb-2">
+                                        <div class="d-flex flex-wrap gap-1">
+                                            <t t-foreach="state.selected_partner_rec" t-as="p" t-key="p_index">
+                                                <span class="badge bg-primary d-inline-flex align-items-center" style="font-size: 10px;">
+                                                    <t t-esc="p.name"/>
+                                                    <i class="fa fa-times ms-1 cursor-pointer"
+                                                       t-att-data-partner-id="p.id"
+                                                       t-on-click="removePartner"/>
+                                                </span>
                                             </t>
+                                        </div>
+                                    </div>
+                                    <div class="dropdown-divider my-1"/>
+                                </t>
+                                <div style="max-height: 180px; overflow-y: auto;">
+                                    <t t-if="state.filtered_partners and state.filtered_partners.length > 0">
+                                        <t t-foreach="state.filtered_partners" t-as="p" t-key="p_index">
+                                            <button class="dropdown-item py-1 text-truncate"
+                                                    style="font-size: 12px;"
+                                                    type="button"
+                                                    t-att-data-partner-id="p.id"
+                                                    t-on-click="selectPartner">
+                                                <t t-esc="p.name"/>
+                                            </button>
                                         </t>
-                                    </a>
-                                    <div class="dropdown-menu" role="menu">
-                                        <div class="list-group">
-                                            <!-- Receivable Button -->
-                                            <button class="report-filter-button"
-                                                    t-att-data-value="'receivable'"
-                                                    type="button"
-                                                    t-on-click="applyFilter">
-                                                Receivable
-                                            </button>
-                                            <!-- Payable Button -->
-                                            <button class="report-filter-button"
-                                                    t-att-data-value="'payable'"
-                                                    type="button"
-                                                    t-on-click="applyFilter">
-                                                Payable
-                                            </button>
-                                        </div>
-                                    </div>
+                                    </t>
+                                    <t t-else="">
+                                        <div class="text-muted p-2 small">No partners found</div>
+                                    </t>
                                 </div>
+                                <t t-if="state.selected_partner and state.selected_partner.length > 0">
+                                    <div class="dropdown-divider my-1"/>
+                                    <button class="btn btn-sm btn-outline-danger w-100 py-1"
+                                            type="button"
+                                            t-on-click="clearAllPartners"
+                                            style="font-size: 11px;">
+                                        Clear All
+                                    </button>
+                                </t>
                             </div>
-                            <!-- Options Dropdown -->
-                            <div class="px-2">
-                                <div class="option" style="">
-                                    <a type="button" class="dropdown-toggle"
-                                       data-bs-toggle="dropdown">
-                                        <span class="fa fa-glass" title="Accounts"
-                                              role="img"
-                                              aria-label="Dates"/>
-                                        Options : Posted Entries
-                                    </a>
-                                    <div class="dropdown-menu" role="menu">
-                                        <div class="list-group">
-                                            <!-- Include Draft Entries Button -->
-                                            <button class="report-filter-button"
-                                                    t-att-data-value="'draft'"
-                                                    type="button"
-                                                    t-on-click="applyFilter">
-                                                Include Draft Entries
-                                            </button>
-                                            <!-- Unfold All Button -->
-                                            <button class="report-filter-button"
-                                                    type="button"
-                                                    t-ref="unfoldButton"
-                                                    t-on-click="unfoldAll">
-                                                Unfold All
-                                            </button>
+                        </div>
+
+                        <!-- Specific Accounts Filter -->
+                        <div class="dropdown">
+                            <button type="button"
+                                    class="btn o_filter_chip dropdown-toggle"
+                                    data-bs-toggle="dropdown"
+                                    aria-expanded="false">
+                                <i class="fa fa-bookmark"/> Accounts
+                                <t t-if="state.selected_accounts and state.selected_accounts.length > 0">
+                                    (<t t-esc="state.selected_accounts.length"/>)
+                                </t>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-end shadow-sm p-2" style="width: 320px; max-height: 380px; overflow-y: auto;" role="menu">
+                                <div class="mb-2">
+                                    <input type="text"
+                                           class="form-control form-control-sm"
+                                           placeholder="Search accounts..."
+                                           t-on-input="searchAccounts"/>
+                                </div>
+                                <t t-if="state.selected_accounts and state.selected_accounts.length > 0">
+                                    <div class="mb-2">
+                                        <div class="d-flex flex-wrap gap-1">
+                                            <t t-foreach="state.selected_accounts" t-as="acc" t-key="acc_index">
+                                                <span class="badge bg-success d-inline-flex align-items-center" style="font-size: 10px;">
+                                                    <t t-esc="acc.code"/> - <t t-esc="acc.name"/>
+                                                    <i class="fa fa-times ms-1 cursor-pointer"
+                                                       t-att-data-account-id="acc.id"
+                                                       t-on-click="removeAccount"/>
+                                                </span>
+                                            </t>
                                         </div>
                                     </div>
+                                    <div class="dropdown-divider my-1"/>
+                                </t>
+                                <div style="max-height: 180px; overflow-y: auto;">
+                                    <t t-if="state.filtered_accounts and state.filtered_accounts.length > 0">
+                                        <t t-foreach="state.filtered_accounts" t-as="acc" t-key="acc_index">
+                                            <button class="dropdown-item py-1 text-truncate"
+                                                    style="font-size: 12px;"
+                                                    type="button"
+                                                    t-att-data-account-id="acc.id"
+                                                    t-on-click="selectAccount">
+                                                <strong><t t-esc="acc.code"/></strong> - <t t-esc="acc.name"/>
+                                            </button>
+                                        </t>
+                                    </t>
+                                    <t t-else="">
+                                        <div class="text-muted p-2 small">No accounts found</div>
+                                    </t>
                                 </div>
+                                <t t-if="state.selected_accounts and state.selected_accounts.length > 0">
+                                    <div class="dropdown-divider my-1"/>
+                                    <button class="btn btn-sm btn-outline-danger w-100 py-1"
+                                            type="button"
+                                            t-on-click="clearAllAccounts"
+                                            style="font-size: 11px;">
+                                        Clear All
+                                    </button>
+                                </t>
+                            </div>
+                        </div>
+
+                        <!-- Options Filter -->
+                        <div class="dropdown">
+                            <button type="button"
+                                    class="btn o_filter_chip dropdown-toggle"
+                                    data-bs-toggle="dropdown"
+                                    aria-expanded="false">
+                                <i class="fa fa-cog"/> Options
+                                <t t-if="state.options and state.options.draft">
+                                    (Draft)
+                                </t>
+                            </button>
+                            <div class="dropdown-menu dropdown-menu-end shadow-sm" role="menu">
+                                <button class="dropdown-item py-1"
+                                        t-att-data-value="'draft'"
+                                        type="button"
+                                        t-on-click="applyFilter">
+                                    <i t-attf-class="fa fa-{{ state.options and state.options.draft ? 'check-square text-success' : 'square-o' }} me-2"/> Include Draft Entries
+                                </button>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-            <br/>
-            <div class="table_style" style="height: 650px; overflow-y: scroll;">
-                <div class="table_view_pl" style="right:20px;width:100%;"
-                     t-ref="table_view_pl">
-                    <div>
-                        <div class="table_main_view">
-                            <!-- Table View -->
-                            <table cellspacing="0" width="100%">
-                                <!-- Table Header -->
-                                <thead>
-                                    <tr class="o_heading">
-                                        <th colspan="6"/>
-                                        <th>JRNL</th>
-                                        <th>Account</th>
-                                        <th>Ref</th>
-                                        <th>Due Date</th>
-                                        <th>Matching Number</th>
-                                        <th>Debit</th>
-                                        <th>Credit</th>
-                                        <th>Amount Currency</th>
-                                        <th>Balance</th>
-                                    </tr>
-                                </thead>
-                                <!-- Table Body -->
-                                <tbody t-ref="tbody">
-                                    <!-- Iterate over partners -->
-                                    <t t-if="state.partners">
-                                        <t t-set="i" t-value="0"/>
-                                        <t t-foreach="state.partners"
-                                           t-as="partner"
-                                           t-key="partner_index">
-                                            <t t-set="i" t-value="i + 1"/>
-                                            <tr class="border-bottom border-dark border-gainsboro">
-                                                <th>
-                                                    <div data-bs-toggle="collapse"
-                                                         t-attf-href="#partner-{{i}}"
-                                                         aria-expanded="false"
-                                                         t-attf-aria-controls="partner-{{i}}"
-                                                         class="ms-3 collapsed">
-                                                        <a class="btn header o_heading">
-                                                            <span class="toggle-icon">
-                                                                <i class="fa fa-caret-down"/>
-                                                            </span>
-                                                            <t t-if="partner != 'false'">
-                                                                <t t-esc="partner"/>
-                                                            </t>
-                                                            <t t-else="">
-                                                                <span>
-                                                                    Unknown
-                                                                    Partner
-                                                                </span>
-                                                            </t>
-                                                        </a>
-                                                    </div>
-                                                </th>
-                                                <th colspan="5" class="p-1">
-                                                    <!-- Open Partner Button -->
-                                                    <button t-att-data-id="state.total[partner]['partner_id']"
-                                                            class="btn bg-secondary"
-                                                            t-on-click="openPartner">
-                                                        Open Partner
-                                                    </button>
-                                                    <!-- Journal Items Button -->
-                                                    <button style="margin-left: 3px"
-                                                            t-att-data-id="state.total[partner]['partner_id']"
-                                                            class="btn bg-secondary"
-                                                            t-on-click="gotoJournalItem">
-                                                        Journal Items
-                                                    </button>
-                                                </th>
-                                                <th/>
-                                                <th/>
-                                                <th/>
-                                                <th/>
-                                                <th/>
-                                                <th>
-                                                    <span>
-                                                        <t t-if="state.total[partner]['total_debit']"
-                                                           t-esc="state.total[partner]['currency_id']"/>
-                                                        <t t-if="state.total[partner]['total_debit']"
-                                                           t-esc="state.total[partner]['total_debit']"/>
-                                                    </span>
-                                                </th>
-                                                <th>
-                                                    <span>
-                                                        <t t-if="state.total[partner]['total_credit']"
-                                                           t-esc="state.total[partner]['currency_id']"/>
-                                                        <t t-if="state.total[partner]['total_credit']"
-                                                           t-esc="state.total[partner]['total_credit']"/>
-                                                    </span>
-                                                </th>
-                                                <th/>
-                                                <th>
-                                                    <span class="fw-bolder">
-                                                        <t t-esc="state.total[partner]['currency_id']"/>
-                                                        <t t-esc="(state.total[partner]['total_debit'] - state.total[partner]['total_credit']).toFixed(2)"/>
-                                                    </span>
-                                                </th>
-                                            </tr>
-                                            <!-- Iterate over partner's initial balance -->
-                                            <t t-set="j" t-value="0"/>
-                                            <t t-foreach="state.partners"
-                                               t-as="partner_initial"
-                                               t-key="partner_initial_index">
-                                                <t t-set="j" t-value="j + 1"/>
-                                                <t t-if="j == 1 and state.total[partner]['initial_balance'] != 0">
-                                                    <th colspan="6">
-                                                        <span style="gap: 12px;display: flex;">
 
+
+            <!-- MODE 1: DETAILED PARTNER LEDGER TABLE -->
+            <t t-if="state.report_mode === 'detailed'">
+                <div class="o_report_table_card">
+                    <div class="o_report_table_scrollable">
+                        <table class="o_ledger_table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 28%;">Date / Partner</th>
+                                    <th style="width: 6%;">JRNL</th>
+                                    <th style="width: 7%;">Account</th>
+                                    <th style="width: 17%;">Ref / Description</th>
+                                    <th style="width: 8%;">Due Date</th>
+                                    <th style="width: 8%;">Matching</th>
+                                    <th style="width: 8%;" class="o_col_num">Debit</th>
+                                    <th style="width: 8%;" class="o_col_num">Credit</th>
+                                    <th style="width: 10%;" class="o_col_num">Balance</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-if="state.visible_partners and state.visible_partners.length > 0">
+                                    <t t-foreach="state.visible_partners" t-as="partner" t-key="partner_index">
+                                        <!-- Partner Group Header -->
+                                        <tr class="o_partner_group_header"
+                                            t-on-click="() => this.togglePartner(partner)"
+                                            style="cursor: pointer;">
+                                            <td colspan="6">
+                                                <div class="o_partner_title_cell">
+                                                    <span class="o_toggle_caret" t-att-class="isExpanded(partner) ? 'expanded' : ''">
+                                                        <i class="fa fa-chevron-right"/>
+                                                    </span>
+                                                    <span class="o_partner_name_link">
+                                                        <t t-if="partner != 'false'">
+                                                            <t t-esc="partner"/>
+                                                        </t>
+                                                        <t t-else="">
+                                                            Unknown Partner
+                                                        </t>
+                                                    </span>
+                                                    <t t-if="state.total[partner] and state.total[partner]['partner_ref']">
+                                                        <span class="o_partner_ref_badge">
+                                                            <t t-esc="state.total[partner]['partner_ref']"/>
                                                         </span>
-                                                    </th>
-                                                    <th>
-                                                    </th>
-                                                    <th>
-                                                    </th>
-                                                    <th>
-                                                        <span>
-                                                            <t t-esc="state.total[partner]['move_name']"/>
-                                                        </span>
-                                                    </th>
-                                                    <th>
-                                                    </th>
-                                                    <th>
-                                                    </th>
-                                                    <th>
-                                                        <span>
-                                                            <t t-esc="state.total[partner]['initial_debit'].toFixed(2)"/>
-                                                        </span>
-                                                    </th>
-                                                    <th>
-                                                        <span>
-                                                            <t t-esc="state.total[partner]['initial_credit'].toFixed(2)"/>
-                                                        </span>
-                                                    </th>
-                                                    <th/>
-                                                    <th>
-                                                        <span>
-                                                            <t t-esc="state.total[partner]['initial_balance'].toFixed(2)"/>
-                                                        </span>
-                                                    </th>
-                                                </t>
-                                            </t>
-                                            <!-- Iterate over partner's value list -->
-                                            <t t-foreach="state.data[partner]"
-                                               t-as="valuelist"
-                                               t-key="valuelist_index">
-                                                <tr class="border-bottom border-gainsboro collapse"
-                                                    t-attf-id="partner-{{i}}"
-                                                    t-att-data-id="valuelist[0]['move_id'][0]">
-                                                    <th colspan="6">
-                                                        <span style="gap: 12px;display: flex;">
-                                                            <t t-esc="valuelist[0]['date']"/>
-                                                            <a type="button"
-                                                               class="dropdown-toggle"
-                                                               data-bs-toggle="dropdown">
-                                                            </a>
-                                                            <div class="dropdown-menu  journals">
-                                                                <button t-att-data-id="valuelist[0]['move_id'][0]"
-                                                                        type="button"
-                                                                        t-on-click="gotoJournalEntry"
-                                                                        style="border: none;
-                                                                            background-color: inherit;
-                                                                            padding: 4px 8px;
-                                                                            font-size: 16px;
-                                                                            cursor: pointer;
-                                                                            display: inline-block;">
-                                                                    View
-                                                                    Journal
-                                                                    Entry
-                                                                </button>
-                                                                <div role="separator"
-                                                                     class="dropdown-divider"/>
-                                                            </div>
-                                                        </span>
-                                                    </th>
-                                                    <th>
-                                                        <span>
-                                                            <t t-esc="valuelist[0]['jrnl']"/>
-                                                        </span>
-                                                    </th>
-                                                    <th>
-                                                        <span>
-                                                            <t t-esc="valuelist[0]['code']"/>
-                                                        </span>
-                                                    </th>
-                                                    <th>
-                                                        <span>
-                                                            <t t-if="valuelist[0]['move_name']"
-                                                               t-esc="valuelist[0]['move_name']"/>
-                                                        </span>
-                                                    </th>
-                                                    <th>
-                                                        <span>
-                                                            <t t-if="valuelist[0]['date_maturity']"
-                                                               t-esc="valuelist[0]['date_maturity']"/>
-                                                        </span>
-                                                    </th>
-                                                    <th>
-                                                        <span>
-                                                            <t t-if="valuelist[0]['matching_number']"
-                                                               t-esc="valuelist[0]['matching_number']"/>
-                                                        </span>
-                                                    </th>
-                                                    <th>
-                                                        <span>
-                                                            <t t-if="valuelist[0]['debit']"
-                                                               t-esc="state.total[partner]['currency_id']"/>
-                                                            <t t-if="valuelist[0]['debit']"
-                                                               t-esc="valuelist[0]['debit']"/>
-                                                        </span>
-                                                    </th>
-                                                    <th>
-                                                        <span>
-                                                            <t t-if="valuelist[0]['credit']"
-                                                               t-esc="state.total[partner]['currency_id']"/>
-                                                            <t t-if="valuelist[0]['credit']"
-                                                               t-esc="valuelist[0]['credit']"/>
-                                                        </span>
-                                                    </th>
-                                                    <th>
-                                                        <span>
-                                                            <t t-if="valuelist[0]['amount_currency']"
-                                                               t-esc="state.total[partner]['currency_id']"/>
-                                                            <t t-if="valuelist[0]['amount_currency']"
-                                                               t-esc="valuelist[0]['amount_currency']"/>
-                                                        </span>
-                                                    </th>
+                                                    </t>
+                                                    <!-- Enterprise Inline Quick Actions -->
+                                                    <div class="o_partner_quick_actions ms-2">
+                                                        <button type="button"
+                                                                class="o_partner_action_icon"
+                                                                t-on-click.stop="() => this.openPartner(state.total[partner]['partner_id'])"
+                                                                title="Open Partner Card">
+                                                            <i class="fa fa-user me-1"/> Partner
+                                                        </button>
+                                                        <button type="button"
+                                                                class="o_partner_action_icon"
+                                                                t-on-click.stop="() => this.gotoJournalItem(state.total[partner]['partner_id'])"
+                                                                title="View Journal Items">
+                                                            <i class="fa fa-list me-1"/> Journal Items
+                                                        </button>
+                                                        <button type="button"
+                                                                class="o_partner_action_icon"
+                                                                t-on-click.stop="() => this.openPartnerInvoices(state.total[partner]['partner_id'], partner)"
+                                                                title="View Invoices">
+                                                            <i class="fa fa-file-text-o me-1"/> Invoices
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td class="o_col_num o_num_bold">
+                                                <t t-esc="state.total[partner]['total_debit_display']"/>
+                                            </td>
+                                            <td class="o_col_num o_num_bold">
+                                                <t t-esc="state.total[partner]['total_credit_display']"/>
+                                            </td>
+                                            <td class="o_col_num o_num_bold"
+                                                t-att-class="state.total[partner]['final_balance'] &lt; 0 ? 'o_num_negative' : ''">
+                                                <t t-esc="formatAmount(state.total[partner]['final_balance'], state.total[partner]['currency_id'])"/>
+                                            </td>
+                                        </tr>
+
+                                        <!-- Initial Balance Row (When Expanded and Initial != 0) -->
+                                        <t t-if="isExpanded(partner) and state.total[partner]['initial_balance'] != 0">
+                                            <tr class="o_initial_balance_row">
+                                                <td colspan="4" class="o_move_date_cell">
+                                                    <i class="fa fa-history text-muted me-1"/>
+                                                    <span class="fw-semibold">Initial Balance (رصيد أول المدة)</span>
+                                                </td>
+                                                <td/>
+                                                <td/>
+                                                <td class="o_col_num text-muted">
+                                                    <t t-esc="formatNumberWithSeparators(state.total[partner]['initial_debit'])"/>
+                                                </td>
+                                                <td class="o_col_num text-muted">
+                                                    <t t-esc="formatNumberWithSeparators(state.total[partner]['initial_credit'])"/>
+                                                </td>
+                                                <td class="o_col_num fw-bold">
+                                                    <t t-esc="formatAmount(state.total[partner]['initial_balance'], state.total[partner]['currency_id'])"/>
+                                                </td>
+                                            </tr>
+                                        </t>
+
+                                        <!-- Transaction Move Lines (When Expanded) -->
+                                        <t t-if="isExpanded(partner) and state.data[partner]">
+                                            <t t-foreach="state.data[partner]" t-as="valuelist" t-key="valuelist_index">
+                                                <tr class="o_move_item_row">
+                                                    <td class="o_move_date_cell">
+                                                        <t t-esc="valuelist[0]['date']"/>
+                                                        <a class="ms-2 o_move_link cursor-pointer"
+                                                           t-on-click="() => this.gotoJournalEntry(valuelist[0]['move_id'])"
+                                                           title="View Journal Entry">
+                                                            <i class="fa fa-external-link"/>
+                                                        </a>
+                                                    </td>
+                                                    <td>
+                                                        <t t-esc="valuelist[0]['jrnl']"/>
+                                                    </td>
+                                                    <td>
+                                                        <t t-esc="valuelist[0]['code']"/>
+                                                    </td>
+                                                    <td class="text-truncate" style="max-width: 220px;"
+                                                        t-att-title="valuelist[0]['move_name'] || (valuelist[0]['move_id'] and valuelist[0]['move_id'][1]) || ''">
+                                                        <t t-esc="valuelist[0]['move_name'] || (valuelist[0]['move_id'] and valuelist[0]['move_id'][1]) || valuelist[0]['move_id']"/>
+                                                    </td>
+                                                    <td>
+                                                        <t t-esc="valuelist[0]['date_maturity'] || ''"/>
+                                                    </td>
+                                                    <td>
+                                                        <t t-esc="valuelist[0]['matching_number'] || ''"/>
+                                                    </td>
+                                                    <td class="o_col_num">
+                                                        <t t-if="valuelist[0]['debit']" t-esc="valuelist[0]['debit_display']"/>
+                                                    </td>
+                                                    <td class="o_col_num">
+                                                        <t t-if="valuelist[0]['credit']" t-esc="valuelist[0]['credit_display']"/>
+                                                    </td>
+                                                    <td class="o_col_num fw-semibold"
+                                                        t-att-class="valuelist[0]['balance'] &lt; 0 ? 'o_num_negative' : ''">
+                                                        <t t-esc="valuelist[0]['balance_display']"/>
+                                                    </td>
                                                 </tr>
                                             </t>
                                         </t>
                                     </t>
+                                </t>
+                                <t t-else="">
                                     <tr>
-                                        <th/>
-                                        <th colspan="10" class="o_heading">
-                                            Total
-                                        </th>
-                                        <th class="o_heading">
-                                            <t t-esc="state.currency"/>
-                                            <t t-out="state.total_debit_display"/>
-                                        </th>
-                                        <th class="o_heading">
-                                            <t t-esc="state.currency"/>
-                                            <t t-out="state.total_credit_display"/>
-                                        </th>
-                                        <th/>
-                                        <th class="o_heading">
-                                            <t t-esc="state.currency"/>
-                                            <t t-out="(state.total_debit - state.total_credit).toFixed(2)"/>
-                                        </th>
+                                        <td colspan="9" class="text-center py-5 text-muted">
+                                            <i class="fa fa-folder-open-o fa-2x mb-2 d-block"/>
+                                            No partner records found matching current filters.
+                                        </td>
                                     </tr>
-                                </tbody>
-                            </table>
-                        </div>
+                                </t>
+
+                                <!-- Grand Total Row -->
+                                <tr class="o_report_grand_total_row">
+                                    <td colspan="6">TOTAL / الإجمالي العام</td>
+                                    <td class="o_col_num"><t t-esc="state.total_debit_display"/></td>
+                                    <td class="o_col_num"><t t-esc="state.total_credit_display"/></td>
+                                    <td class="o_col_num"><t t-esc="state.total_balance_display"/></td>
+                                </tr>
+                            </tbody>
+                        </table>
                     </div>
                 </div>
-            </div>
-            <div class="foot_note">
-                <t t-set="count" t-value="1"/>
-                <t t-foreach="state.message_list" t-as="message"
-                   t-key="message_index">
-                    <t t-out="count"/>.
-                    <t t-set="count" t-value="count + 1"/>
-                    <t t-out="message['message']"/>
-                    <i t-att-id="message['id']" style="margin-left: 1%;"
-                       class="fa fa-trash"
-                       t-on-click="deleteNote"/>
-                    <br/>
-                </t>
-            </div>
+            </t>
+
+            <!-- MODE 2: EXECUTIVE DEBT SUMMARY TABLE (كشف إجمالي مديونية عملاء وموردين) -->
+            <t t-if="state.report_mode === 'summary'">
+                <div class="o_report_table_card">
+                    <div class="o_report_table_scrollable">
+                        <table class="o_ledger_table">
+                            <thead>
+                                <tr>
+                                    <th style="width: 5%;">#</th>
+                                    <th style="width: 10%;">Code / Ref</th>
+                                    <th style="width: 25%;">Partner Name</th>
+                                    <th style="width: 10%;">Type</th>
+                                    <th style="width: 12%;" class="o_col_num">Opening Balance</th>
+                                    <th style="width: 13%;" class="o_col_num">Invoiced (Debit)</th>
+                                    <th style="width: 13%;" class="o_col_num">Paid (Credit)</th>
+                                    <th style="width: 12%;" class="o_col_num">Net Balance</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <t t-if="state.filtered_summary and state.filtered_summary.length > 0">
+                                    <t t-foreach="state.filtered_summary" t-as="item" t-key="item_index">
+                                        <tr class="o_move_item_row">
+                                            <td><t t-esc="item_index + 1"/></td>
+                                            <td>
+                                                <span class="badge bg-light text-dark border">
+                                                    <t t-esc="item.partner_ref || '-'"/>
+                                                </span>
+                                            </td>
+                                            <td>
+                                                <a class="fw-bold text-dark cursor-pointer text-decoration-none"
+                                                   t-on-click="() => this.openPartner(item.partner_id)"
+                                                   title="Open Partner Card">
+                                                    <t t-esc="item.partner_name"/>
+                                                </a>
+                                            </td>
+                                            <td>
+                                                <t t-if="item.is_customer">
+                                                    <span class="o_summary_badge_customer">
+                                                        <i class="fa fa-user me-1"/> Customer
+                                                    </span>
+                                                </t>
+                                                <t t-if="item.is_vendor">
+                                                    <span class="o_summary_badge_vendor ms-1">
+                                                        <i class="fa fa-truck me-1"/> Vendor
+                                                    </span>
+                                                </t>
+                                            </td>
+                                            <td class="o_col_num text-muted">
+                                                <t t-esc="formatNumberWithSeparators(item.initial_balance)"/>
+                                            </td>
+                                            <td class="o_col_num">
+                                                <a class="o_drilldown_link"
+                                                   t-on-click="() => this.openPartnerInvoices(item.partner_id, item.partner_name)"
+                                                   title="Click to view all invoices/bills">
+                                                    <t t-esc="formatNumberWithSeparators(item.total_debit)"/>
+                                                    <i class="fa fa-external-link ms-1"/>
+                                                </a>
+                                            </td>
+                                            <td class="o_col_num">
+                                                <a class="o_drilldown_link"
+                                                   t-on-click="() => this.openPartnerPayments(item.partner_id, item.partner_name)"
+                                                   title="Click to view all payments">
+                                                    <t t-esc="formatNumberWithSeparators(item.total_credit)"/>
+                                                    <i class="fa fa-external-link ms-1"/>
+                                                </a>
+                                            </td>
+                                            <td class="o_col_num fw-bold"
+                                                t-att-class="item.final_balance &lt; 0 ? 'o_num_negative' : ''">
+                                                <t t-esc="formatAmount(item.final_balance, item.currency_id)"/>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                </t>
+                                <t t-else="">
+                                    <tr>
+                                        <td colspan="8" class="text-center py-5 text-muted">
+                                            <i class="fa fa-users fa-2x mb-2 d-block"/>
+                                            No partner debt summaries found matching current filters.
+                                        </td>
+                                    </tr>
+                                </t>
+
+                                <!-- Grand Total Row for Summary Mode -->
+                                <tr class="o_report_grand_total_row">
+                                    <td colspan="4">
+                                        TOTAL / الإجمالي العام (<t t-esc="state.filtered_summary ? state.filtered_summary.length : 0"/> Partners)
+                                    </td>
+                                    <td class="o_col_num"><t t-esc="state.total_initial_display"/></td>
+                                    <td class="o_col_num"><t t-esc="state.total_debit_display"/></td>
+                                    <td class="o_col_num"><t t-esc="state.total_credit_display"/></td>
+                                    <td class="o_col_num"><t t-esc="state.total_balance_display"/></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </t>
         </div>
     </t>
 </templates>

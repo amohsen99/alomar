@@ -3,8 +3,8 @@
 #
 #    Cybrosys Technologies Pvt. Ltd.
 #
-#    Copyright (C) 2025-TODAY Cybrosys Technologies(<https://www.cybrosys.com>)
-#    Author: Swetha Anand (<https://www.cybrosys.com>)
+#    Copyright (C) 2024-TODAY Cybrosys Technologies(<https://www.cybrosys.com>)
+#    Author: Bhagyadev KP (<https://www.cybrosys.com>)
 #
 #    You can modify it under the terms of the GNU LESSER
 #    GENERAL PUBLIC LICENSE (LGPL v3), Version 3.
@@ -58,6 +58,7 @@ class AccountGeneralLedger(models.TransientModel):
         account_dict['analytic_ids'] = self.env[
             'account.analytic.account'].search_read(
             [], ['name'])
+        account_dict['account_totals'] = account_totals
         for account in account_ids:
             move_line_id = move_line_ids.filtered(
                 lambda x: x.account_id == account)
@@ -70,12 +71,16 @@ class AccountGeneralLedger(models.TransientModel):
                 move_line_list.append(move_line_data)
             account_dict[account.display_name] = move_line_list
             currency_id = self.env.company.currency_id.symbol
+            total_debit = round(sum(move_line_id.mapped('debit')), 2)
+            total_credit = round(sum(move_line_id.mapped('credit')), 2)
             account_totals[account.display_name] = {
-                'total_debit': round(sum(move_line_id.mapped('debit')), 2),
-                'total_credit': round(sum(move_line_id.mapped('credit')), 2),
+                'total_debit': total_debit,
+                'total_debit_display': "{:,.2f}".format(total_debit),
+                'total_credit': total_credit,
+                'total_credit_display': "{:,.2f}".format(total_credit),
                 'currency_id': currency_id,
                 'account_id': account.id}
-            account_dict['account_totals'] = account_totals
+        account_dict['account_totals'] = account_totals
         return account_dict
 
     @api.model
@@ -177,6 +182,7 @@ class AccountGeneralLedger(models.TransientModel):
         account_dict['analytic_ids'] = self.env[
             'account.analytic.account'].search_read(
             [], ['name'])
+        account_dict['account_totals'] = account_totals
         for account in account_ids:
             move_line_id = move_line_ids.filtered(
                 lambda x: x.account_id == account)
@@ -189,16 +195,20 @@ class AccountGeneralLedger(models.TransientModel):
                 move_line_list.append(move_line_data)
             account_dict[account.display_name] = move_line_list
             currency_id = self.env.company.currency_id.symbol
+            total_debit = round(sum(move_line_id.mapped('debit')), 2)
+            total_credit = round(sum(move_line_id.mapped('credit')), 2)
             account_totals[account.display_name] = {
-                'total_debit': round(sum(move_line_id.mapped('debit')), 2),
-                'total_credit': round(sum(move_line_id.mapped('credit')), 2),
+                'total_debit': total_debit,
+                'total_debit_display': "{:,.2f}".format(total_debit),
+                'total_credit': total_credit,
+                'total_credit_display': "{:,.2f}".format(total_credit),
                 'currency_id': currency_id,
                 'account_id': account.id}
-            account_dict['account_totals'] = account_totals
+        account_dict['account_totals'] = account_totals
         return account_dict
 
     @api.model
-    def get_xlsx_report(self, data, response, report_name, report_action):
+    def get_xlsx_report(self, data, response, report_name=None, report_action=None, **kwargs):
         """
         Generate an XLSX report based on the provided data and write it to the
         response stream.
@@ -212,7 +222,9 @@ class AccountGeneralLedger(models.TransientModel):
         :param report_name: The name of the report.
         :type report_name: str
         """
-        data = json.loads(data)
+        if isinstance(data, (str, bytes)):
+
+            data = json.loads(data)
         output = io.BytesIO()
         workbook = xlsxwriter.Workbook(output, {'in_memory': True})
         start_date = data['filters']['start_date'] if \

@@ -1,308 +1,323 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
-    <!--    Report Template for Tax-->
-    <template id="tax_report">
-        <t t-call="web.html_container">
-            <t t-call="web.external_layout">
-                <t t-set="data_report_margin_top" t-value="12"/>
-                <t t-set="data_report_header_spacing" t-value="9"/>
-                <t t-set="data_report_dpi" t-value="110"/>
-                <div class="page">
-                    <h3>
-                        <center>
-                            <b>
-                                <span t-esc="report_name"/>
-                            </b>
-                        </center>
-                    </h3>
-                    <br/>
-                    <br/>
-                    <div class="filters">
-                        <table class="table table-sm table-reports">
-                            <thead class="filter_table"
-                                   style="background:#808080;">
-                                <tr>
-                                    <th>Date Range</th>
-                                    <th>Comparison</th>
-                                    <th>Options</th>
-                                    <th>Report</th>
-                                </tr>
-                            </thead>
-                            <tbody style="font-size:11px;font-weight:100;">
-                                <tr>
-                                    <th>
-                                        <t t-if="filters['start_date']"
-                                           t-out="filters['start_date']"/>
-                                        <t t-if="filters['end_date']">
-                                            to
-                                            <t t-out="filters['end_date']"/>
-                                        </t>
-                                    </th>
-                                    <th>
-                                        <t t-if="filters['comparison_number_range']">
-                                            <t t-out="filters['comparison_type']"/>
-                                            :
-                                            <t t-out="filters['comparison_number_range']"/>
-                                        </t>
-                                    </th>
-                                    <th>
-                                        <t t-foreach="filters['options']"
-                                           t-as="selected_options"
-                                           t-key="options_index">
-                                            <t t-out="selected_options"/>,
-                                        </t>
-                                    </th>
-                                    <th>
-                                        <t t-if="report_type and list(report_type.keys())[0] == 'account'">
-                                            <span>Account</span>
-                                        </t>
-                                        <t t-elif="report_type and list(report_type.keys())[0] == 'tax'">
-                                            <span>Tax</span>
-                                        </t>
-                                        <t t-else="">
-                                            <t t-out="report_type"/>
-                                        </t>
-                                    </th>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                    <br/>
-                    <br/>
-                    <br/>
-                    <table class="table table-sm table-reports"
-                           style="width: fit-content;">
-                        <thead style="background:#808080;">
-                            <tr>
-                                <th colspan="6"/>
-                                <t t-foreach="date_viewed" t-as="date_view">
-                                    <th colspan="2">
-                                        <t t-esc="date_view"/>
-                                    </th>
-                                </t>
-                            </tr>
-                            <tr class="o_heading" style="text-align:center;">
-                                <th colspan="6"/>
-                                <th>NET</th>
-                                <th>TAX</th>
-                                <t t-if="apply_comparison == true">
-                                    <t t-set="number_of_periods"
-                                       t-value="comparison_number_range"/>
-                                    <t t-foreach="number_of_periods"
-                                       t-as="number">
-                                        <th>NET</th>
-                                        <th>TAX</th>
-                                    </t>
-                                </t>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <t t-if="data">
-                                <t t-set="prev_account" t-value="None"/>
-                                <t t-set="prev_tax" t-value="None"/>
-                                <tr class="border-bottom"
-                                    style="border-spacing: 0 10px;background:#dfdfdf;">
-                                    <th colspan="6">
-                                        <span style="font-weight: 700;">Sales
-                                        </span>
-                                    </th>
-                                    <th/>
-                                    <t t-if="apply_comparison == true">
-                                        <t t-set="number_of_periods"
-                                           t-value="comparison_number_range"/>
-                                        <t t-foreach="number_of_periods"
-                                           t-as="no">
-                                            <th/>
-                                            <th/>
-                                        </t>
-                                    </t>
-                                    <th style="text-align:center;font-weight: 700;">
-                                        <t t-esc="sale_total"/>
-                                    </th>
-                                </tr>
-                                <t t-set="i" t-value="0"/>
-                                <t t-foreach="data['sale']"
-                                   t-as="sale_tax_line">
-                                    <t t-set="i" t-value="i + 1"/>
-                                    <t t-if="report_type">
-                                        <t t-if="report_type == 'account'">
-                                            <t t-if="prev_account != sale_tax_line['account']">
-                                                <t t-set="prev_account"
-                                                   t-value="sale_tax_line['account']"/>
-                                                <tr class="border-bottom"
-                                                    style="border-spacing: 0 10px;">
-                                                    <th colspan="12">
-                                                        <span>
-                                                            <t t-esc="sale_tax_line['account']"/>
-                                                        </span>
-                                                    </th>
-                                                </tr>
-                                            </t>
-                                        </t>
-                                        <t t-else="list(report_type.keys())[0] == 'tax'">
-                                            <t t-if="prev_tax != sale_tax_line['name']">
-                                                <t t-set="prev_tax"
-                                                   t-value=" sale_tax_line['name']"/>
-                                                <tr class="border-bottom"
-                                                    style="border-spacing: 0 10px;">
-                                                    <th colspan="12">
-                                                        <span>
-                                                            <t t-esc="sale_tax_line['name']"/>
-                                                            (
-                                                            <t t-esc="sale_tax_line['amount']"/>
-                                                            %)
-                                                        </span>
-                                                    </th>
-                                                </tr>
-                                            </t>
-                                        </t>
-                                    </t>
-                                    <tr class="border-bottom"
-                                        style="border-spacing: 0 10px;font-weight: 400;">
-                                        <th colspan="6">
-                                            <span style="font-weight: 400;">
-                                                <t t-if="report_type and list(report_type.keys())[0] == 'tax'">
-                                                    <t t-esc="sale_tax_line['account']"/>
-                                                </t>
-                                                <t t-else="">
-                                                    <t t-esc="sale_tax_line['name']"/>
-                                                    (
-                                                    <t t-esc="sale_tax_line['amount']"/>
-                                                    %)
-                                                </t>
-                                            </span>
-                                        </th>
-                                        <t t-if="apply_comparison == true">
-                                            <t t-if="sale_tax_line['dynamic net']">
-                                                <t t-set="number_of_periods"
-                                                   t-value="comparison_number_range"/>
-                                                <t t-foreach="number_of_periods"
-                                                   t-as="num">
-                                                    <th style="text-align:center;font-weight: 400;">
-                                                        <t t-if="sale_tax_line['dynamic net']['dynamic_total_net_sum' + str(num)]"
-                                                           t-esc="sale_tax_line['dynamic net']['dynamic_total_net_sum' + str(num)]"/>
-                                                    </th>
-                                                    <th style="text-align:center;font-weight: 400;">
-                                                        <t t-if="sale_tax_line['dynamic tax']['dynamic_total_tax_sum' + str(num)]"
-                                                           t-esc="sale_tax_line['dynamic tax']['dynamic_total_tax_sum' + str(num)]"/>
-                                                    </th>
-                                                </t>
-                                            </t>
-                                        </t>
-                                        <th style="text-align:center;">
-                                            <span style="font-weight: 400;">
-                                                <t t-esc="sale_tax_line['net']"/>
-                                            </span>
-                                        </th>
-                                        <th style="text-align:center;">
-                                            <span style="font-weight: 400;">
-                                                <t t-esc="sale_tax_line['tax']"/>
-                                            </span>
-                                        </th>
-                                    </tr>
-                                </t>
-                                <tr style="height: 2rem;"/>
-                                <tr class="border-bottom"
-                                    style="border-spacing: 0 10px;background:#dfdfdf;">
-                                    <th colspan="6">
-                                        <span style="font-weight: 700;">
-                                            Purchase
-                                        </span>
-                                    </th>
-                                    <th/>
-                                    <t t-if="apply_comparison == true">
-                                        <t t-set="number_of_periods"
-                                           t-value="comparison_number_range"/>
-                                        <t t-foreach="number_of_periods"
-                                           t-as="numb">
-                                            <th/>
-                                            <th/>
-                                        </t>
-                                    </t>
-                                    <th style="text-align:center;font-weight: 700;">
-                                        <t t-esc="purchase_total"/>
-                                    </th>
-                                </tr>
-                                <t t-set="i" t-value="0"/>
-                                <t t-foreach="data['purchase']"
-                                   t-as="purchase_tax_line">
-                                    <t t-set="i" t-value="i + 1"/>
-                                    <t t-if="report_type">
-                                        <t t-if="list(report_type.keys())[0] == 'account'">
-                                            <tr class="border-bottom"
-                                                style="border-spacing: 0 10px;">
-                                                <th colspan="12">
-                                                    <span>
-                                                        <t t-esc="purchase_tax_line['account']"/>
-                                                    </span>
-                                                </th>
-                                            </tr>
-                                        </t>
-                                        <t t-else="list(report_type.keys())[0] == 'tax'">
-                                            <t t-set="prev_account"
-                                               t-value="purchase_tax_line['name']"/>
-                                            <tr class="border-bottom"
-                                                style="border-spacing: 0 10px;">
-                                                <th colspan="12">
-                                                    <span>
-                                                        <t t-esc="purchase_tax_line['name']"/>
-                                                        (
-                                                        <t t-esc="purchase_tax_line['amount']"/>
-                                                        %)
-                                                    </span>
-                                                </th>
-                                            </tr>
-                                        </t>
-                                    </t>
-                                    <tr class="border-bottom"
-                                        style="border-spacing: 0 10px;">
-                                        <th colspan="6">
-                                            <span style="font-weight: 400;">
-                                                <t t-if="report_type and list(report_type.keys())[0] == 'tax'">
-                                                    <t t-esc="purchase_tax_line['account']"/>
-                                                </t>
-                                                <t t-else="">
-                                                    <t t-esc="purchase_tax_line['name']"/>
-                                                    (
-                                                    <t t-esc="purchase_tax_line['amount']"/>
-                                                    %)
-                                                </t>
-                                            </span>
-                                        </th>
-                                        <t t-if="apply_comparison == true">
-                                            <t t-if="purchase_tax_line['dynamic net']">
-                                                <t t-set="number_of_periods"
-                                                   t-value="comparison_number_range"/>
-                                                <t t-foreach="number_of_periods"
-                                                   t-as="period">
-                                                    <th style="text-align:center;font-weight: 400;">
-                                                        <t t-if="purchase_tax_line['dynamic net']['dynamic_total_net_sum' + str(period)]"
-                                                           t-esc="purchase_tax_line['dynamic net']['dynamic_total_net_sum' + str(period)]"/>
-                                                    </th>
-                                                    <th style="text-align:center;font-weight: 400;">
-                                                        <t t-if="purchase_tax_line['dynamic net']['dynamic_total_net_sum' + str(period)]"
-                                                           t-esc="purchase_tax_line['dynamic net']['dynamic_total_net_sum' + str(period)]"/>
-                                                    </th>
-                                                </t>
-                                            </t>
-                                        </t>
-                                        <th style="text-align:center;">
-                                            <span style="font-weight: 400;">
-                                                <t t-esc="purchase_tax_line['net']"/>
-                                            </span>
-                                        </th>
-                                        <th style="text-align:center;">
-                                            <span style="font-weight: 400;">
-                                                <t t-esc="purchase_tax_line['tax']"/>
-                                            </span>
-                                        </th>
-                                    </tr>
-                                </t>
-                            </t>
-                        </tbody>
-                    </table>
-                </div>
+    <!-- Template for Tax Report Numeric Cell -->
+    <template id="tax_cell_num">
+        <td class="o_pdf_num" style="padding: 4px 8px; font-variant-numeric: tabular-nums; font-size: 9.5px; border-bottom: 1px solid #f1f5f9; border-right: 1px solid #f1f5f9;">
+            <t t-set="_n" t-value="float(str(amount).replace(',', '')) if amount else 0.0"/>
+            <t t-if="abs(_n) &gt;= 0.005">
+                <span t-attf-style="{{ 'color: #dc2626; font-weight: 600;' if _n &lt; 0 else 'color: #1e293b;' }}">
+                    <t t-esc="'{:,.2f}'.format(_n)"/>
+                </span>
             </t>
+            <t t-else="">
+                <span style="color: #cbd5e1;">-</span>
+            </t>
+        </td>
+    </template>
+
+    <!-- Master Tax Report / VAT Declaration Template -->
+    <template id="tax_report">
+        <t t-call="dynamic_accounts_report.report_master_layout">
+            <t t-set="report_title" t-value="title or report_name or 'Tax Report'"/>
+            <t t-set="report_subtitle">تقرير الإقرار الضريبي للقيمة المضافة (VAT Return &amp; Declaration)</t>
+
+            <!-- Data Extraction & Totals Calculation -->
+            <t t-set="tax_data" t-value="data.get('data') if (data and isinstance(data, dict) and 'data' in data and isinstance(data.get('data'), dict)) else (data if (data and isinstance(data, dict)) else {})"/>
+            <t t-set="sales_list" t-value="tax_data.get('sale', []) if isinstance(tax_data, dict) else []"/>
+            <t t-set="purchases_list" t-value="tax_data.get('purchase', []) if isinstance(tax_data, dict) else []"/>
+
+            <t t-set="curr" t-value="currency or (tax_data.get('currency') if isinstance(tax_data, dict) else None) or (res_company.currency_id.symbol if res_company and res_company.currency_id else 'LE')"/>
+
+            <t t-set="st_val" t-value="float(str(sale_total).replace(',', '')) if sale_total else sum(float(str(x.get('tax', 0)).replace(',', '')) for x in sales_list)"/>
+            <t t-set="sn_val" t-value="float(str(sale_net_total).replace(',', '')) if sale_net_total else sum(float(str(x.get('net', 0)).replace(',', '')) for x in sales_list)"/>
+
+            <t t-set="pt_val" t-value="float(str(purchase_total).replace(',', '')) if purchase_total else sum(float(str(x.get('tax', 0)).replace(',', '')) for x in purchases_list)"/>
+            <t t-set="pn_val" t-value="float(str(purchase_net_total).replace(',', '')) if purchase_net_total else sum(float(str(x.get('net', 0)).replace(',', '')) for x in purchases_list)"/>
+
+            <t t-set="net_pos" t-value="st_val - pt_val"/>
+
+            <!-- Executive KPI Metric Cards (Div-based, zero table borders) -->
+            <div style="margin-bottom: 12px; margin-top: 4px; overflow: hidden; width: 100%; box-sizing: border-box;">
+                <!-- Output Tax (Sales) Card -->
+                <div style="float: left; width: 32%; background-color: #f5f3ff; border: 1.5px solid #ddd6fe; border-radius: 6px; padding: 8px 12px; box-sizing: border-box;">
+                    <div style="font-size: 8.5px; font-weight: 700; color: #5b21b6; text-transform: uppercase; letter-spacing: 0.5px;">
+                        Output VAT / ضريبة المخرجات (المبيعات)
+                    </div>
+                    <div style="font-size: 15px; font-weight: 800; color: #4338ca; margin-top: 3px; font-variant-numeric: tabular-nums;">
+                        <t t-esc="curr"/> <t t-esc="'{:,.2f}'.format(st_val)"/>
+                    </div>
+                    <div style="font-size: 8px; color: #6d28d9; margin-top: 3px; border-top: 1px dashed #ddd6fe; padding-top: 3px;">
+                        Tax Base: <strong><t t-esc="'{:,.2f}'.format(sn_val)"/></strong>
+                    </div>
+                </div>
+
+                <!-- Input Tax (Purchases) Card -->
+                <div style="float: left; width: 32%; margin-left: 2%; background-color: #f0fdfa; border: 1.5px solid #99f6e4; border-radius: 6px; padding: 8px 12px; box-sizing: border-box;">
+                    <div style="font-size: 8.5px; font-weight: 700; color: #0f766e; text-transform: uppercase; letter-spacing: 0.5px;">
+                        Input VAT / ضريبة المدخلات (المشتريات)
+                    </div>
+                    <div style="font-size: 15px; font-weight: 800; color: #0d9488; margin-top: 3px; font-variant-numeric: tabular-nums;">
+                        <t t-esc="curr"/> <t t-esc="'{:,.2f}'.format(pt_val)"/>
+                    </div>
+                    <div style="font-size: 8px; color: #0f766e; margin-top: 3px; border-top: 1px dashed #99f6e4; padding-top: 3px;">
+                        Tax Base: <strong><t t-esc="'{:,.2f}'.format(pn_val)"/></strong>
+                    </div>
+                </div>
+
+                <!-- Net Tax Position Card -->
+                <div style="float: right; width: 32%; border-radius: 6px; padding: 8px 12px; box-sizing: border-box;"
+                    t-attf-style="{{ 'background-color: #fef2f2; border: 1.5px solid #fecaca;' if net_pos &gt;= 0 else 'background-color: #f0fdf4; border: 1.5px solid #bbf7d0;' }}">
+                    <div style="font-size: 8.5px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;"
+                         t-attf-style="{{ 'color: #991b1b;' if net_pos &gt;= 0 else 'color: #166534;' }}">
+                        <t t-if="net_pos &gt;= 0">Net Tax Due / واجب السداد للهيئة</t>
+                        <t t-else="">Refundable Balance / رصيد دائن مسترد</t>
+                    </div>
+                    <div style="font-size: 15px; font-weight: 800; margin-top: 3px; font-variant-numeric: tabular-nums;"
+                         t-attf-style="{{ 'color: #b91c1c;' if net_pos &gt;= 0 else 'color: #15803d;' }}">
+                        <t t-esc="curr"/> <t t-esc="'{:,.2f}'.format(abs(net_pos))"/>
+                    </div>
+                    <div style="font-size: 8px; margin-top: 3px; border-top: 1px dashed rgba(0,0,0,0.1); padding-top: 3px;"
+                         t-attf-style="{{ 'color: #b91c1c;' if net_pos &gt;= 0 else 'color: #15803d;' }}">
+                        Status: <strong><t t-if="net_pos &gt;= 0">Payable (واجب السداد)</t><t t-else="">Credit Balance (رصيد دائن)</t></strong>
+                    </div>
+                </div>
+                <div style="clear: both;"/>
+            </div>
+
+            <!-- SECTION 1: Sales & Output VAT Table -->
+            <div style="margin-top: 8px; margin-bottom: 14px;">
+                <div style="background-color: #1e293b; color: #ffffff; padding: 5px 10px; font-size: 11px; font-weight: 800; border-radius: 4px 4px 0 0; display: flex; justify-content: space-between;">
+                    <span>1. Sales &amp; Output VAT / المبيعات وضريبة المخرجات</span>
+                    <span style="font-size: 9px; font-weight: 600; background: rgba(255,255,255,0.2); padding: 1px 6px; border-radius: 3px;">
+                        Output Tax (ضريبة المخرجات)
+                    </span>
+                </div>
+                <table class="o_pdf_table o_ignore_layout_styling" style="width: 100%; border-collapse: collapse; margin-top: 0; border: none;">
+                    <thead>
+                        <tr class="o_pdf_sec_header" style="background-color: #334155 !important;">
+                            <th style="width: 32%; text-align: left; padding: 6px 8px; border-right: 1px solid rgba(255,255,255,0.2);">
+                                Tax Description / مسمى الضريبة
+                            </th>
+                            <th style="width: 28%; text-align: left; padding: 6px 8px; border-right: 1px solid rgba(255,255,255,0.2);">
+                                General Account / حساب الأستاذ
+                            </th>
+                            <th style="width: 10%; text-align: center; padding: 6px 6px; border-right: 1px solid rgba(255,255,255,0.2);">
+                                Rate / النسبة
+                            </th>
+                            <th style="width: 15%; text-align: right; padding: 6px 8px; border-right: 1px solid rgba(255,255,255,0.15);">
+                                Taxable Base / الأساس الخاضع
+                            </th>
+                            <th style="width: 15%; text-align: right; padding: 6px 8px;">
+                                Tax Amount / مبلغ الضريبة
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <t t-if="sales_list and len(sales_list) &gt; 0">
+                            <t t-foreach="sales_list" t-as="sale_line">
+                                <t t-set="s_net" t-value="float(sale_line.get('net', 0) or 0.0)"/>
+                                <t t-set="s_tax" t-value="float(sale_line.get('tax', 0) or 0.0)"/>
+                                <tr class="o_pdf_account_row" style="page-break-inside: avoid;">
+                                    <!-- Tax Name -->
+                                    <td style="padding: 4px 8px; font-size: 9.5px; font-weight: 600; color: #0f172a; border-bottom: 1px solid #f1f5f9; border-right: 1px solid #f1f5f9;">
+                                        <span style="color: #4338ca; margin-right: 4px;">•</span>
+                                        <t t-esc="sale_line.get('name') or '-'"/>
+                                    </td>
+                                    <!-- Account -->
+                                    <td style="padding: 4px 8px; font-size: 9px; color: #475569; border-bottom: 1px solid #f1f5f9; border-right: 1px solid #f1f5f9;">
+                                        <t t-esc="sale_line.get('account') or '-'"/>
+                                    </td>
+                                    <!-- Rate -->
+                                    <td style="padding: 4px 6px; text-align: center; font-size: 9.5px; font-weight: 600; color: #4338ca; border-bottom: 1px solid #f1f5f9; border-right: 1px solid #f1f5f9;">
+                                        <t t-esc="sale_line.get('amount')"/>%
+                                    </td>
+                                    <!-- Net Base -->
+                                    <td class="o_pdf_num" style="padding: 4px 8px; font-size: 9.5px; font-weight: 600; color: #1e293b; border-bottom: 1px solid #f1f5f9; border-right: 1px solid #f1f5f9;">
+                                        <t t-if="abs(s_net) &gt;= 0.005"><t t-esc="'{:,.2f}'.format(s_net)"/></t><t t-else="">-</t>
+                                    </td>
+                                    <!-- Tax Amount -->
+                                    <td class="o_pdf_num" style="padding: 4px 8px; font-size: 9.5px; font-weight: 700; color: #4338ca; border-bottom: 1px solid #f1f5f9;">
+                                        <t t-if="abs(s_tax) &gt;= 0.005"><t t-esc="'{:,.2f}'.format(s_tax)"/></t><t t-else="">-</t>
+                                    </td>
+                                </tr>
+                            </t>
+                        </t>
+                        <t t-else="">
+                            <tr>
+                                <td colspan="5" style="text-align: center; padding: 15px; color: #94a3b8; font-style: italic;">
+                                    No sales tax records for this period.
+                                </td>
+                            </tr>
+                        </t>
+                    </tbody>
+                    <!-- Sales Subtotal Row -->
+                    <tfoot>
+                        <tr class="o_pdf_subtotal_row" style="background-color: #ede9fe !important; border-top: 1.5px solid #c4b5fd; border-bottom: 1.5px solid #c4b5fd;">
+                            <td colspan="3" style="padding: 5px 8px; font-weight: 800; color: #4338ca; border-right: 1px solid #c4b5fd;">
+                                TOTAL SALES &amp; OUTPUT VAT / إجمالي المبيعات وضريبة المخرجات
+                            </td>
+                            <td class="o_pdf_num" style="padding: 5px 8px; font-weight: 800; color: #1e293b; border-right: 1px solid #c4b5fd;">
+                                <t t-esc="'{:,.2f}'.format(sn_val)"/>
+                            </td>
+                            <td class="o_pdf_num" style="padding: 5px 8px; font-weight: 800; color: #4338ca; font-size: 10.5px;">
+                                <t t-esc="'{:,.2f}'.format(st_val)"/>
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+
+            <!-- SECTION 2: Purchases & Input VAT Table -->
+            <div style="margin-top: 8px; margin-bottom: 14px;">
+                <div style="background-color: #0f766e; color: #ffffff; padding: 5px 10px; font-size: 11px; font-weight: 800; border-radius: 4px 4px 0 0; display: flex; justify-content: space-between;">
+                    <span>2. Purchases &amp; Input VAT / المشتريات وضريبة المدخلات</span>
+                    <span style="font-size: 9px; font-weight: 600; background: rgba(255,255,255,0.2); padding: 1px 6px; border-radius: 3px;">
+                        Input Tax (ضريبة المدخلات القابلة للخصم)
+                    </span>
+                </div>
+                <table class="o_pdf_table o_ignore_layout_styling" style="width: 100%; border-collapse: collapse; margin-top: 0; border: none;">
+                    <thead>
+                        <tr class="o_pdf_sec_header" style="background-color: #115e59 !important;">
+                            <th style="width: 32%; text-align: left; padding: 6px 8px; border-right: 1px solid rgba(255,255,255,0.2);">
+                                Tax Description / مسمى الضريبة
+                            </th>
+                            <th style="width: 28%; text-align: left; padding: 6px 8px; border-right: 1px solid rgba(255,255,255,0.2);">
+                                General Account / حساب الأستاذ
+                            </th>
+                            <th style="width: 10%; text-align: center; padding: 6px 6px; border-right: 1px solid rgba(255,255,255,0.2);">
+                                Rate / النسبة
+                            </th>
+                            <th style="width: 15%; text-align: right; padding: 6px 8px; border-right: 1px solid rgba(255,255,255,0.15);">
+                                Taxable Base / الأساس الخاضع
+                            </th>
+                            <th style="width: 15%; text-align: right; padding: 6px 8px;">
+                                Tax Amount / مبلغ الضريبة
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <t t-if="purchases_list and len(purchases_list) &gt; 0">
+                            <t t-foreach="purchases_list" t-as="pur_line">
+                                <t t-set="p_net" t-value="float(pur_line.get('net', 0) or 0.0)"/>
+                                <t t-set="p_tax" t-value="float(pur_line.get('tax', 0) or 0.0)"/>
+                                <tr class="o_pdf_account_row" style="page-break-inside: avoid;">
+                                    <!-- Tax Name -->
+                                    <td style="padding: 4px 8px; font-size: 9.5px; font-weight: 600; color: #0f172a; border-bottom: 1px solid #f1f5f9; border-right: 1px solid #f1f5f9;">
+                                        <span style="color: #0d9488; margin-right: 4px;">•</span>
+                                        <t t-esc="pur_line.get('name') or '-'"/>
+                                    </td>
+                                    <!-- Account -->
+                                    <td style="padding: 4px 8px; font-size: 9px; color: #475569; border-bottom: 1px solid #f1f5f9; border-right: 1px solid #f1f5f9;">
+                                        <t t-esc="pur_line.get('account') or '-'"/>
+                                    </td>
+                                    <!-- Rate -->
+                                    <td style="padding: 4px 6px; text-align: center; font-size: 9.5px; font-weight: 600; color: #0d9488; border-bottom: 1px solid #f1f5f9; border-right: 1px solid #f1f5f9;">
+                                        <t t-esc="pur_line.get('amount')"/>%
+                                    </td>
+                                    <!-- Net Base -->
+                                    <td class="o_pdf_num" style="padding: 4px 8px; font-size: 9.5px; font-weight: 600; color: #1e293b; border-bottom: 1px solid #f1f5f9; border-right: 1px solid #f1f5f9;">
+                                        <t t-if="abs(p_net) &gt;= 0.005"><t t-esc="'{:,.2f}'.format(p_net)"/></t><t t-else="">-</t>
+                                    </td>
+                                    <!-- Tax Amount -->
+                                    <td class="o_pdf_num" style="padding: 4px 8px; font-size: 9.5px; font-weight: 700; color: #0d9488; border-bottom: 1px solid #f1f5f9;">
+                                        <t t-if="abs(p_tax) &gt;= 0.005"><t t-esc="'{:,.2f}'.format(p_tax)"/></t><t t-else="">-</t>
+                                    </td>
+                                </tr>
+                            </t>
+                        </t>
+                        <t t-else="">
+                            <tr>
+                                <td colspan="5" style="text-align: center; padding: 15px; color: #94a3b8; font-style: italic;">
+                                    No purchase tax records for this period.
+                                </td>
+                            </tr>
+                        </t>
+                    </tbody>
+                    <!-- Purchases Subtotal Row -->
+                    <tfoot>
+                        <tr class="o_pdf_subtotal_row" style="background-color: #ccfbf1 !important; border-top: 1.5px solid #99f6e4; border-bottom: 1.5px solid #99f6e4;">
+                            <td colspan="3" style="padding: 5px 8px; font-weight: 800; color: #0f766e; border-right: 1px solid #99f6e4;">
+                                TOTAL PURCHASES &amp; INPUT VAT / إجمالي المشتريات وضريبة المدخلات
+                            </td>
+                            <td class="o_pdf_num" style="padding: 5px 8px; font-weight: 800; color: #1e293b; border-right: 1px solid #99f6e4;">
+                                <t t-esc="'{:,.2f}'.format(pn_val)"/>
+                            </td>
+                            <td class="o_pdf_num" style="padding: 5px 8px; font-weight: 800; color: #0d9488; font-size: 10.5px;">
+                                <t t-esc="'{:,.2f}'.format(pt_val)"/>
+                            </td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+
+            <!-- SECTION 3: VAT Settlement & Net Position Summary Box -->
+            <div style="margin-top: 10px; page-break-inside: avoid;">
+                <table class="o_ignore_layout_styling" style="width: 100%; border-collapse: collapse; border: 1.5px solid #1e293b; border-radius: 4px; overflow: hidden;">
+                    <thead>
+                        <tr style="background-color: #1e293b; color: #ffffff;">
+                            <th colspan="2" style="padding: 6px 12px; font-size: 11px; font-weight: 800; text-transform: uppercase;">
+                                3. VAT Return Settlement Summary / ملخص تسوية الإقرار الضريبي
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody style="background-color: #ffffff;">
+                        <tr style="border-bottom: 1px solid #e2e8f0;">
+                            <td style="padding: 6px 12px; font-size: 10px; color: #334155;">
+                                Total Output Tax / إجمالي ضريبة المخرجات المستحقة (المبيعات)
+                            </td>
+                            <td class="o_pdf_num" style="padding: 6px 12px; font-size: 10.5px; font-weight: 700; color: #4338ca;">
+                                + <t t-esc="curr"/> <t t-esc="'{:,.2f}'.format(st_val)"/>
+                            </td>
+                        </tr>
+                        <tr style="border-bottom: 1px solid #e2e8f0;">
+                            <td style="padding: 6px 12px; font-size: 10px; color: #334155;">
+                                Less: Total Input Tax / يخصم: إجمالي ضريبة المدخلات القابلة للخصم (المشتريات)
+                            </td>
+                            <td class="o_pdf_num" style="padding: 6px 12px; font-size: 10.5px; font-weight: 700; color: #0d9488;">
+                                - <t t-esc="curr"/> <t t-esc="'{:,.2f}'.format(pt_val)"/>
+                            </td>
+                        </tr>
+                        <tr style="background-color: #0f172a; color: #ffffff;">
+                            <td style="padding: 8px 12px; font-size: 11px; font-weight: 800;">
+                                <t t-if="net_pos &gt;= 0">
+                                    NET TAX DUE FOR PAYMENT / صافي الضريبة واجبة السداد لمصلحة الضرائب
+                                </t>
+                                <t t-else="">
+                                    NET REFUNDABLE TAX BALANCE / صافي الرصيد الدائن المسترد للشركة
+                                </t>
+                            </td>
+                            <td class="o_pdf_num" style="padding: 8px 12px; font-size: 12px; font-weight: 800;">
+                                <span t-attf-style="{{ 'color: #f87171;' if net_pos &gt;= 0 else 'color: #4ade80;' }}">
+                                    = <t t-esc="curr"/> <t t-esc="'{:,.2f}'.format(abs(net_pos))"/>
+                                </span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Tax Declaration Certification & Signatures -->
+            <div style="margin-top: 15px; page-break-inside: avoid; border-top: 1px dashed #cbd5e1; padding-top: 8px;">
+                <div style="font-size: 8px; color: #64748b; font-style: italic; margin-bottom: 10px;">
+                    * إقرار: نقر بصحة وسلامة كافة البيانات الواردة بهذا الإقرار ومطابقتها للفواتير والمستندات الدفترية الرسمية للشركة وطبقاً لأحكام قانون الضريبة على القيمة المضافة ولائحته التنفيذية.
+                </div>
+                <!-- Signatures Block (Div-based, zero table borders) -->
+                <div style="overflow: hidden; width: 100%; box-sizing: border-box;">
+                    <div style="float: left; width: 33.33%; text-align: left; box-sizing: border-box;">
+                        <span style="font-size: 8px; color: #64748b; text-transform: uppercase; font-weight: 700;">Tax Specialist / أخصائي الضرائب:</span><br/>
+                        <div style="height: 25px; border-bottom: 1px dotted #cbd5e1; margin-right: 25px; margin-top: 4px;"></div>
+                    </div>
+                    <div style="float: left; width: 33.33%; text-align: left; box-sizing: border-box;">
+                        <span style="font-size: 8px; color: #64748b; text-transform: uppercase; font-weight: 700;">Financial Controller / المراقب المالي:</span><br/>
+                        <div style="height: 25px; border-bottom: 1px dotted #cbd5e1; margin-right: 25px; margin-top: 4px;"></div>
+                    </div>
+                    <div style="float: right; width: 33.34%; text-align: right; box-sizing: border-box;">
+                        <span style="font-size: 8px; color: #64748b; text-transform: uppercase; font-weight: 700;">General Manager / المدير العام:</span><br/>
+                        <div style="height: 25px; border-bottom: 1px dotted #cbd5e1; margin-top: 4px;"></div>
+                    </div>
+                    <div style="clear: both;"/>
+                </div>
+            </div>
         </t>
     </template>
 </odoo>

@@ -1,5 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
+    <!-- Portrait page layout for financial reports (clean margins) -->
+    <record id="paperformat_financial_portrait" model="report.paperformat">
+        <field name="name">Financial Reports A4 Portrait</field>
+        <field name="format">A4</field>
+        <field name="orientation">Portrait</field>
+        <field name="margin_top">15</field>
+        <field name="margin_bottom">15</field>
+        <field name="margin_left">10</field>
+        <field name="margin_right">10</field>
+        <field name="header_line" eval="False"/>
+        <field name="header_spacing">12</field>
+        <field name="dpi">90</field>
+    </record>
+
+    <!-- Landscape page layout for financial reports (wide tables like Trial Balance) -->
+    <record id="paperformat_financial_landscape" model="report.paperformat">
+        <field name="name">Financial Reports A4 Landscape</field>
+        <field name="format">A4</field>
+        <field name="orientation">Landscape</field>
+        <field name="margin_top">10</field>
+        <field name="margin_bottom">8</field>
+        <field name="margin_left">8</field>
+        <field name="margin_right">8</field>
+        <field name="header_line" eval="False"/>
+        <field name="header_spacing">10</field>
+        <field name="dpi">90</field>
+    </record>
+
     <!-- Action record for Profit and Loss report -->
     <record id="action_print_profit_loss" model="ir.actions.report">
         <field name="name">Profit And Loss</field>
@@ -7,6 +35,7 @@
         <field name="report_type">qweb-pdf</field>
         <field name="report_name">dynamic_accounts_report.profit_loss</field>
         <field name="report_file">dynamic_accounts_report.profit_loss</field>
+        <field name="paperformat_id" ref="paperformat_financial_portrait"/>
     </record>
     <!-- Action record for Balance Sheet report -->
     <record id="action_print_balance_sheet" model="ir.actions.report">
@@ -15,6 +44,20 @@
         <field name="report_type">qweb-pdf</field>
         <field name="report_name">dynamic_accounts_report.balance_sheet</field>
         <field name="report_file">dynamic_accounts_report.balance_sheet</field>
+        <field name="paperformat_id" ref="paperformat_financial_portrait"/>
+    </record>
+    <!-- Landscape page layout for the wide Partner Ledger table. -->
+    <record id="paperformat_partner_ledger" model="report.paperformat">
+        <field name="name">Partner Ledger A4 Landscape</field>
+        <field name="format">A4</field>
+        <field name="orientation">Landscape</field>
+        <field name="margin_top">25</field>
+        <field name="margin_bottom">15</field>
+        <field name="margin_left">8</field>
+        <field name="margin_right">8</field>
+        <field name="header_line" eval="False"/>
+        <field name="header_spacing">18</field>
+        <field name="dpi">90</field>
     </record>
     <!--     Action record for Partner Ledger report -->
     <record id="action_print_partner_ledger" model="ir.actions.report">
@@ -23,6 +66,7 @@
         <field name="report_type">qweb-pdf</field>
         <field name="report_name">dynamic_accounts_report.partner_ledger</field>
         <field name="report_file">dynamic_accounts_report.partner_ledger</field>
+        <field name="paperformat_id" ref="paperformat_partner_ledger"/>
     </record>
     <!--     Action record for General Ledger report -->
     <record id="action_print_general_ledger" model="ir.actions.report">
@@ -31,6 +75,7 @@
         <field name="report_type">qweb-pdf</field>
         <field name="report_name">dynamic_accounts_report.general_ledger</field>
         <field name="report_file">dynamic_accounts_report.general_ledger</field>
+        <field name="paperformat_id" ref="paperformat_financial_landscape"/>
     </record>
     <!--     Action record for Bank Book report -->
     <record id="action_print_bank_book" model="ir.actions.report">
@@ -39,6 +84,7 @@
         <field name="report_type">qweb-pdf</field>
         <field name="report_name">dynamic_accounts_report.bank_book</field>
         <field name="report_file">dynamic_accounts_report.bank_book</field>
+        <field name="paperformat_id" ref="paperformat_financial_landscape"/>
     </record>
     <!-- Action record for Age Receivable report -->
     <record id="action_print_aged_receivable" model="ir.actions.report">
@@ -47,22 +93,27 @@
         <field name="report_type">qweb-pdf</field>
         <field name="report_name">dynamic_accounts_report.aged_receivable</field>
         <field name="report_file">dynamic_accounts_report.aged_receivable</field>
+        <field name="paperformat_id" ref="paperformat_financial_landscape"/>
     </record>
-    <!--     Action record for Age Payable report -->
+    <!--Action record for Age Payable report -->
     <record id="action_print_aged_payable" model="ir.actions.report">
         <field name="name">Age Payable</field>
         <field name="model">age.payable.report</field>
         <field name="report_type">qweb-pdf</field>
         <field name="report_name">dynamic_accounts_report.aged_payable</field>
         <field name="report_file">dynamic_accounts_report.aged_payable</field>
+        <field name="paperformat_id" ref="paperformat_financial_landscape"/>
     </record>
-    <!--         Action record for Age Payable report -->
+    <!-- Action record for Trial Balance report -->
     <record id="action_print_trial_balance" model="ir.actions.report">
         <field name="name">Trial Balance</field>
         <field name="model">account.trial.balance</field>
         <field name="report_type">qweb-pdf</field>
         <field name="report_name">dynamic_accounts_report.trial_balance</field>
         <field name="report_file">dynamic_accounts_report.trial_balance</field>
+        <field name="paperformat_id" ref="paperformat_financial_landscape"/>
+        <field name="binding_model_id" ref="model_account_trial_balance"/>
+        <field name="binding_type">report</field>
     </record>
     <record id="action_print_tax_report" model="ir.actions.report">
         <field name="name">Tax Report</field>
@@ -70,5 +121,6 @@
         <field name="report_type">qweb-pdf</field>
         <field name="report_name">dynamic_accounts_report.tax_report</field>
         <field name="report_file">dynamic_accounts_report.tax_report</field>
+        <field name="paperformat_id" ref="paperformat_financial_portrait"/>
     </record>
 </odoo>
