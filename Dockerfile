@@ -7,15 +7,6 @@ FROM odoo:${ODOO_VERSION}
 
 USER root
 
-# Install system utilities and build dependencies if needed
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    build-essential \
-    python3-dev \
-    libpq-dev \
-    git \
-    curl \
-    && rm -rf /var/lib/apt/lists/*
-
 # Copy and install python dependencies
 COPY requirements.txt /tmp/requirements.txt
 RUN if [ -s /tmp/requirements.txt ]; then \
