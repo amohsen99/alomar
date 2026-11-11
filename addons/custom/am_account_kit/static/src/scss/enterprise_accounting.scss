@@ -1,0 +1,117 @@
+// ============================================================================
+// Enterprise Accounting Dashboard & Bank Matching Styling (Odoo 18 Enterprise)
+// ============================================================================
+
+// Reset base_accounting_kit's global body background override
+body.o_web_client {
+    background-color: var(--o-view-background-color, #ffffff) !important;
+}
+
+// Enterprise color tokens scoped to Accounting Dashboard & Bank Reconciliation
+.o_account_kanban,
+.o_bank_rec_main_div {
+    --o-brand-odoo: #714B67;
+    --o-brand-primary: #714B67;
+    --o-action: #017e84;
+    --link-color: #017e84;
+    --link-color-rgb: 1, 126, 132;
+
+    .btn-primary {
+        --btn-bg: #714B67;
+        --btn-border-color: #714B67;
+        --btn-color: #ffffff;
+        --btn-hover-bg: #5f3f57;
+        --btn-hover-border-color: #593b52;
+        --btn-hover-color: #ffffff;
+        --btn-active-bg: #53374c;
+        --btn-active-border-color: #4d3347;
+        background-color: #714B67;
+        border-color: #714B67;
+        color: #ffffff;
+        font-weight: 500;
+
+        &:hover,
+        &:focus {
+            background-color: #5f3f57;
+            border-color: #593b52;
+            color: #ffffff;
+        }
+    }
+
+    .btn-secondary {
+        --btn-bg: #e7e9ed;
+        --btn-border-color: #e7e9ed;
+        --btn-color: #111827;
+        --btn-hover-bg: #d8dce2;
+        --btn-hover-border-color: #d0d5dd;
+        --btn-hover-color: #111827;
+        background-color: #e7e9ed;
+        border-color: #e7e9ed;
+        color: #111827;
+        font-weight: 500;
+
+        &:hover,
+        &:focus {
+            background-color: #d8dce2;
+            border-color: #d0d5dd;
+            color: #111827;
+        }
+    }
+}
+
+// Accounting Dashboard Kanban Cards (match Odoo 18 Enterprise)
+.o_account_kanban {
+    background-color: #f9fafb !important;
+
+    .o_kanban_renderer.o_kanban_ungrouped {
+        @include media-breakpoint-up(lg) {
+            --KanbanRecord-width: 31vw !important;
+        }
+    }
+
+    .o_kanban_record {
+        background-color: #ffffff !important;
+        border: 1px solid #d8dadd !important;
+        border-radius: 4px;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+
+        // Journal title link ("Sales", "Purchases", "Bank", etc.)
+        a[name="open_action"],
+        .fs-4 {
+            color: #017e84 !important;
+            font-weight: 500;
+            text-decoration: none;
+
+            &:hover {
+                color: #015f64 !important;
+            }
+        }
+
+        // Bank & Cash card: stack Balance/Last Statement/Payments/Misc. Operations cleanly below Transactions & Reconcile buttons
+        #dashboard_bank_cash_left {
+            flex: 0 0 100%;
+            max-width: 100%;
+            margin-bottom: 0.5rem !important;
+        }
+
+        #dashboard_bank_cash_right {
+            flex: 0 0 auto;
+            min-width: 240px;
+        }
+
+        // Right-side metric links ("2 To Validate", "14 Unpaid", "Balance", "Last Statement", etc.)
+        #dashboard_bank_cash_right a,
+        .col-auto a:not(.btn),
+        .col a:not(.btn) {
+            color: #017e84;
+            text-decoration: none;
+            font-weight: 400;
+
+            &:hover {
+                color: #015f64;
+                text-decoration: underline;
+            }
+        }
+    }
+}
+

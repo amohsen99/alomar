@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_payment_reason_wizard_form" model="ir.ui.view">
+        <field name="name">payment.reason.wizard.form</field>
+        <field name="model">payment.reason.wizard</field>
+        <field name="arch" type="xml">
+            <form string="Provide Reason">
+                <group>
+                    <field name="action_type" invisible="1"/>
+                    <field name="reason" placeholder="Please specify the reason for this action..."/>
+                </group>
+                <footer>
+                    <button name="action_confirm" string="Confirm" type="object" class="btn-danger"/>
+                    <button string="Cancel" class="btn-secondary" special="cancel"/>
+                </footer>
+            </form>
+        </field>
+    </record>
+</odoo>
+
