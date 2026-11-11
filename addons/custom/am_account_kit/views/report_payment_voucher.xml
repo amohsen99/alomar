@@ -1,0 +1,362 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- Custom Paperformat for Voucher A4 Reports to set 5mm margins -->
+        <record id="paperformat_voucher_a4" model="report.paperformat">
+            <field name="name">Voucher A4 Report Format</field>
+            <field name="default" eval="False"/>
+            <field name="format">A4</field>
+            <field name="orientation">Portrait</field>
+            <field name="margin_top">5</field>
+            <field name="margin_bottom">5</field>
+            <field name="margin_left">5</field>
+            <field name="margin_right">5</field>
+            <field name="header_line" eval="False"/>
+            <field name="header_spacing">0</field>
+            <field name="dpi">90</field>
+        </record>
+
+        <!-- Action Report Definition on account.payment -->
+        <record id="action_report_payment_voucher" model="ir.actions.report">
+            <field name="name">Payment / Receipt Voucher</field>
+            <field name="model">account.payment</field>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">am_account_kit.report_payment_voucher</field>
+            <field name="report_file">am_account_kit.report_payment_voucher</field>
+            <field name="print_report_name">'%s - %s' % ('Receipt Voucher' if object.payment_type == 'inbound' else 'Payment Voucher', object.name or 'Draft')</field>
+            <field name="binding_model_id" ref="account.model_account_payment"/>
+            <field name="binding_type">report</field>
+            <field name="paperformat_id" ref="paperformat_voucher_a4"/>
+        </record>
+
+        <!-- Main report template that sets the language context per document -->
+        <template id="report_payment_voucher">
+            <t t-call="web.html_container">
+                <t t-foreach="docs" t-as="o">
+                    <t t-call="am_account_kit.report_payment_voucher_document"
+                       t-lang="env.context.get('lang') or o.env.context.get('lang') or o.env.user.lang or o.partner_id.lang or 'en_US'"/>
+                </t>
+            </t>
+        </template>
+
+        <!-- Document structure template -->
+        <template id="report_payment_voucher_document">
+            <t t-call="web.basic_layout">
+                <t t-set="o" t-value="o.with_context(lang=env.context.get('lang') or o.env.context.get('lang') or o.env.user.lang or o.partner_id.lang or 'en_US')"/>
+                <t t-set="is_arabic" t-value="bool((env.context.get('lang') or o.env.context.get('lang') or o.env.user.lang or o.partner_id.lang or '').startswith('ar'))"/>
+
+                <div t-attf-class="page #{'pps-rtl' if is_arabic else 'pps-ltr'}"
+                     t-att-dir="'rtl' if is_arabic else 'ltr'"
+                     style="font-family: 'Tahoma', 'Arial', sans-serif; color: #162033; font-size: 11px;">
+
+                    <!-- Dynamically read external CSS -->
+                    <style t-out="o.get_report_css()"/>
+
+                    <!-- Watermarks -->
+                    <t t-if="o.state == 'draft'">
+                        <div class="watermark-draft">DRAFT</div>
+                    </t>
+                    <t t-if="o.state == 'to_approve'">
+                        <div class="watermark-draft">TO APPROVE</div>
+                    </t>
+                    <t t-if="o.state == 'canceled'">
+                        <div class="watermark-draft">CANCELLED</div>
+                    </t>
+                    <t t-if="o.state == 'rejected'">
+                        <div class="watermark-draft">REJECTED</div>
+                    </t>
+
+                    <div class="pps-document">
+                        <!-- Topbar Header -->
+                        <div class="pps-topbar">
+                            <div class="pps-company-card">
+                                <div class="pps-logo-box">
+                                    <img t-if="o.company_id.logo" t-att-src="image_data_uri(o.company_id.logo)" alt="Logo"/>
+                                    <span t-else="" style="font-weight: 900; color: #17324d; font-size: 14px;"><br/><span t-field="o.company_id.name"/></span>
+                                </div>
+                                <div class="pps-company-details">
+                                    <div class="pps-company-name" t-field="o.company_id.name"/>
+                                    <div class="pps-company-sub" t-field="o.company_id.report_header" t-if="o.company_id.report_header"/>
+                                    <div class="pps-meta-line" t-if="o.company_id.phone">
+                                        <span class="pps-meta-label">Telephone:</span>
+                                        <span t-field="o.company_id.phone"/>
+                                    </div>
+                                    <div class="pps-meta-line" t-if="o.company_id.email">
+                                        <span class="pps-meta-label">Email:</span>
+                                        <span t-field="o.company_id.email"/>
+                                    </div>
+                                    <div class="pps-meta-line" t-if="o.company_id.city or o.company_id.country_id">
+                                        <span class="pps-meta-label">Address:</span>
+                                        <span t-field="o.company_id.city"/><t t-if="o.company_id.city and o.company_id.country_id">, </t><span t-field="o.company_id.country_id.name"/>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="pps-po-card">
+                                <div class="pps-po-heading">
+                                    <t t-if="o.payment_type == 'inbound'">
+                                        <t t-if="is_arabic">سَنَد قَبْض</t>
+                                        <t t-else="">RECEIPT VOUCHER</t>
+                                    </t>
+                                    <t t-else="">
+                                        <t t-if="is_arabic">سَنَد صَرْف</t>
+                                        <t t-else="">PAYMENT VOUCHER</t>
+                                    </t>
+                                </div>
+                                <table class="pps-po-fields">
+                                    <tr>
+                                        <td class="key">
+                                            <t t-if="is_arabic">رقم السند</t>
+                                            <t t-else="">Voucher No.</t>
+                                        </td>
+                                        <td class="pps-po-number"><span t-out="o.name or 'Draft'"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="key">
+                                            <t t-if="is_arabic">التاريخ</t>
+                                            <t t-else="">Date</t>
+                                        </td>
+                                        <td><span t-field="o.date" t-options='{"widget": "date", "format": "dd/MM/yyyy"}'/></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="key">
+                                            <t t-if="is_arabic">اليومية</t>
+                                            <t t-else="">Journal</t>
+                                        </td>
+                                        <td><span t-field="o.journal_id.name"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="key">
+                                            <t t-if="is_arabic">قناة الدفع</t>
+                                            <t t-else="">Payment Channel</t>
+                                        </td>
+                                        <td><span t-field="o.payment_channel"/></td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Partner & Voucher Details Section -->
+                        <div class="pps-section-title">
+                            <span>
+                                <t t-if="is_arabic">بيانات الطرف والسند</t>
+                                <t t-else="">Partner &amp; Voucher Details</t>
+                            </span>
+                        </div>
+                        <div class="pps-supplier-grid">
+                            <div class="pps-supplier-col">
+                                <table class="pps-info-table">
+                                    <tr>
+                                        <td class="key">
+                                            <t t-if="is_arabic">اسم الطرف</t>
+                                            <t t-else="">Partner Name</t>
+                                        </td>
+                                        <td>
+                                            <span t-field="o.partner_id.name"/>
+                                            <t t-if="o.partner_type_detail"> (<span t-field="o.partner_type_detail"/>)</t>
+                                        </td>
+                                    </tr>
+                                    <tr>
+                                        <td class="key">
+                                            <t t-if="is_arabic">العنوان</t>
+                                            <t t-else="">Address</t>
+                                        </td>
+                                        <td><span t-field="o.partner_id.contact_address_inline"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="key">
+                                            <t t-if="is_arabic">التليفون</t>
+                                            <t t-else="">Telephone</t>
+                                        </td>
+                                        <td><span t-out="o.partner_id.phone or ''"/></td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div class="pps-supplier-col">
+                                <table class="pps-info-table">
+                                    <tr>
+                                        <td class="key">
+                                            <t t-if="is_arabic">البيان</t>
+                                            <t t-else="">Memo</t>
+                                        </td>
+                                        <td><span t-field="o.memo"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="key">
+                                            <t t-if="is_arabic">طريقة الدفع</t>
+                                            <t t-else="">Payment Method</t>
+                                        </td>
+                                        <td><span t-field="o.payment_method_line_id.name"/></td>
+                                    </tr>
+                                    <tr>
+                                        <td class="key">
+                                            <t t-if="is_arabic">الحساب المقابل</t>
+                                            <t t-else="">Counterpart Account</t>
+                                        </td>
+                                        <td>
+                                            <t t-if="o.destination_account_id">
+                                                <span t-field="o.destination_account_id.code"/> - <span t-field="o.destination_account_id.name"/>
+                                            </t>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Related / Reconciled Invoices Section -->
+                        <t t-set="related_invoices" t-value="o.reconciled_invoice_ids | o.reconciled_bill_ids | o.invoice_ids"/>
+                        <t t-if="related_invoices">
+                            <div class="pps-section-title">
+                                <span>
+                                    <t t-if="is_arabic">الفواتير المرتبطة والمسددة</t>
+                                    <t t-else="">Related / Reconciled Invoices</t>
+                                </span>
+                            </div>
+                            <table class="pps-items-table">
+                                <thead>
+                                    <tr>
+                                        <th class="text-start" style="width: 30%;">
+                                            <t t-if="is_arabic">رقم الفاتورة / المرجع</t>
+                                            <t t-else="">Invoice / Reference</t>
+                                        </th>
+                                        <th class="text-center" style="width: 18%;">
+                                            <t t-if="is_arabic">تاريخ الفاتورة</t>
+                                            <t t-else="">Invoice Date</t>
+                                        </th>
+                                        <th class="text-end" style="width: 26%;">
+                                            <t t-if="is_arabic">إجمالي الفاتورة</t>
+                                            <t t-else="">Invoice Total</t>
+                                        </th>
+                                        <th class="text-end" style="width: 26%;">
+                                            <t t-if="is_arabic">الرصيد المتبقي</t>
+                                            <t t-else="">Remaining Balance</t>
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <t t-foreach="related_invoices" t-as="inv">
+                                        <tr>
+                                            <td class="text-start">
+                                                <span t-field="inv.name"/>
+                                                <t t-if="inv.ref"> (<span t-field="inv.ref"/>)</t>
+                                            </td>
+                                            <td class="text-center">
+                                                <span t-field="inv.invoice_date" t-options='{"widget": "date", "format": "dd/MM/yyyy"}'/>
+                                            </td>
+                                            <td class="text-end">
+                                                <span t-field="inv.amount_total" t-options='{"widget": "monetary", "display_currency": inv.currency_id}'/>
+                                            </td>
+                                            <td class="text-end" style="font-weight: bold; color: #17324d;">
+                                                <span t-field="inv.amount_residual" t-options='{"widget": "monetary", "display_currency": inv.currency_id}'/>
+                                            </td>
+                                        </tr>
+                                    </t>
+                                </tbody>
+                            </table>
+                        </t>
+
+                        <!-- Summary / Amount in Words & Totals -->
+                        <div class="pps-summary-area">
+                            <div class="pps-amount-words">
+                                <div class="pps-words-label">
+                                    <t t-if="is_arabic">المبلغ بالحروف</t>
+                                    <t t-else="">Amount in Words</t>
+                                </div>
+                                <div class="pps-words-text">
+                                    <t t-if="is_arabic">
+                                        <span t-field="o.amount_in_words"/>
+                                    </t>
+                                    <t t-else="">
+                                        <span t-field="o.amount_in_words_en"/>
+                                    </t>
+                                </div>
+                            </div>
+                            <div class="pps-totals-table">
+                                <table>
+                                    <tr class="grand">
+                                        <td class="t-label text-start">
+                                            <t t-if="is_arabic">إجمالي السند</t>
+                                            <t t-else="">Grand Total</t>
+                                        </td>
+                                        <td class="t-value text-center">
+                                            <span t-field="o.amount" t-options='{"widget": "monetary", "display_currency": o.currency_id}'/>
+                                        </td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+
+                        <!-- Approvals & Signatures Table -->
+                        <table class="pps-approval-table" style="page-break-inside: avoid;">
+                            <thead>
+                                <tr>
+                                    <th style="width: 20%;"><t t-if="is_arabic">إعداد</t><t t-else="">Prepared By</t></th>
+                                    <th style="width: 20%;"><t t-if="is_arabic">مراجعة</t><t t-else="">Reviewed By</t></th>
+                                    <th style="width: 20%;"><t t-if="is_arabic">اعتماد</t><t t-else="">Approved By</t></th>
+                                    <th style="width: 20%;"><t t-if="is_arabic">أمين الصندوق</t><t t-else="">Cashier</t></th>
+                                    <th style="width: 20%;"><t t-if="is_arabic">المستلم</t><t t-else="">Recipient</t></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>
+                                        <span class="role">
+                                            <t t-if="is_arabic">الاسم / التوقيع</t>
+                                            <t t-else="">Name / Signature</t>
+                                        </span>
+                                        <span class="pps-sign-caption">
+                                            <t t-if="is_arabic">التاريخ: ____ / ____ / ______</t>
+                                            <t t-else="">Date: ____ / ____ / ______</t>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="role">
+                                            <t t-if="is_arabic">الاسم / التوقيع</t>
+                                            <t t-else="">Name / Signature</t>
+                                        </span>
+                                        <span class="pps-sign-caption">
+                                            <t t-if="is_arabic">التاريخ: ____ / ____ / ______</t>
+                                            <t t-else="">Date: ____ / ____ / ______</t>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="role">
+                                            <t t-if="is_arabic">الاسم / التوقيع</t>
+                                            <t t-else="">Name / Signature</t>
+                                        </span>
+                                        <span class="pps-sign-caption">
+                                            <t t-if="is_arabic">التاريخ: ____ / ____ / ______</t>
+                                            <t t-else="">Date: ____ / ____ / ______</t>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="role">
+                                            <t t-if="is_arabic">الاسم / التوقيع</t>
+                                            <t t-else="">Name / Signature</t>
+                                        </span>
+                                        <span class="pps-sign-caption">
+                                            <t t-if="is_arabic">التاريخ: ____ / ____ / ______</t>
+                                            <t t-else="">Date: ____ / ____ / ______</t>
+                                        </span>
+                                    </td>
+                                    <td>
+                                        <span class="role">
+                                            <t t-if="is_arabic">الاسم / التوقيع</t>
+                                            <t t-else="">Name / Signature</t>
+                                        </span>
+                                        <span class="pps-sign-caption">
+                                            <t t-if="is_arabic">التاريخ: ____ / ____ / ______</t>
+                                            <t t-else="">Date: ____ / ____ / ______</t>
+                                        </span>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                    </div>
+                </div>
+            </t>
+        </template>
+    </data>
+</odoo>
+

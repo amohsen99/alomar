@@ -1,0 +1,307 @@
+/* Custom A4 PDF Payment Voucher Report CSS */
+
+:root {
+    --ink: #162033;
+    --muted: #667085;
+    --line: #8e99ab;
+    --line-dark: #344054;
+    --brand: #17324d;
+    --brand-2: #315d7d;
+    --soft: #eef3f7;
+    --paper: #ffffff;
+}
+
+.pps-document {
+    border: 1.5px solid #344054;
+    background: #fff;
+    color: #162033;
+    font-size: 11px;
+    line-height: 1.35;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.pps-document table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+}
+
+.pps-document th, .pps-document td {
+    border: 1px solid #8e99ab;
+    padding: 4px 6px;
+    vertical-align: middle;
+}
+
+.pps-document th {
+    background: #eef3f7;
+    font-weight: bold;
+    text-align: center;
+}
+
+.pps-topbar {
+    display: table;
+    width: 100%;
+    border-bottom: 1.5px solid #344054;
+}
+
+.pps-company-card {
+    display: table-cell;
+    width: 40%;
+    padding: 8px;
+    vertical-align: top;
+}
+
+.pps-rtl .pps-company-card {
+    border-left: 1.5px solid #344054;
+    text-align: right;
+}
+
+.pps-ltr .pps-company-card {
+    border-right: 1.5px solid #344054;
+    text-align: left;
+}
+
+.pps-logo-box {
+    width: 80px;
+    height: 70px;
+    border: 1px solid #344054;
+    border-radius: 4px;
+    overflow: hidden;
+    text-align: center;
+    background: #f8fafc;
+}
+
+.pps-rtl .pps-logo-box { float: right; margin-left: 8px; }
+.pps-ltr .pps-logo-box { float: left; margin-right: 8px; }
+
+.pps-logo-box img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+.pps-company-details {
+    overflow: hidden;
+}
+
+.pps-company-name {
+    font-size: 15px;
+    font-weight: 900;
+    color: #17324d;
+    margin-bottom: 2px;
+}
+
+.pps-company-sub {
+    color: #667085;
+    font-size: 8.5px;
+    margin-bottom: 4px;
+}
+
+.pps-meta-line {
+    font-size: 8.5px;
+    margin-top: 2px;
+}
+
+.pps-meta-label {
+    font-weight: bold;
+    color: #162033;
+    display: inline-block;
+    min-width: 55px;
+}
+
+.pps-po-card {
+    display: table-cell;
+    width: 60%;
+    vertical-align: top;
+}
+
+.pps-po-heading {
+    border-bottom: 1.5px solid #344054;
+    background: #eaf0f5;
+    padding: 5px 8px;
+    font-weight: 900;
+    font-size: 14px;
+    color: #17324d;
+    text-align: center;
+}
+
+.pps-po-fields td {
+    height: 22px;
+    font-size: 10px;
+}
+
+.pps-po-fields .key {
+    width: 35%;
+    background: #f8fafc;
+    font-weight: bold;
+}
+
+.pps-po-number {
+    font-size: 14px !important;
+    font-weight: 900 !important;
+    color: #17324d !important;
+}
+
+.pps-section-title {
+    padding: 4px 7px;
+    background: #17324d;
+    color: #fff;
+    font-weight: bold;
+    font-size: 11px;
+    border-top: 1px solid #344054;
+    border-bottom: 1px solid #344054;
+}
+
+.pps-supplier-grid {
+    display: table;
+    width: 100%;
+}
+
+.pps-supplier-col {
+    display: table-cell;
+    width: 50%;
+    vertical-align: top;
+}
+
+.pps-rtl .pps-supplier-col:first-child { border-left: 1.5px solid #344054; }
+.pps-ltr .pps-supplier-col:first-child { border-right: 1.5px solid #344054; }
+
+.pps-info-table td {
+    height: 22px;
+    font-size: 9.5px;
+}
+
+.pps-info-table .key {
+    width: 35%;
+    background: #f8fafc;
+    font-weight: bold;
+}
+
+.pps-items-table th {
+    height: 24px;
+    font-size: 9px;
+}
+
+.pps-items-table td {
+    height: 22px;
+    font-size: 9.5px;
+    padding: 3px 5px;
+}
+
+.pps-summary-area {
+    display: table;
+    width: 100%;
+    border-top: 1.5px solid #344054;
+}
+
+.pps-amount-words {
+    display: table-cell;
+    width: 60%;
+    padding: 8px;
+    vertical-align: top;
+}
+
+.pps-rtl .pps-amount-words { border-left: 1.5px solid #344054; text-align: right; }
+.pps-ltr .pps-amount-words { border-right: 1.5px solid #344054; text-align: left; }
+
+.pps-words-label {
+    font-weight: 900;
+    color: #17324d;
+    font-size: 11px;
+    margin-bottom: 4px;
+}
+
+.pps-words-text {
+    font-weight: bold;
+    font-size: 11px;
+    text-align: center;
+    min-height: 35px;
+    padding: 6px;
+    background: #f8fafc;
+    border: 1px dashed #8e99ab;
+    border-radius: 4px;
+}
+
+.pps-totals-table {
+    display: table-cell;
+    width: 40%;
+    vertical-align: top;
+}
+
+.pps-totals-table td {
+    height: 22px;
+    padding: 2px 6px;
+    font-size: 10px;
+}
+
+.pps-totals-table .t-label {
+    width: 55%;
+    font-weight: bold;
+    background: #f8fafc;
+}
+
+.pps-totals-table .t-value {
+    width: 45%;
+    text-align: center;
+    font-weight: bold;
+}
+
+.pps-totals-table .grand td {
+    background: #17324d;
+    color: #fff;
+    font-size: 12px;
+    font-weight: 900;
+}
+
+.pps-approval-table {
+    border-top: 1.5px solid #344054;
+    margin-top: 10px;
+}
+
+.pps-approval-table th {
+    height: 24px;
+    font-size: 10.5px;
+    font-weight: bold;
+    color: #101828;
+}
+
+.pps-approval-table td {
+    height: 85px;
+    vertical-align: top;
+    text-align: center;
+    position: relative;
+    padding-top: 6px;
+    font-size: 9.5px;
+}
+
+.pps-approval-table .role {
+    color: #101828;
+    font-weight: bold;
+    display: block;
+}
+
+.pps-sign-caption {
+    font-size: 9px;
+    color: #344054;
+    border-top: 1.2px solid #344054;
+    position: absolute;
+    bottom: 6px;
+    left: 10px;
+    right: 10px;
+    padding-top: 3px;
+}
+
+.watermark-draft {
+    position: absolute;
+    opacity: 0.10;
+    font-size: 90px;
+    font-weight: 900;
+    color: #dc2626;
+    transform: rotate(-30deg);
+    width: 100%;
+    text-align: center;
+    top: 320px;
+    z-index: 1000;
+}
+

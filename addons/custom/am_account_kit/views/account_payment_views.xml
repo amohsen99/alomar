@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- 1. Extend Payment Form View -->
+    <record id="view_account_payment_form_inherit_am_account_kit" model="ir.ui.view">
+        <field name="name">account.payment.form.inherit.am_account_kit</field>
+        <field name="model">account.payment</field>
+        <field name="inherit_id" ref="account.view_account_payment_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//button[@name='button_open_journal_entry']" position="attributes">
+                <attribute name="groups">account.group_account_user</attribute>
+            </xpath>
+
+            <!-- Stat button to open the manual reconciliation widget -->
+            <xpath expr="//div[@name='button_box']" position="inside">
+                <button name="action_open_manual_reconciliation_widget" type="object"
+                        string="Payment Matching" class="oe_stat_button" icon="fa-dollar"
+                        groups="account.group_account_user"
+                        invisible="is_reconciled or not move_id or state not in ('in_process', 'paid')"/>
+            </xpath>
+
+            <!-- Approval & Workflow Header Buttons -->
+            <xpath expr="//button[@name='action_post']" position="before">
+                <field name="can_user_approve" invisible="1"/>
+                <button name="action_send_for_approval"
+                        string="Send for Approval"
+                        type="object"
+                        class="btn-primary"
+                        invisible="state != 'draft'"/>
+                <button name="action_approve"
+                        string="Approve"
+                        type="object"
+                        class="btn-success"
+                        invisible="state != 'to_approve' or not can_user_approve"/>
+                <button name="action_reject_with_reason"
+                        string="Reject"
+                        type="object"
+                        class="btn-danger"
+                        invisible="state != 'to_approve' or not can_user_approve"/>
+            </xpath>
+
+            <xpath expr="//button[@name='action_post']" position="attributes">
+                <attribute name="invisible">state not in ('draft', 'approved')</attribute>
+            </xpath>
+
+            <xpath expr="//button[@name='action_cancel']" position="replace">
+                <button name="%(am_account_kit.action_report_payment_voucher)d"
+                        string="Print Voucher"
+                        type="action"
+                        class="btn-secondary"
+                        invisible="not id"/>
+                <button name="action_cancel_with_reason"
+                        string="Cancel"
+                        type="object"
+                        invisible="not id or state not in ('draft', 'to_approve', 'approved', 'in_process')"
+                        data-hotkey="x"/>
+            </xpath>
+
+            <xpath expr="//field[@name='state']" position="attributes">
+                <attribute name="statusbar_visible">draft,to_approve,approved,in_process,paid</attribute>
+            </xpath>
+
+            <!-- Partner Type Detail & Direct Counterpart Account -->
+            <xpath expr="//field[@name='payment_type']" position="after">
+                <field name="partner_type_detail" readonly="state != 'draft'"/>
+            </xpath>
+
+            <xpath expr="//group[@name='group1']/field[@name='partner_id'][1]" position="attributes">
+                <attribute name="invisible">partner_type_detail != 'customer'</attribute>
+            </xpath>
+
+            <xpath expr="//group[@name='group1']/field[@name='partner_id'][2]" position="attributes">
+                <attribute name="invisible">partner_type_detail != 'vendor'</attribute>
+            </xpath>
+
+            <xpath expr="//group[@name='group1']/field[@name='partner_id'][2]" position="after">
+                <field name="partner_id"
+                       string="Employee / Partner"
+                       options="{'no_quick_create': True}"
+                       invisible="partner_type_detail not in ('employee', 'other')"
+                       required="partner_type_detail == 'employee'"
+                       readonly="state != 'draft'"/>
+                <field name="destination_account_id"
+                       readonly="state != 'draft'"
+                       required="partner_type_detail in ('employee', 'other')"/>
+            </xpath>
+
+            <xpath expr="//field[@name='memo']" position="after">
+                <field name="amount_in_words" readonly="1" invisible="not amount"/>
+            </xpath>
+
+            <!-- Payment Channel -->
+            <xpath expr="//field[@name='payment_method_line_id']" position="after">
+                <field name="payment_channel" readonly="state != 'draft'"/>
+            </xpath>
+
+            <!-- Approvals & Audit Log Notebook Page -->
+            <xpath expr="//notebook[@name='payment_notebook']" position="inside">
+                <page string="Approvals &amp; Audit Log" name="audit_logs">
+                    <group invisible="not rejection_reason and not cancellation_reason">
+                        <field name="rejection_reason" invisible="not rejection_reason" readonly="1"/>
+                        <field name="cancellation_reason" invisible="not cancellation_reason" readonly="1"/>
+                    </group>
+                    <field name="approval_log_ids" readonly="1">
+                        <list>
+                            <field name="date"/>
+                            <field name="user_id" widget="many2one_avatar_user"/>
+                            <field name="action" widget="badge"
+                                   decoration-info="action in ('create', 'send', 'reset')"
+                                   decoration-success="action in ('approve', 'post')"
+                                   decoration-danger="action in ('reject', 'cancel')"/>
+                            <field name="reason"/>
+                        </list>
+                    </field>
+                </page>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- 2. Extend Payment List View -->
+    <record id="view_account_payment_tree_inherit_am_account_kit" model="ir.ui.view">
+        <field name="name">account.payment.list.inherit.am_account_kit</field>
+        <field name="model">account.payment</field>
+        <field name="inherit_id" ref="account.view_account_payment_tree"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='payment_method_line_id']" position="after">
+                <field name="payment_channel" optional="show"/>
+                <field name="partner_type_detail" optional="hide"/>
+                <field name="destination_account_id" optional="hide"/>
+            </xpath>
+            <xpath expr="//field[@name='state']" position="attributes">
+                <attribute name="decoration-warning">state in ('to_approve', 'in_process')</attribute>
+                <attribute name="decoration-primary">state == 'approved'</attribute>
+                <attribute name="decoration-danger">state == 'rejected'</attribute>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- 3. Extend Payment Search View -->
+    <record id="view_account_payment_search_inherit_am_account_kit" model="ir.ui.view">
+        <field name="name">account.payment.search.inherit.am_account_kit</field>
+        <field name="model">account.payment</field>
+        <field name="inherit_id" ref="account.view_account_payment_search"/>
+        <field name="arch" type="xml">
+            <xpath expr="//filter[@name='state_draft']" position="after">
+                <filter string="To Approve" name="state_to_approve" domain="[('state', '=', 'to_approve')]"/>
+                <filter string="Approved" name="state_approved" domain="[('state', '=', 'approved')]"/>
+                <filter string="Rejected" name="state_rejected" domain="[('state', '=', 'rejected')]"/>
+            </xpath>
+            <xpath expr="//filter[@name='paymentmethodline']" position="after">
+                <filter string="Payment Channel" name="groupby_payment_channel" domain="[]" context="{'group_by': 'payment_channel'}"/>
+                <filter string="Partner Type Detail" name="groupby_partner_type_detail" domain="[]" context="{'group_by': 'partner_type_detail'}"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- 4. Extend Register Payment Wizard -->
+    <record id="view_account_payment_register_form_inherit_am_account_kit" model="ir.ui.view">
+        <field name="name">account.payment.register.form.inherit.am_account_kit</field>
+        <field name="model">account.payment.register</field>
+        <field name="inherit_id" ref="account.view_account_payment_register_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='payment_method_line_id']" position="after">
+                <field name="payment_channel"/>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- 5. Extend Account Journal Form View -->
+    <record id="view_account_journal_form_inherit_am_account_kit" model="ir.ui.view">
+        <field name="name">account.journal.form.inherit.am_account_kit</field>
+        <field name="model">account.journal</field>
+        <field name="inherit_id" ref="account.view_account_journal_form"/>
+        <field name="arch" type="xml">
+            <xpath expr="//page[@name='advanced_settings']/group" position="inside">
+                <group string="Payment Approvals &amp; Direct Accounts" invisible="type not in ('bank', 'cash')">
+                    <field name="approval_policy"/>
+                    <field name="default_receipt_account_id"/>
+                    <field name="default_payment_account_id"/>
+                </group>
+            </xpath>
+        </field>
+    </record>
+
+    <!-- 6. Payment Approval Rule Views & Action -->
+    <record id="view_payment_approval_rule_list" model="ir.ui.view">
+        <field name="name">payment.approval.rule.list</field>
+        <field name="model">payment.approval.rule</field>
+        <field name="arch" type="xml">
+            <list string="Payment Approval Rules" editable="bottom">
+                <field name="sequence" widget="handle"/>
+                <field name="name"/>
+                <field name="journal_id" placeholder="All Journals"/>
+                <field name="min_amount"/>
+                <field name="max_amount"/>
+                <field name="approver_group_id"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+                <field name="active" widget="boolean_toggle"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_payment_approval_rule" model="ir.actions.act_window">
+        <field name="name">Payment Approval Rules</field>
+        <field name="res_model">payment.approval.rule</field>
+        <field name="view_mode">list,form</field>
+    </record>
+
+    <!-- 7. Payment Audit Log Views & Action -->
+    <record id="view_payment_approval_log_list" model="ir.ui.view">
+        <field name="name">payment.approval.log.list</field>
+        <field name="model">payment.approval.log</field>
+        <field name="arch" type="xml">
+            <list string="Payment Audit Logs" create="0" edit="0" delete="0">
+                <field name="date"/>
+                <field name="payment_id"/>
+                <field name="user_id" widget="many2one_avatar_user"/>
+                <field name="action" widget="badge"
+                       decoration-info="action in ('create', 'send', 'reset')"
+                       decoration-success="action in ('approve', 'post')"
+                       decoration-danger="action in ('reject', 'cancel')"/>
+                <field name="reason"/>
+                <field name="company_id" groups="base.group_multi_company" optional="hide"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="action_payment_approval_log" model="ir.actions.act_window">
+        <field name="name">Payment Audit Logs</field>
+        <field name="res_model">payment.approval.log</field>
+        <field name="view_mode">list</field>
+    </record>
+</odoo>

@@ -1,0 +1,2286 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	am_account_kit
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 18.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2026-11-10 16:00+0000\n"
+"PO-Revision-Date: 2026-11-10 16:00+0000\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: ar\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=6; plural=n==0 ? 0 : n==1 ? 1 : n==2 ? 2 : n%100>=3 && n%100<=10 ? 3 : n%100>=11 && n%100<=99 ? 4 : 5;\n"
+
+msgid "%(display_name_html)s with an open amount of %(open_amount)s will be fully reconciled by the transaction."
+msgstr "%(display_name_html)s مع مبلغ مفتوح قدره %(open_amount)s ستتم تسويته تماماً بواسطة المعاملة. "
+
+msgid "%(display_name_html)s with an open amount of %(open_amount)s will be reduced by %(amount)s."
+msgstr "%(display_name_html)s مع مبلغ مفتوح قدره %(open_amount)s سيتم تقليله بـ %(amount)s. "
+
+msgid "-> Reconcile"
+msgstr "-> تسوية "
+
+msgid "<b class=\\\"tip_title\\\">Tip: Bulk update journal items</b>"
+msgstr "<b class=\\\"tip_title\\\">نصيحة: قم بتحديث بنود اليومية بالجملة</b>"
+
+msgid "<b class=\\\"tip_title\\\">Tip: Find an Accountant or register your Accounting Firm</b>"
+msgstr "<b class=\\\"tip_title\\\">نصيحة: اعثر على محاسب ليقوم بتسجيل شركة المحاسبة الخاصة بك</b>"
+
+msgid "<br/>\\n                        <span>Do you want to cancel payments to retry them later or keep the batch open with unprocess payments, if you expect them later.</span>"
+msgstr "<br/>\\n                        <span>هل ترغب في إلغاء عمليات الدفع لإعادة المحاولة لاحقاً أو ترك الدفعة مفتوحة مع عمليات دفع غير معالَجة، إذا كنت تتوقع أن تتم معالجتهم لاحقاً.</span>"
+
+msgid "<i class=\\\"fa fa-clock-o\\\" aria-label=\\\"Date\\\" role=\\\"img\\\" title=\\\"Date\\\"/>"
+msgstr "<i class=\\\"fa fa-clock-o\\\" aria-label=\\\"Date\\\" role=\\\"img\\\" title=\\\"التاريخ \\\"/>"
+
+msgid "<i title=\\\"Run manually\\\" role=\\\"img\\\" aria-label=\\\"Run manually\\\" class=\\\"fa fa-refresh\\\"/>\\n                            Run manually"
+msgstr "<i title=\\\"التشغيل يدوياً \\\" role=\\\"img\\\" aria-label=\\\"Run manually\\\" class=\\\"fa fa-refresh\\\"/>\\n                            التشغيل يدوياً "
+
+msgid "<i>Lock transactions up to specific dates, inclusive</i>"
+msgstr "<i>قفل المعاملات حتى تواريخ محددة، شاملة التواريخ نفسها</i> "
+
+msgid "<span class=\\\"o_stat_text\\\">1 Bank Transaction</span>"
+msgstr "<span class=\\\"o_stat_text\\\">معاملة بنكية واحدة 1</span>"
+
+msgid "<span class=\\\"o_stat_text\\\">Bank Statement</span>"
+msgstr "<span class=\\\"o_stat_text\\\">كشف حساب بنكي</span> "
+
+msgid "<span class=\\\"o_stat_text\\\">Checks</span>"
+msgstr "<span class=\\\"o_stat_text\\\">الشيكات</span>"
+
+msgid "<span class=\\\"o_stat_text\\\">Journal Entry</span>"
+msgstr "<span class=\\\"o_stat_text\\\">قيد اليومية</span>"
+
+msgid "<span class=\\\"o_stat_text\\\">Payment</span>"
+msgstr "<span class=\\\"o_stat_text\\\">الدفعة</span>"
+
+msgid "<span class=\\\"oe_inline o_form_label mx-3\\\" invisible=\\\"single_currency_mode\\\"> in </span>"
+msgstr "<span class=\\\"oe_inline o_form_label mx-3\\\" invisible=\\\"single_currency_mode\\\"> في </span>"
+
+msgid "<span class=\\\"pps-meta-label\\\">Address:</span>"
+msgstr "<span class=\\\"pps-meta-label\\\">العنوان:</span>"
+
+msgid "<span class=\\\"pps-meta-label\\\">Email:</span>"
+msgstr "<span class=\\\"pps-meta-label\\\">البريد الإلكتروني:</span>"
+
+msgid "<span class=\\\"pps-meta-label\\\">Telephone:</span>"
+msgstr "<span class=\\\"pps-meta-label\\\">التليفون:</span>"
+
+msgid "<span class=\\\"text-muted\\\" invisible=\\\"hard_lock_date != current_hard_lock_date\\\">\\n                                    <i>to ensure inalterability</i>\\n                                </span>\\n                                <span class=\\\"text-danger o_form_label\\\" invisible=\\\"hard_lock_date == current_hard_lock_date\\\">\\n                                    <i>This change is irreversible</i>\\n                                </span>"
+msgstr "<span class=\\\"text-muted\\\" invisible=\\\"hard_lock_date != current_hard_lock_date\\\">\\n                                    <i>حتى نضمن عدم قابلية التعديل</i>\\n                                </span>\\n                                <span class=\\\"text-danger o_form_label\\\" invisible=\\\"hard_lock_date == current_hard_lock_date\\\">\\n                                    <i>لا يمكن التراجع عن هذا التغيير</i>\\n                                </span>"
+
+msgid "<span class=\\\"text-muted\\\" invisible=\\\"min_fiscalyear_lock_date_exception_for_me_id or min_fiscalyear_lock_date_exception_for_everyone_id\\\">\\n                                    <i>but allow exceptions</i>\\n                                </span>"
+msgstr "<span class=\\\"text-muted\\\" invisible=\\\"min_fiscalyear_lock_date_exception_for_me_id or min_fiscalyear_lock_date_exception_for_everyone_id\\\">\\n                                    <i>ولكن يُسمَح بالاستثناءات</i>\\n                                </span> "
+
+msgid "<span class=\\\"text-muted\\\" invisible=\\\"min_tax_lock_date_exception_for_me_id or min_tax_lock_date_exception_for_everyone_id\\\">\\n                                    <i>after a tax closing</i>\\n                                </span>"
+msgstr "<span class=\\\"text-muted\\\" invisible=\\\"min_tax_lock_date_exception_for_me_id or min_tax_lock_date_exception_for_everyone_id\\\">\\n                                    <i>بعد الإقفال الضريبي</i>\\n                                </span> "
+
+msgid "<span class=\\\"tip_button_text\\\">Find an Accountant</span>"
+msgstr "<span class=\\\"tip_button_text\\\">اعثر على محاسب</span>"
+
+msgid "<span class=\\\"tip_button_text\\\">Register your Accounting Firm</span>"
+msgstr "<span class=\\\"tip_button_text\\\">قم بتسجيل شركة المحاسبة الخاصة بك</span>"
+
+msgid "<span><strong><b>Good job!</b> You went through all steps of this tour.</strong>\\n            <br>See how to manage your customer invoices in the <b>Customers/Invoices</b> menu\\n        </span>"
+msgstr "<span><strong><b>عمل رائع!</b> لقد اجتزت كافة خطوات هذه الجولة.</strong>\\n            <br>تعرّف على كيفية إدارة فواتير العملاء من قائمة <b>العملاء/فواتير العملاء</b>\\n        </span>"
+
+msgid "<span>Batch Payment</span>"
+msgstr "<span>دفعة مجمعة</span>"
+
+msgid "<span>Exception</span>"
+msgstr "<span>استثناء</span> "
+
+msgid "<strong invisible=\\\"not warning_line_ids\\\">The following warnings were also raised; they do not impeach validation</strong>"
+msgstr "<strong invisible=\\\"not warning_line_ids\\\">تم أيضاً رفع التحذيرات التالية؛ إنهم لا يشككون في التحقق من الصحة</strong> "
+
+msgid "<strong>Please first consider the following warnings</strong>"
+msgstr "<strong>الرجاء اعتبار التحذيرات التالية أولاً</strong>"
+
+msgid "<strong>The following errors occurred</strong>"
+msgstr "<strong>لقد حدثت الأخطاء التالية</strong>"
+
+msgid "ABC Holder Name"
+msgstr "اسم المالك ABC "
+
+msgid "ABC Suppliers"
+msgstr "مزودوا ABC "
+
+msgid "Account"
+msgstr "الحساب "
+
+msgid "Account Chart Template"
+msgstr "نموذج مخطط الحساب "
+
+msgid "Account Groups"
+msgstr "مجموعات الحساب"
+
+msgid "Account Holder Name"
+msgstr "اسم مالك الحساب"
+
+msgid "Account Tags"
+msgstr "علامات تصنيف الحساب "
+
+msgid "Account Transfer From"
+msgstr "استمارة تحويل الحساب "
+
+msgid "Account automatic reconciliation wizard"
+msgstr "معالج تسوية الحساب الآلية "
+
+msgid "Account reconciliation wizard"
+msgstr "معالج تسوية الحساب "
+
+msgid "Account used for deferred expenses"
+msgstr "الحساب المستخدم للنفقات المؤجلة "
+
+msgid "Account used for deferred revenues"
+msgstr "الحساب المستخدم للإيرادات المؤجلة "
+
+msgid "Accounting"
+msgstr "المحاسبة"
+
+msgid "Accounting Dashboard"
+msgstr "لوحة معلومات المحاسبة"
+
+msgid "Accounting Vouchers"
+msgstr "سندات المحاسبة"
+
+msgid "Accounts"
+msgstr "الحسابات"
+
+msgid "Action"
+msgstr "الإجراء"
+
+msgid "Action Needed"
+msgstr "إجراء مطلوب"
+
+msgid "Active"
+msgstr "نشط"
+
+msgid "Activities"
+msgstr "الأنشطة"
+
+msgid "Activity Exception Decoration"
+msgstr "زخرفة استثناء النشاط"
+
+msgid "Activity State"
+msgstr "حالة النشاط"
+
+msgid "Activity Type Icon"
+msgstr "أيقونة نوع النشاط"
+
+msgid "Add & Close"
+msgstr "إضافة وإغلاق "
+
+msgid "Add & New"
+msgstr "إضافة وجديد "
+
+msgid "Add a new tag"
+msgstr "إضافة علامة تصنيف جديدة "
+
+msgid "Address"
+msgstr "العنوان"
+
+msgid "After the data extraction, check and validate the bill. If no vendor has been found, add one before validating."
+msgstr "بعد استخلاص البيانات، تحقق من الفاتورة وقم بتصديقها. في حال عدم إيجادك لمورّد، قم بإضافة واحد قبل التصديق. "
+
+msgid "All Payments"
+msgstr "كافة المدفوعات"
+
+msgid "All Transactions"
+msgstr "كافة المعاملات "
+
+msgid "All payments in the batch must belong to the same company."
+msgstr "يجب أن تنتمي كافة عمليات السداد في هذه الدفعة للشركة نفسها. "
+
+msgid "All payments in the batch must share the same payment method."
+msgstr "يجب أن يكون لكافة عمليات السداد في هذه الدفعة طريقة السداد ذاتها. "
+
+msgid "All payments must be posted to validate the batch."
+msgstr "يجب أن يتم ترحيل كافة المدفوعات حتى يتم تصديق الدفعة. "
+
+msgid "All reconciliation models"
+msgstr "كافة نماذج التسوية "
+
+msgid "Allocated Amount"
+msgstr "المبلغ المخصص"
+
+msgid "Allocations"
+msgstr "التخصيصات"
+
+msgid "Allow partials"
+msgstr "السماج بالأجزاء "
+
+msgid "Allow to define fiscal years of more or less than a year"
+msgstr "السماح بإنشاء سنوات مالية أطول أو أقصر من عام"
+
+msgid "Amount"
+msgstr "مبلغ"
+
+msgid "Amount (Company Currency)"
+msgstr "المبلغ (عملة الشركة) "
+
+msgid "Amount (Foreign Currency)"
+msgstr "المبلغ (عملة أجنبية) "
+
+msgid "Amount Currency"
+msgstr "عملة المبلغ"
+
+msgid "Amount Due"
+msgstr "المبلغ المستحق"
+
+msgid "Amount Due (in currency)"
+msgstr "المبلغ المستحق (بالعملة) "
+
+msgid "Amount Due Before"
+msgstr "المستحق قبل السداد"
+
+msgid "Amount Paid"
+msgstr "المبلغ المسدد"
+
+msgid "Amount Residual"
+msgstr "المبلغ المتبقي"
+
+msgid "Amount Residual Currency"
+msgstr "عملة المبلغ المتبقي "
+
+msgid "Amount Signed"
+msgstr "المبلغ الموقع عليه"
+
+msgid "Amount in Currency"
+msgstr "المبلغ بالعملة"
+
+msgid "Amount in Words"
+msgstr "المبلغ بالحروف"
+
+msgid "Amount in Words (AR)"
+msgstr "المبلغ بالحروف (عربي)"
+
+msgid "Amount in Words (EN)"
+msgstr "المبلغ بالحروف (إنجليزي)"
+
+msgid "Amount in Words:"
+msgstr "المبلغ بالحروف:"
+
+msgid "Amount in company currency"
+msgstr "المبلغ بعملة الشركة "
+
+msgid "Amount:"
+msgstr "المبلغ:"
+
+msgid "An entry will transfer %(amount)s from %(from_account)s to %(to_account)s."
+msgstr "سيقوم القيد بتحويل %(amount)s من %(from_account)s إلى %(to_account)s. "
+
+msgid "Analytic"
+msgstr "تحليلي"
+
+msgid "Analytic Distribution"
+msgstr "التوزيع التحليلي"
+
+msgid "Analytic Precision"
+msgstr "الدقة التحليلية "
+
+msgid "Anglo-Saxon Accounting"
+msgstr "المحاسبة الأنجلو-ساكسونية"
+
+msgid "Any entry with taxes up to and including that date will be postponed to a later time, in accordance with its journal's sequence. The tax lock date is automatically set when the tax closing entry is posted."
+msgstr "سيتم تأجيل أي قيد يتضمن ضرائب حتى ذلك التاريخ إلى وقت لاحق، وفقاً لتسلسل دفتر اليومية الخاص به. يتم تعيين تاريخ قفل الضرائب تلقائياً عند ترحيل قيد الإقفال الضريبي. "
+
+msgid "Approval Rules"
+msgstr "قواعد الاعتماد"
+
+msgid "Approvals & Audit Log"
+msgstr "الاعتمادات وسجل التدقيق"
+
+msgid "Approve"
+msgstr "اعتماد"
+
+msgid "Approved"
+msgstr "معتمد"
+
+msgid "Approved By"
+msgstr "اعتماد"
+
+msgid "Approver Group"
+msgstr "مجموعة المعتمدين"
+
+msgid "Attachment Count"
+msgstr "عدد المرفقات"
+
+msgid "Audit Log & Approvals"
+msgstr "سجل المراجعة والاعتمادات"
+
+msgid "Audit Logs"
+msgstr "سجل التدقيق والاعتمادات"
+
+msgid "Authorized Signatory on invoice"
+msgstr "الموقِّع المصرّح له في الفاتورة "
+
+msgid "Authorized signatory"
+msgstr "الموقِّع المصرّح له "
+
+msgid "Auto-reconcile"
+msgstr "تسوية تلقائية"
+
+msgid "Automatically Reconciled Entries"
+msgstr "القيود المسواة آلياً "
+
+msgid "Available Payment Method"
+msgstr "طريقة الدفع المتاحة "
+
+msgid "Available Reco Model"
+msgstr "نموذج التسوية المتاح "
+
+msgid "Back to"
+msgstr "العودة إلى "
+
+msgid "Balance"
+msgstr "الرصيد"
+
+msgid "Bank"
+msgstr "البنك"
+
+msgid "Bank & Cash Moves"
+msgstr "تحركات النقد والبنوك "
+
+msgid "Bank Account"
+msgstr "الحساب البنكي"
+
+msgid "Bank Journal"
+msgstr "دفتر يومية البنك"
+
+msgid "Bank Matching"
+msgstr "مطابقة البنك"
+
+msgid "Bank Reconciliation"
+msgstr "التسوية البنكية"
+
+msgid "Bank Statement"
+msgstr "كشف الحساب البنكي "
+
+msgid "Bank Statement %s.pdf"
+msgstr "كشف الحساب البنكي %s.pdf "
+
+msgid "Bank Statement Line"
+msgstr "بند كشف الحساب البنكي"
+
+msgid "Bank Statement.pdf"
+msgstr "كشف الحساب البنكي.pdf"
+
+msgid "Bank Transfer"
+msgstr "تحويل بنكي"
+
+msgid "Bank reconciliation widget for a single statement line"
+msgstr "أداة التسوية البنكية لبند كشف حساب واحد "
+
+msgid "Based on"
+msgstr "بناءً على"
+
+msgid "Batch Content"
+msgstr "محتوى الدفعة المجمعة"
+
+msgid "Batch Deposit"
+msgstr "إيداع مجمع "
+
+msgid "Batch Deposit Report"
+msgstr "تقرير الإيداع المجمع "
+
+msgid "Batch Payment"
+msgstr "دفعة مجمعة"
+
+msgid "Batch Payments"
+msgstr "الدفعات المجمعة"
+
+msgid "Batch Type"
+msgstr "نوع الدفعة المجمعة"
+
+msgid "Batch payments allow you grouping different payments to ease\\n                    reconciliation. They are also useful when depositing checks\\n                    to the bank."
+msgstr "تسمح لك الدفعات المجمعة بتجميع مدفوعات مختلفة مما \\n                    يُسهل من عملية التسوية. وهي مفيدة أيضاً عند إيداع شيكات\\n                    في البنك. "
+
+msgid "Batch payments error reporting wizard"
+msgstr "مُعالج الإبلاغ عن وقوع خطأ في الدفعات المجمعة "
+
+msgid "Batch payments error reporting wizard line"
+msgstr "بند مُعالج الإبلاغ عن وقوع خطأ في الدفعات المجمعة "
+
+msgid "CANCELLED"
+msgstr "ملغي"
+
+msgid "Cancel"
+msgstr "إلغاء"
+
+msgid "Cancel Payments"
+msgstr "إلغاء المدفوعات "
+
+msgid "Cancellation Reason"
+msgstr "سبب الإلغاء"
+
+msgid "Cancelled"
+msgstr "ملغي"
+
+msgid "Cannot validate an empty batch. Please add some payments to it first."
+msgstr "لا يمكن تصديق دفعة فارغة. الرجاء إضافة بعض المدفوعات لها أولاً. "
+
+msgid "Card"
+msgstr "بطاقة بنكية"
+
+msgid "Cash"
+msgstr "نقداً"
+
+msgid "Cashier"
+msgstr "أمين الصندوق"
+
+msgid "Cashier / Accountant"
+msgstr "أمين الصندوق / المحاسب"
+
+msgid "Change Lock Date"
+msgstr "تغيير تاريخ الإقفال"
+
+msgid "Check"
+msgstr "شيك"
+
+msgid "Check Drawer Divisions"
+msgstr "أقسام خزائن الشيكات"
+
+msgid "Check Drawers / Safes"
+msgstr "خزائن وأدراج الشيكات"
+
+msgid "Check Number"
+msgstr "رقم الشيك"
+
+msgid "Check Storage Division"
+msgstr "قسم درج الشيكات"
+
+msgid "Check Storage Drawer"
+msgstr "خزنة/درج حفظ الشيكات"
+
+msgid "Check if you are not certain of all the information of the counterpart."
+msgstr "تحقق من تأكدك من كافة المعلومات المقابلة. "
+
+msgid "Checked"
+msgstr "تم تحديده "
+
+msgid "Checks"
+msgstr "الشيكات"
+
+msgid "Choose a line to preview its attachments."
+msgstr "قم بتحديد بند لمعاينة مرفقاته. "
+
+msgid "Clear Account"
+msgstr "تصفية الحساب "
+
+msgid "Cleared / Paid"
+msgstr "تم التحصيل / الصرف"
+
+msgid "Click here to create a new fiscal year."
+msgstr "انقر هنا لإنشاء سنة مالية جديدة."
+
+msgid "Click here to find an accountant or if you want to list out your accounting services on Odoo"
+msgstr "انقر هنا لإيجاد محاسب أو إذا كنت ترغب في إدراج خدماتك المحاسبية على أودو "
+
+msgid "Click on a fetched bank transaction to start the reconciliation process."
+msgstr "انقر على المعاملة المصرفية التي تم جلبها لبدء عملية التسوية. "
+
+msgid "Close"
+msgstr "إغلاق"
+
+msgid "Code"
+msgstr "رمز "
+
+msgid "Comments / Reason"
+msgstr "ملاحظات / السبب"
+
+msgid "Companies"
+msgstr "الشركات"
+
+msgid "Company"
+msgstr "الشركة"
+
+msgid "Company Currency"
+msgstr "عملة الشركة "
+
+msgid "Company currency"
+msgstr "عملة الشركة "
+
+msgid "Company related to this journal"
+msgstr "الشركة المتعلقة بهذه اليومية "
+
+msgid "Config Settings"
+msgstr "تهيئة الإعدادات "
+
+msgid "Confirm Cancellation"
+msgstr "تأكيد الإلغاء"
+
+msgid "Confirm Rejection"
+msgstr "تأكيد الرفض"
+
+msgid "Confirm the transaction."
+msgstr "قم بتأكيد المعاملة. "
+
+msgid "Congrats, you're all done!"
+msgstr "تهانينا، لقد انتهيت!"
+
+msgid "Connect your bank and get your latest transactions."
+msgstr "قم بربط مصرفك لتتمكن من رؤية أحدث معاملاتك. "
+
+msgid "Counterpart Account"
+msgstr "الحساب المقابل"
+
+msgid "Counterpart Account:"
+msgstr "الحساب المقابل:"
+
+msgid "Counterpart Values"
+msgstr "قيم مقابلة"
+
+msgid "Country Code"
+msgstr "رمز الدولة "
+
+msgid "Create Batch"
+msgstr "إنشاء دفعة مجمعة"
+
+msgid "Create Batch Payment"
+msgstr "إنشاء دفعة مجمعة"
+
+msgid "Create Statement"
+msgstr "إنشاء كشف الحساب"
+
+msgid "Create a new account group"
+msgstr "إنشاء مجموعة حساب جديدة "
+
+msgid "Create a new customer batch payment"
+msgstr "إنشاء دفعة مجمعة جديدة لعميل "
+
+msgid "Create a new transaction."
+msgstr "إنشاء معاملة جديدة. "
+
+msgid "Create a new vendor batch payment"
+msgstr "إنشاء دفعة مجمعة جديدة لمورد "
+
+msgid "Create batch payment"
+msgstr "إنشاء دفعة مجمعة "
+
+msgid "Create model"
+msgstr "إنشاء نموذج "
+
+msgid "Create your first vendor bill.<br/><br/><i>Tip: If you don’t have one on hand, use our sample bill.</i>"
+msgstr "أنشئ فاتورة المورّد الأولى الخاصة بك. <br/><br/><i>نصيحة: إذا لم تكن لديك فاتورة في متناول اليد، فبإمكانك الاستعانة بنموذج الفاتورة لدينا.</i> "
+
+msgid "Created by"
+msgstr "أنشئ بواسطة"
+
+msgid "Created on"
+msgstr "أنشئ في"
+
+msgid "Creation date of the related export file."
+msgstr "تاريخ الإنشاء لملف التصدير ذي الصلة. "
+
+msgid "Credit"
+msgstr "الدائن"
+
+msgid "Cron Last Check"
+msgstr "آخر فحص Cron "
+
+msgid "Currency"
+msgstr "العملة"
+
+msgid "Currency to use for reconciliation"
+msgstr "العملة لاستخدامها في التسوية "
+
+msgid "Current Hard Lock"
+msgstr "تاريخ القفل الثابت الحالي "
+
+msgid "Customer"
+msgstr "عميل"
+
+msgid "Customer Batch Payments"
+msgstr "دفعات العملاء المجمعة"
+
+msgid "Customer/Vendor"
+msgstr "العميل/المورد"
+
+msgid "DRAFT"
+msgstr "مسودة"
+
+msgid "Date"
+msgstr "التاريخ"
+
+msgid "Date & Time"
+msgstr "التاريخ والوقت"
+
+msgid "Date at which the deferred expense/revenue ends"
+msgstr "التاريخ الذي تنتهي فيه النفقات/الإيرادات المؤجلة "
+
+msgid "Date at which the deferred expense/revenue starts"
+msgstr "التاريخ الذي تبدأ فيه النفقات/الإيرادات المؤجلة "
+
+msgid "Date:"
+msgstr "التاريخ:"
+
+msgid "Days"
+msgstr "أيام "
+
+msgid "Debit"
+msgstr "المدين"
+
+msgid "Default Account"
+msgstr "الحساب الافتراضي "
+
+msgid "Default Payment Counterpart Account"
+msgstr "الحساب المقابل الافتراضي للمدفوعات"
+
+msgid "Default Receipt Counterpart Account"
+msgstr "الحساب المقابل الافتراضي للمقبوضات"
+
+msgid "Deferral of %s"
+msgstr "تأجيل %s "
+
+msgid "Deferred Entries"
+msgstr "القيم المؤجلة "
+
+msgid "Deferred Entry Type"
+msgstr "نوع القيد المؤجل "
+
+msgid "Deferred Expense"
+msgstr "النفقات المؤجلة "
+
+msgid "Deferred Expense Account"
+msgstr "حساب النفقات المؤجلة "
+
+msgid "Deferred Expense Based on"
+msgstr "النفقات المؤجلة بناءً على "
+
+msgid "Deferred Expense Journal"
+msgstr "حساب الإيرادات المؤجلة "
+
+msgid "Deferred Expenses"
+msgstr "المصروفات المؤجلة"
+
+msgid "Deferred Revenue"
+msgstr "الإيرادات المؤجلة "
+
+msgid "Deferred Revenue Account"
+msgstr "حساب الإيرادات المؤجلة "
+
+msgid "Deferred Revenue Based on"
+msgstr "الإيرادات المؤجلة بناءً على "
+
+msgid "Deferred Revenue Journal"
+msgstr "دفتر يومية الإيرادات المؤجلة "
+
+msgid "Deferred Revenues"
+msgstr "الإيرادات المؤجلة"
+
+msgid "Deferred expense"
+msgstr "النفقة المؤجلة "
+
+msgid "Deferred expense entries:"
+msgstr "قيود النفقات المؤجلة: "
+
+msgid "Deferred revenue"
+msgstr "الإيرادات المؤجلة "
+
+msgid "Deferred revenue entries:"
+msgstr "قيود الإيرادات المؤجلة: "
+
+msgid "Define fiscal years of more or less than one year"
+msgstr "تحديد السنوات المالية التي تزيد أو تقل عن السنة."
+
+msgid "Demo Ref"
+msgstr "المرجع التجريبي "
+
+msgid "Deposits"
+msgstr "الدفعات المقدّمة"
+
+msgid "Description"
+msgstr "الوصف"
+
+msgid "Destination / Counterpart Account"
+msgstr "الحساب المقابل / حساب الوجهة"
+
+msgid "Digest"
+msgstr "الموجز "
+
+msgid "Direct Payment / Other"
+msgstr "دفعة مباشرة / أخرى"
+
+msgid "Discard"
+msgstr "إهمال "
+
+msgid "Discount Amount"
+msgstr "مبلغ الخصم "
+
+msgid "Discount Date"
+msgstr "تاريخ الخصم"
+
+msgid "Discuss"
+msgstr "المناقشة "
+
+msgid "Display Allow Partials"
+msgstr "عرض خيار السماح بعمليات التسوية الجزئية "
+
+msgid "Display Name"
+msgstr "اسم العرض "
+
+msgid "Display Stroked Amount Currency"
+msgstr "عرض عملة المبلغ المشطوب "
+
+msgid "Display Stroked Balance"
+msgstr "عرض الرصيد المشطوب "
+
+msgid "Display signing field on invoices"
+msgstr "عرض حقل التوقيع على الفاتورة "
+
+msgid "Distribution Analytic Account"
+msgstr "حساب التوزيع التحليلي "
+
+msgid "Division"
+msgstr "القسم / الرف"
+
+msgid "Do not have access, skip this data for user's digest email"
+msgstr "لا تملك صلاحيات الوصول. تخط هذه البيانات لبريد الملخص للمستخدم. "
+
+msgid "Document"
+msgstr "المستند "
+
+msgid "Draft"
+msgstr "مسودة"
+
+msgid "Draft Entries"
+msgstr "القيود في حالة المسودة "
+
+msgid "Drawer"
+msgstr "الدرج / الخزنة"
+
+msgid "Drawer Name"
+msgstr "اسم الدرج / الخزنة"
+
+msgid "Due Date"
+msgstr "تاريخ الاستحقاق"
+
+msgid "Edit Mode"
+msgstr "وضع التحرير "
+
+msgid "Edit Mode Amount"
+msgstr "وضع التحرير للمبلغ "
+
+msgid "Edit Mode Reco Currency"
+msgstr "وضع التحرير لعملة التسوية "
+
+msgid "Edit mode amount"
+msgstr "وضع التحرير للمبلغ "
+
+msgid "Employee"
+msgstr "موظف"
+
+msgid "End Date"
+msgstr "تاريخ الانتهاء"
+
+msgid "Ending Date, included in the fiscal year."
+msgstr "تاريخ الانتهاء، ضمن السنة المالية. "
+
+msgid "Error Line"
+msgstr "بند الخطأ "
+
+msgid "Error Wizard"
+msgstr "مُعالج الخطأ "
+
+msgid "Every payment and invoice before this date will receive the 'From Invoicing' status, hiding all the accounting entries related to it. Use this option after installing Accounting if you were using only Invoicing before, before importing all your actual accounting data in to Odoo."
+msgstr "سوف يكون لكل فاتورة وعملية دفع قبل هذا التاريخ حالة ’من تطبيق الفوترة‘ والتي ستخفي كافة القيود المحاسبية المتعلقة بها. استخدم هذا الخيار بعد تثبيت تطبيق المحاسبة إذا كنت تستخدم تطبيق الفوترة وحده من قبل، قبل إدخالك لكافة بياناتك المحاسبية الفعلية في أودو. "
+
+msgid "Exception Duration"
+msgstr "مدة الاستثناء "
+
+msgid "Exception Needed Fields"
+msgstr "الحقول التي تحتاج إلى استثناء "
+
+msgid "Exception Reason"
+msgstr "سبب الاستثناء "
+
+msgid "Exception applies"
+msgstr "يمكن تطبيق الاستثناء "
+
+msgid "Exception needed"
+msgstr "بحاجة إلى استثناء "
+
+msgid "Exchange Difference: %(batch_name)s - %(currency)s"
+msgstr "فرق سعر الصرف: %(batch_name)s - %(currency)s "
+
+msgid "Exchange Difference: %s"
+msgstr "فرق سعر الصرف: %s"
+
+msgid "Exclude Payments"
+msgstr "استثناء الدفعات "
+
+msgid "Expect Payments Later"
+msgstr "توقع المدفوعات في وقت لاحق"
+
+msgid "Export File"
+msgstr "ملف التصدير"
+
+msgid "Export file related to this batch"
+msgstr "تصدير الملف المتعلق بهذه الدفعة "
+
+msgid "File"
+msgstr "الملف"
+
+msgid "File Generation Enabled"
+msgstr "تم تفعيل خيار إنشاء الملفات "
+
+msgid "File Name"
+msgstr "اسم الملف"
+
+msgid "Fiscal Year"
+msgstr "سنة مالية"
+
+msgid "Fiscal Year 2018"
+msgstr "السنة المالية 2018"
+
+msgid "Fiscal Years"
+msgstr "السنوات المالية"
+
+msgid "Fiscalyear Last Day"
+msgstr "آخر أيام السنة المالية"
+
+msgid "Fiscalyear Last Month"
+msgstr "آخر شهور السنة المالية"
+
+msgid "Flag"
+msgstr "إبلاغ"
+
+msgid "Followers"
+msgstr "المتابعين"
+
+msgid "Followers (Partners)"
+msgstr "المتابعين (الشركاء) "
+
+msgid "Font awesome icon e.g. fa-tasks"
+msgstr "أيقونة من Font awesome مثال: fa-tasks "
+
+msgid "For everyone:"
+msgstr "للجميع: "
+
+msgid "For me:"
+msgstr "لي: "
+
+msgid "Force Partials"
+msgstr "فرض عمليات التسوية الجزئية "
+
+msgid "Force Price Included Taxes"
+msgstr "فرض الأسعار شاملة الضريبة "
+
+msgid "Foreign Currency"
+msgstr "عملة أجنبية "
+
+msgid "Form Index"
+msgstr "فهرس النموذج"
+
+msgid "From"
+msgstr "من"
+
+msgid "From Trade Payable accounts"
+msgstr "من الحسابات الدائنة التجارية "
+
+msgid "From Trade Receivable accounts"
+msgstr "من الحسابات المدينة التجارية "
+
+msgid "From any list view, select multiple records and the list becomes editable. If you update a cell, selected records are updated all at once. Use this feature to update multiple journal entries from the General Ledger, or any Journal view."
+msgstr "قم باختيار سجلات متعددة من أي نافذة عرض القائمة، وستصبح القائمة قابلة للتحرير. إذا قمت بتحديث إحدى الخلايا، يتم تحديث كافة السجلات المختارة دفعة واحدة. استخدم هذه الخاصية لتحديث عدة بنود في اليومية من دفتر الأستاذ العام أو أي نافذة عرض لليومية. "
+
+msgid "Full Months"
+msgstr "أشهر كاملة "
+
+msgid "Generate Deferred Expense Entries"
+msgstr "إنشاء قيود النفقات المؤجلة "
+
+msgid "Generate Deferred Revenue Entries"
+msgstr "إنشاء قيود الإيرادات المؤجلة "
+
+msgid "Generate Entries"
+msgstr "إنشاء القيود"
+
+msgid "Generation Date"
+msgstr "تاريخ التوليد"
+
+msgid "Grand Total"
+msgstr "إجمالي السند"
+
+msgid "Group By"
+msgstr "تجميع حسب"
+
+msgid "Group Tax"
+msgstr "مجموعة الضريبة "
+
+msgid "Hard Lock"
+msgstr "تاريخ القفل الثابت "
+
+msgid "Has Abnormal Deferred Dates"
+msgstr "يحتوي على تواريخ مؤجلة غير معتادة "
+
+msgid "Has Deferred Moves"
+msgstr "يحتوي على حركات مؤجلة "
+
+msgid "Has Message"
+msgstr "يحتوي على رسالة "
+
+msgid "Help"
+msgstr "المساعدة"
+
+msgid "ID"
+msgstr "المُعرف"
+
+msgid "Icon"
+msgstr "الأيقونة"
+
+msgid "Icon to indicate an exception activity."
+msgstr "الأيقونة للإشارة إلى النشاط المستثنى. "
+
+msgid "If checked, new messages require your attention."
+msgstr "إذا كان محددًا، فهناك رسائل جديدة عليك رؤيتها. "
+
+msgid "If checked, some messages have a delivery error."
+msgstr "إذا كان محددًا، فقد حدث خطأ في تسليم بعض الرسائل."
+
+msgid "If this checkbox is not ticked, it means that the user was not sure of all the related information at the time of the creation of the move and that the move needs to be checked again."
+msgstr "إذا لم يكن هذا المربع محدداً، هذا يعني أن المستخدم لم يكن متأكداً من كافة المعلومات ذات الصلة في الوقت الذي أُنشئت فيه الحركة، وأنه يجب التحقق من الحركة مجدداً. "
+
+msgid "In Currency"
+msgstr "بالعملة "
+
+msgid "In Drawer"
+msgstr "في الدرج / الحفظ"
+
+msgid "In Process"
+msgstr "قيد المعالجة"
+
+msgid "In Reconcile Payment"
+msgstr "في تسوية الدفع "
+
+msgid "Inbound"
+msgstr "واردة"
+
+msgid "Inbound Batch Payments Sequence"
+msgstr "تسلسل الدفعات المجمعة الواردة "
+
+msgid "Includes %(count)s payment(s)"
+msgstr "يتضمن %(count)s مدفوعات "
+
+msgid "Incoming"
+msgstr "واردة "
+
+msgid "Incorrect fiscal year date: day is out of range for month. Month: %(month)s; Day: %(day)s"
+msgstr "تاريخ السنة المالية غير صحيح: اليوم المدخل غير موجود في هذا الشهر. الشهر: %(month)s;اليوم:%(day)s "
+
+msgid "Index"
+msgstr "الفهرس "
+
+msgid "Invalid"
+msgstr "غير صالح "
+
+msgid "Invalid statements"
+msgstr "كشوفات الحساب غير صالحة "
+
+msgid "Invalid: The bank transaction can't be validate since the suspense account is still involved\\nValid: The bank transaction can be validated.\\nReconciled: The bank transaction has already been processed. Nothing left to do."
+msgstr "غير صالح: لا يمكن تصديق المعاملة البنكية بما أن الحساب المعلق لا يزال موجوداً\\nصالح: يمكن تصديق المعاملة البنكية.\\nتمت التسوية: لقد تمت تسوية المعاملة البنكية بالفعل. لم يتبقَّ شيء للقيام به. "
+
+msgid "Invoice / Bill"
+msgstr "الفاتورة / الإيصال"
+
+msgid "Invoice / Reference"
+msgstr "الفاتورة / المرجع"
+
+msgid "Invoice Allocations"
+msgstr "تخصيص الفواتير والمسدد"
+
+msgid "Invoice Date"
+msgstr "تاريخ الفاتورة"
+
+msgid "Invoice Number"
+msgstr "رقم الفاتورة"
+
+msgid "Invoice Total"
+msgstr "إجمالي الفاتورة"
+
+msgid "Invoices / Bills Covered:"
+msgstr "الفواتير المغطاة بالسند:"
+
+msgid "Invoicing Switch Threshold"
+msgstr "الحد الأدنى لتبديل الفوترة "
+
+msgid "Is Follower"
+msgstr "متابع"
+
+msgid "Is Multi Currency"
+msgstr "متعدد العملات "
+
+msgid "Is Rec Pay Account"
+msgstr "حساب دفع التسوية "
+
+msgid "Is Reconciled"
+msgstr "تمت تسويته "
+
+msgid "Is a write-off move required to reconcile"
+msgstr "حركة الشطب مطلوبة للمساواة "
+
+msgid "Is an account transfer required"
+msgstr "تحويل الحساب مطلوب "
+
+msgid "Is an account transfer required to reconcile"
+msgstr "تحويل الحساب مطلوب للتسوية "
+
+msgid "Is the date violating the lock date of moves"
+msgstr "التاريخ يتعدى على تاريخ إقفال الحركات "
+
+msgid "Issuing bank account :"
+msgstr "إصدار حساب بنكي:"
+
+msgid "It is not possible to decrease or remove the Hard Lock Date."
+msgstr "لا يمكن تقديم تاريخ القفل الثابت أو إزالته. "
+
+msgid "Journal"
+msgstr "دفتر اليومية"
+
+msgid "Journal Currency"
+msgstr "عملة اليومية "
+
+msgid "Journal Entry"
+msgstr "قيد اليومية"
+
+msgid "Journal Item"
+msgstr "عنصر اليومية"
+
+msgid "Journal Items"
+msgstr "عناصر اليومية"
+
+msgid "Journal Items to reconcile"
+msgstr "عناصر دفتر اليومية المُراد تسويتها "
+
+msgid "Journal items where matching number isn't set"
+msgstr "عناصر دفتر اليومية التي لم يتم تعيين رقم مطابق لها "
+
+msgid "Journal items where the account allows reconciliation no matter the residual amount"
+msgstr "بنود دفتر اليومية حيث يسمح الحساب بالتسوية بغض النظر عن المبلغ المتبقي "
+
+msgid "Journal used for deferred entries"
+msgstr "دفتر اليومية المستخدم للقيود المؤجلة "
+
+msgid "Journal:"
+msgstr "اليومية:"
+
+msgid "Kpi Account Bank Cash Value"
+msgstr "حساب المؤشر الرئيسي للأداء للقيمة النقدية للبنك "
+
+msgid "Label"
+msgstr "بطاقة عنوان"
+
+msgid "Last Day"
+msgstr "اليوم الأخير"
+
+msgid "Last Statement"
+msgstr "آخر كشف حساب "
+
+msgid "Last Updated by"
+msgstr "آخر تحديث بواسطة"
+
+msgid "Last Updated on"
+msgstr "آخر تحديث في"
+
+msgid "Latest Statement"
+msgstr "أحدث كشف حساب "
+
+msgid "Leave empty to generate automatically..."
+msgstr "اتركه فارغاً للتوليد التلقائي..."
+
+msgid "Legal signatory"
+msgstr "الطرف الموقِّع القانوني "
+
+msgid "Let’s go back to the dashboard."
+msgstr "فلنعد إلى لوحة البيانات. "
+
+msgid "Line"
+msgstr "البند "
+
+msgid "Line of the bank reconciliation widget"
+msgstr "بند أداة التسوية البنكية "
+
+msgid "Lock Dates"
+msgstr "تواريخ الإقفال"
+
+msgid "Lock Everything"
+msgstr "قفل الكل "
+
+msgid "Lock Everything For Everyone"
+msgstr "إقفال كل شيء للجميع "
+
+msgid "Lock Everything For Me"
+msgstr "إقفال كل شيء بالنسبة لي "
+
+msgid "Lock Journal Entries"
+msgstr "إقفال قيود اليومية "
+
+msgid "Lock Purchases"
+msgstr "إقفال المشتريات "
+
+msgid "Lock Purchases For Everyone"
+msgstr "إقفال المشتريات للجميع "
+
+msgid "Lock Purchases For Me"
+msgstr "إقفال المشتريات بالنسبة لي "
+
+msgid "Lock Sales"
+msgstr "إقفال المبيعات "
+
+msgid "Lock Sales For Everyone"
+msgstr "إقفال المبيعات للجميع "
+
+msgid "Lock Sales For Me"
+msgstr "إقفال المبيعات بالنسبة لي "
+
+msgid "Lock Tax Return"
+msgstr "إقفال الإقرار الضريبي "
+
+msgid "Lock Tax Return For Everyone"
+msgstr "إقفال الإقرار الضريبي للجميع "
+
+msgid "Lock Tax Return For Me"
+msgstr "إقفال الإقرار الضريبي بالنسبة لي "
+
+msgid "Logs"
+msgstr "السجلات"
+
+msgid "Main Attachment"
+msgstr "المرفق الرئيسي"
+
+msgid "Manage the payment rejection from batch payments"
+msgstr "قم بإدارة حالات رفض الدفع من المدفوعات المجمعة "
+
+msgid "Manual Operations"
+msgstr "العمليات اليدوية "
+
+msgid "Manually & Grouped"
+msgstr "يدوياً ومجمع "
+
+msgid "Manually Modified"
+msgstr "تم التعديل يدوياً "
+
+msgid "Match"
+msgstr "مطابقة"
+
+msgid "Match Existing Entries"
+msgstr "مطابقة القيود الموجودة "
+
+msgid "Matched"
+msgstr "تمت المطابقة "
+
+msgid "Matched Transactions"
+msgstr "المعاملات المتطابقة "
+
+msgid "Matching"
+msgstr "مطابقة"
+
+msgid "Matching Rules Allow Auto Reconcile"
+msgstr "تسمح قواعد المطابقة بالتسوية التلقائية "
+
+msgid "Maximum Amount"
+msgstr "الحد الأقصى للمبلغ"
+
+msgid "Memo"
+msgstr "مذكرة "
+
+msgid "Memo / Description:"
+msgstr "البيان / الوصف:"
+
+msgid "Menu"
+msgstr "القائمة "
+
+msgid "Message Delivery error"
+msgstr "خطأ في تسليم الرسائل"
+
+msgid "Messages"
+msgstr "الرسائل"
+
+msgid "Method used to compute the amount of deferred entries"
+msgstr "الطريقة المستخدمة لاحتساب مبلغ القيود المؤجلة "
+
+msgid "Method used to generate deferred entries"
+msgstr "الطريقة المستخدمة لإنشاء القيود المؤجلة "
+
+msgid "Min Fiscalyear Lock Date Exception For Everyone"
+msgstr "الحد الأدنى لاستثناء تاريخ إقفال السنة المالية للجميع "
+
+msgid "Min Fiscalyear Lock Date Exception For Me"
+msgstr "الحد الأدنى لاستثناء تاريخ إقفال السنة المالية بالنسبة لي "
+
+msgid "Min Purchase Lock Date Exception For Everyone"
+msgstr "الحد الأدنى لاستثناء تاريخ إقفال المشتريات للجميع "
+
+msgid "Min Purchase Lock Date Exception For Me"
+msgstr "الحد الأدنى لاستثناء تاريخ إقفال المشتريات بالنسبة لي "
+
+msgid "Min Sale Lock Date Exception For Everyone"
+msgstr "الحد الأدنى لاستثناء تاريخ إقفال المبيعات للجميع "
+
+msgid "Min Sale Lock Date Exception For Me"
+msgstr "الحد الأدنى لاستثناء تاريخ إقفال المبيعات بالنسبة لي "
+
+msgid "Min Tax Lock Date Exception For Everyone"
+msgstr "الحد الأدنى لاستثناء تاريخ الإقفال الضريبي للجميع "
+
+msgid "Min Tax Lock Date Exception For Me"
+msgstr "الحد الأدنى لاستثناء تاريخ الإقفال الضريبي بالنسبة لي "
+
+msgid "Minimum Amount"
+msgstr "الحد الأدنى للمبلغ"
+
+msgid "Misc"
+msgstr "متنوعات"
+
+msgid "Monthly Payment"
+msgstr "دفع شهري "
+
+msgid "Months"
+msgstr "شهور "
+
+msgid "More"
+msgstr "المزيد "
+
+msgid "Move Attachment"
+msgstr "نقل المرفق "
+
+msgid "Move lines to reconcile"
+msgstr "بنود الحركات بانتظار التسوية "
+
+msgid "My Activity Deadline"
+msgstr "الموعد النهائي لنشاطاتي "
+
+msgid "Name"
+msgstr "الاسم"
+
+msgid "Name of the export file generated for this batch"
+msgstr "اسم الملف المُصدر الذي تم إنشاؤه لهذه الدفعة "
+
+msgid "Nb Batch Payment"
+msgstr "رقم الدفعة المجمعة "
+
+msgid "Nb Rejected Payment"
+msgstr "ملاحظة الدفعة مرفوضة"
+
+msgid "Negative value of amount field if payment_type is outbound"
+msgstr "القيمة السالبة لحقل المبلغ إذا كان payment_type صادراً "
+
+msgid "New"
+msgstr "جديد"
+
+msgid "New Transaction"
+msgstr "معاملة جديدة "
+
+msgid "Next Activity Calendar Event"
+msgstr "الفعالية التالية في تقويم الأنشطة "
+
+msgid "Next Activity Deadline"
+msgstr "الموعد النهائي للنشاط التالي"
+
+msgid "Next Activity Summary"
+msgstr "ملخص النشاط التالي"
+
+msgid "Next Activity Type"
+msgstr "نوع النشاط التالي"
+
+msgid "No attachments linked."
+msgstr "لم يتم ربط أي مرفقات. "
+
+msgid "No statement"
+msgstr "لا يوجد كشف حساب "
+
+msgid "No transactions matching your filters were found."
+msgstr "لم يتم العثور على أي معاملات تطابق عوامل التصفية الخاصة بك. "
+
+msgid "Not Batch Payments"
+msgstr "مدفوعات غير مجمعة "
+
+msgid "Not Matched"
+msgstr "غير مطابق "
+
+msgid "Not locked"
+msgstr "لم يتم إقفاله "
+
+msgid "Not reconciled"
+msgstr "غير مسوى "
+
+msgid "Notes"
+msgstr "الملاحظات"
+
+msgid "Nothing to do here!"
+msgstr "لا شيء لتفعله هنا! "
+
+msgid "Now, we'll create your first invoice (accountant)"
+msgstr "والآن، سوف نقوم بإنشاء فاتورتك الأولى (محاسب) "
+
+msgid "Number of Actions"
+msgstr "عدد الإجراءات"
+
+msgid "Number of errors"
+msgstr "عدد الأخطاء "
+
+msgid "Number of messages requiring action"
+msgstr "عدد الرسائل التي تتطلب اتخاذ إجراء"
+
+msgid "Number of messages with delivery error"
+msgstr "عدد الرسائل الحادث بها خطأ في التسليم"
+
+msgid "Odoo Payments LLC"
+msgstr "مدفوعات أودو المحدودة "
+
+msgid "On bill validation"
+msgstr "عند تصديق فاتورة المورّد "
+
+msgid "Only Billing Administrators are allowed to change lock dates!"
+msgstr "مديرو الفوترة وحدهم المصرح لهم بتغيير تواريخ الإقفال! "
+
+msgid "Only partial reconciliation is possible. Proceed in multiple steps if you want to full reconcile."
+msgstr "يُسمَح بالتسوية الجزئية فقط. يمكنك الاستمرار بعدة خطوات إذا أردت التسوية الكلية. "
+
+msgid "Open attachment in pop out"
+msgstr "فتح المرفق في نافذة منبثقة "
+
+msgid "Open balance of %(amount)s"
+msgstr "رصيد مفتوح بقيمة %(amount)s "
+
+msgid "Original Amount"
+msgstr "المبلغ الأصلي"
+
+msgid "Original Deferred Entries"
+msgstr "القيود المؤجلة الأصلية "
+
+msgid "Original Invoices"
+msgstr "الفواتير الأصلية "
+
+msgid "Originator Tax"
+msgstr "ضريبة المُنشئ "
+
+msgid "Other"
+msgstr "أخرى / مباشر"
+
+msgid "Outbound"
+msgstr "صادرة"
+
+msgid "Outbound Batch Payments Sequence"
+msgstr "تسلسل الدفعات المجمعة الصادرة "
+
+msgid "Outgoing"
+msgstr "الصادرة "
+
+msgid "PAYMENT VOUCHER"
+msgstr "سند صرف"
+
+msgid "Paid"
+msgstr "مدفوع"
+
+msgid "Paper Check Management"
+msgstr "إدارة الشيكات الورقية"
+
+msgid "Paper Checks"
+msgstr "الشيكات الورقية"
+
+msgid "Partner"
+msgstr "الشريك"
+
+msgid "Partner Currency"
+msgstr "عملة الشريك "
+
+msgid "Partner Name"
+msgstr "اسم الشريك"
+
+msgid "Partner Payable Account"
+msgstr "حساب الشريك الدائن "
+
+msgid "Partner Payable Amount"
+msgstr "مبلغ الشريك الدائن "
+
+msgid "Partner Receivable Account"
+msgstr "حساب الشريك المدين "
+
+msgid "Partner Receivable Amount"
+msgstr "مبلغ الشريك المدين "
+
+msgid "Partner Type"
+msgstr "نوع الشريك"
+
+msgid "Partner Type Detail"
+msgstr "نوع الطرف التفصيلي"
+
+msgid "Partner:"
+msgstr "الشريك / المستفيد:"
+
+msgid "Partners"
+msgstr "الشركاء"
+
+msgid "Payable"
+msgstr "الدائن"
+
+msgid "Payable:"
+msgstr "الدائن: "
+
+msgid "Payment"
+msgstr "سند صرف"
+
+msgid "Payment / Receipt Voucher"
+msgstr "سند قبض / صرف"
+
+msgid "Payment Approval Policy"
+msgstr "سياسة اعتماد الدفعات"
+
+msgid "Payment Approval Rule"
+msgstr "قاعدة اعتماد الدفعات"
+
+msgid "Payment Approval Rules"
+msgstr "قواعد اعتماد الدفعات"
+
+msgid "Payment Cancellation Reason"
+msgstr "سبب إلغاء الدفعة"
+
+msgid "Payment Channel"
+msgstr "قناة الدفع"
+
+msgid "Payment Channel:"
+msgstr "قناة الدفع:"
+
+msgid "Payment Matching"
+msgstr "مطابقة المدفوعات"
+
+msgid "Payment Method"
+msgstr "طريقة الدفع "
+
+msgid "Payment Methods"
+msgstr "طرق الدفع "
+
+msgid "Payment Reason"
+msgstr "سبب الدفعة"
+
+msgid "Payment Rejection Reason"
+msgstr "سبب رفض الدفعة"
+
+msgid "Payment State Before Switch"
+msgstr "حالة الدفع قبل التحويل "
+
+msgid "Payment Voucher"
+msgstr "سند صرف"
+
+msgid "Payment Vouchers"
+msgstr "سندات الصرف"
+
+msgid "Payment method"
+msgstr "طريقة الدفع "
+
+msgid "Payments"
+msgstr "المدفوعات"
+
+msgid "Payments Matching"
+msgstr "مطابقة المدفوعات"
+
+msgid "Payments in Error"
+msgstr "المدفوعات التي بها خطأ "
+
+msgid "Payments must be posted to be added to a batch."
+msgstr "يجب أن يتم ترحيل المدفوعات حتى تتم إضافتها إلى دفعة. "
+
+msgid "Perfect Match"
+msgstr "مطابق تماماً "
+
+msgid "Please set the deferred accounts in the accounting settings."
+msgstr "يرجى تعيين الحسابات المؤجلة في إعدادات المحاسبة. "
+
+msgid "Please set the deferred journal in the accounting settings."
+msgstr "يرجى إعداد دفتر اليومية المؤجل في إعدادات المحاسبة. "
+
+msgid "Please specify the reason for this action..."
+msgstr "يرجى تحديد سبب هذا الإجراء..."
+
+msgid "Post"
+msgstr "ترحيل"
+
+msgid "Posted"
+msgstr "مرحل"
+
+msgid "Predict Bill Product"
+msgstr "توقع منتج الفاتورة "
+
+msgid "Predict vendor bill product"
+msgstr "توقع منتج فاتورة المورّد "
+
+msgid "Prepared By"
+msgstr "إعداد"
+
+msgid "Preset to create journal entries during a invoices and payments matching"
+msgstr "الإعداد المسبق لإنشاء قيود يومية خلال مطابقة الفواتير والدفعات"
+
+msgid "Print"
+msgstr "طباعة"
+
+msgid "Print Batch Payment"
+msgstr "طباعة الدفعة المجمعة "
+
+msgid "Print Voucher"
+msgstr "طباعة السند"
+
+msgid "Proceed with validation"
+msgstr "الاستمرار بالتصديق "
+
+msgid "RECEIPT VOUCHER"
+msgstr "سند قبض"
+
+msgid "Ratings"
+msgstr "التقييمات "
+
+msgid "Re-generate Export File"
+msgstr "إعادة إنشاء ملف تصدير "
+
+msgid "Reason"
+msgstr "السبب"
+
+msgid "Reason..."
+msgstr "السبب..."
+
+msgid "Receipt"
+msgstr "سند قبض"
+
+msgid "Receipt Voucher"
+msgstr "سند قبض"
+
+msgid "Receipt Vouchers"
+msgstr "سندات القبض"
+
+msgid "Receivable"
+msgstr "المدين"
+
+msgid "Receivable/Payable Line"
+msgstr "بند المقبوضات/المدفوعات"
+
+msgid "Receivable:"
+msgstr "المدين: "
+
+msgid "Received"
+msgstr "تم الاستلام "
+
+msgid "Received By / Beneficiary"
+msgstr "المستلم / المستفيد"
+
+msgid "Recipient"
+msgstr "المستلم"
+
+msgid "Recipient Bank Account"
+msgstr "الحساب البنكي المستلم"
+
+msgid "Reconcile"
+msgstr "تسوية"
+
+msgid "Reconcile & open"
+msgstr "تسوية وفتح "
+
+msgid "Reconcile Account"
+msgstr "تسوية الحساب "
+
+msgid "Reconcile Model"
+msgstr "نموذج التسوية "
+
+msgid "Reconcile automatically"
+msgstr "التسوية تلقائياً "
+
+msgid "Reconcile journal items with opposite balance or clear accounts with a zero balance"
+msgstr "تسوية بنود دفتر اليومية ذات الرصيد المعاكس أو تصفية الحسابات ذات الرصيد الصفري "
+
+msgid "Reconciled"
+msgstr "تمت تسويته"
+
+msgid "Reconciliation model"
+msgstr "نموذج التسوية "
+
+msgid "Record cost of goods sold in your journal entries"
+msgstr "سجّل تكاليف البضاعة المباعة في قيود اليومية الخاصة بك "
+
+msgid "Ref"
+msgstr "المرجع "
+
+msgid "Reference"
+msgstr "الرقم المرجعي "
+
+msgid "Reject"
+msgstr "رفض"
+
+msgid "Rejected"
+msgstr "مرفوض"
+
+msgid "Rejected Payment"
+msgstr "عمليات الدفع المرفوضة "
+
+msgid "Rejection Reason"
+msgstr "سبب الرفض"
+
+msgid "Related Purchase(s)"
+msgstr "عمليات الشراء ذات الصلة "
+
+msgid "Related Sale(s)"
+msgstr "المبيعات ذات الصلة "
+
+msgid "Remaining Balance"
+msgstr "الرصيد المتبقي"
+
+msgid "Require Attachment Before Payment Approval/Confirmation"
+msgstr "اشتراط إرفاق مستند قبل اعتماد/تأكيد الدفعة"
+
+msgid "Require Attachment Before Sending for Approval"
+msgstr "طلب مرفق قبل الإرسال للاعتماد"
+
+msgid "Require at least one attachment before sending payment vouchers for approval."
+msgstr "يتطلب إرفاق ملف واحد على الأقل قبل إرسال سندات الصرف للاعتماد."
+
+msgid "Require payment attachment before submission/confirmation"
+msgstr "اشتراط إرفاق مستند للدفع قبل الإرسال للاعتماد أو التأكيد"
+
+msgid "Reset"
+msgstr "إعادة الضبط "
+
+msgid "Reset to Draft"
+msgstr "تعيين كمسودة"
+
+msgid "Residual"
+msgstr "المتبقي"
+
+msgid "Residual in Currency"
+msgstr "المتبقي بالعملة "
+
+msgid "Responsible User"
+msgstr "المستخدم المسؤول"
+
+msgid "Return Todo Command"
+msgstr "إرجاع أمر قائمة المهام "
+
+msgid "Returned / Bounced"
+msgstr "مرتجع / مرفوض"
+
+msgid "Review"
+msgstr "مراجعة"
+
+msgid "Reviewed By"
+msgstr "مراجعة"
+
+msgid "Revoke"
+msgstr "إلغاء "
+
+msgid "Rule Name"
+msgstr "اسم القاعدة"
+
+msgid "Rules for the reconciliation model"
+msgstr "قواعد نموذج التسوية "
+
+msgid "SMS Delivery error"
+msgstr "خطأ في تسليم الرسائل النصية القصيرة "
+
+msgid "Save"
+msgstr "حفظ"
+
+msgid "Save & Close"
+msgstr "حفظ وإغلاق"
+
+msgid "Save & New"
+msgstr "حفظ و جديد"
+
+msgid "Search Journal Items to Reconcile"
+msgstr "البحث عن القيود اليومية المُراد تسويتها "
+
+msgid "Select a user here to override every signature on invoice by this user's signature"
+msgstr "قم بتحديد مستخدم هنا لاستبدال كل توقيع في الفاتورة بتوقيع هذا المستخدم "
+
+msgid "Selected Aml"
+msgstr "Aml المحددة "
+
+msgid "Selected Batch Payment"
+msgstr "الدفعة المجمعة المحددة "
+
+msgid "Selected Reco Model"
+msgstr "تحديد نموذج التسوية "
+
+msgid "Send for Approval"
+msgstr "إرسال للاعتماد"
+
+msgid "Sent"
+msgstr "تم الإرسال"
+
+msgid "Sequence"
+msgstr "الترتيب"
+
+msgid "Set an amount."
+msgstr "قم بتعيين مبلغ. "
+
+msgid "Set as Checked"
+msgstr "التعيين كتمّ التحقق منه "
+
+msgid "Set payments state to \\\"In Process\\\"."
+msgstr "قم بتعيين حالة الدفع كـ \\\"قيد التنفيذ\\\". "
+
+msgid "Set the payment reference."
+msgstr "قم بتعيين مرجع الدفع. "
+
+msgid "Show"
+msgstr "إظهار "
+
+msgid "Show Draft Entries Warning"
+msgstr "إظهار تحذير القيود بحالة المسودة "
+
+msgid "Show Remove Button"
+msgstr "إظهار زر الإزالة "
+
+msgid "Show Remove Options"
+msgstr "إظهار خيارات الإزالة "
+
+msgid "Show Signature Area"
+msgstr "إظهار مكان التوقيع "
+
+msgid "Sign"
+msgstr "توقيع"
+
+msgid "Signature"
+msgstr "التوقيع "
+
+msgid "Signature used to sign all the invoice"
+msgstr "التوقيع المستَخدَم للتوقيع على الفاتورة بأكملها "
+
+msgid "Signature:"
+msgstr "التوقيع:"
+
+msgid "Signer"
+msgstr "الطرف الموقِّع "
+
+msgid "Signing User"
+msgstr "المُستخدِم الموقِّع "
+
+msgid "Single Currency Mode"
+msgstr "وضع العملة الواحدة "
+
+msgid "Some payments have already been matched with a bank statement."
+msgstr "لقد تمت مطابقة بعض المدفوعات بالفعل مع كشف حساب بنكي. "
+
+msgid "Some payments have already been sent."
+msgstr "لقد تم إرسال بعض المدفوعات بالفعل. "
+
+msgid "Some recipient accounts do not allow out payments."
+msgstr "لا تسمح بعض حسابات المستلمين بالدفع."
+
+msgid "Source Aml"
+msgstr "Aml المصدرية "
+
+msgid "Source Aml Move"
+msgstr "حركة Aml المصدرية "
+
+msgid "Source Aml Move Name"
+msgstr "اسم حركة Aml المصدرية "
+
+msgid "Source Amount Currency"
+msgstr "عملة المبلغ المصدري "
+
+msgid "Source Balance"
+msgstr "الرصيد المصدري "
+
+msgid "Source Batch Payment"
+msgstr "الدفعة المجمعة المصدرية "
+
+msgid "Source Batch Payment Name"
+msgstr "اسم الدفعة المجمعة المصدرية "
+
+msgid "Source Credit"
+msgstr "مصدر الائتمان"
+
+msgid "Source Debit"
+msgstr "مصدر الخصم"
+
+msgid "St Line"
+msgstr "بند كشف الحساب "
+
+msgid "St Line Transaction Details"
+msgstr "تفاصيل معاملة بند كشف الحساب "
+
+msgid "Start Date"
+msgstr "تاريخ البدء "
+
+msgid "Start Date, included in the fiscal year."
+msgstr "تاريخ البداية، ضمن السنة المالية. "
+
+msgid "State"
+msgstr "الحالة"
+
+msgid "Statement"
+msgstr "كشف الحساب"
+
+msgid "Statement Line"
+msgstr "بند كشف الحساب"
+
+msgid "Status"
+msgstr "الحالة"
+
+msgid "Status based on activities\\nOverdue: Due date is already passed\\nToday: Activity date is today\\nPlanned: Future activities."
+msgstr "الأنشطة المعتمدة على الحالة\\nالمتأخرة: تاريخ الاستحقاق مر\\nاليوم: تاريخ النشاط هو اليوم\\nالمخطط: الأنشطة المستقبلية."
+
+msgid "Submit for Approval"
+msgstr "إرسال للاعتماد"
+
+msgid "Submitted"
+msgstr "تم الإرسال"
+
+msgid "Suggestion Amount Currency"
+msgstr "عملة المبلغ المقترح "
+
+msgid "Suggestion Balance"
+msgstr "الرصيد المقترح "
+
+msgid "Suggestion Html"
+msgstr "Html المقترح "
+
+msgid "Suggestions"
+msgstr "الاقتراحات "
+
+msgid "TOTAL"
+msgstr "الإجمالي"
+
+msgid "Target another recipient account or allow sending money to the current one."
+msgstr "استهدف حساب مستلم آخر أو اسمح بإرسال الأموال إلى الحساب الحالي."
+
+msgid "Tax"
+msgstr "الضريبة"
+
+msgid "Tax Base Amount Currency"
+msgstr "عملة المبلغ الأساسي للضريبة "
+
+msgid "Tax Grids"
+msgstr "شبكات الضرائب"
+
+msgid "Tax Repartition Line"
+msgstr "بند التوزيع الضريبي"
+
+msgid "Tax Tag"
+msgstr "علامة تصنيف الضريبة "
+
+msgid "Taxes"
+msgstr "الضرائب"
+
+msgid "Telephone"
+msgstr "التليفون"
+
+msgid "That's on average"
+msgstr "هذا في المتوسط"
+
+msgid "The ISO country code in two chars. \\nYou can use this field for quick search."
+msgstr "كود الدولة حسب المعيار الدولي أيزو المكون من حرفين.\\nيمكنك استخدام هذا الحقل لإجراء بحث سريع."
+
+msgid "The amount expressed in an optional other currency if it is a multi-currency entry."
+msgstr "يتم عرض المبلغ بعملة اختيارية أخرى إذا كان قيداً متعدد العملات. "
+
+msgid "The amount of the write-off of a single credit line should be strictly negative."
+msgstr "يجب أن يكون مبلغ الشطب لبند ائتماني واحد قيمة سالبة فقط. "
+
+msgid "The amount of the write-off of a single debit line should be strictly positive."
+msgstr "يجب أن يكون مبلغ الشطب لبند خصم واحد قيمة موجبة فقط. "
+
+msgid "The amount of the write-off of a single line cannot be 0."
+msgstr "لا يمكن أن يكون مبلغ الشطب لبند واحد 0. "
+
+msgid "The batch cannot be validated."
+msgstr "لا يمكن تصديق الدفعة "
+
+msgid "The batch could not be validated"
+msgstr "تعذر تصديق الدفعة "
+
+msgid "The batch must have the same payment method as the payments it contains."
+msgstr "يجب أن يكون للدفعة نفس طريقة السداد ككافة عمليات السداد التي تحتويها. "
+
+msgid "The batch must have the same type as the payments it contains."
+msgstr "يجب أن يكون للدفعة نفس نوع عمليات السداد التي تحتويها."
+
+msgid "The batch payment generating the errors and warnings displayed in this wizard."
+msgstr "الدفعة المجمعة التي تتسبب في الأخطاء والتحذيرات المعروضة على هذا المُعالج. "
+
+msgid "The date you set violates the lock date of one of your entry. It will be overriden by the following date : %(replacement_date)s"
+msgstr "التاريخ الذي قمت بتحديده يتضارب مع تاريخ الإقفال لإحدى قيودك. سيتم تجاوزه من قِبَل التاريخ التالي: %(replacement_date)s"
+
+msgid "The deferred entries created by this invoice"
+msgstr "القيود المؤجلة التي تم إنشاؤها من قِبَل هذه الفاتورة "
+
+msgid "The ending date must not be prior to the starting date."
+msgstr "يجب ألا يقع تاريخ الانتهاء قبل تاريخ البداية. "
+
+msgid "The invoice %(display_name_html)s with an open amount of %(open_amount)s will be entirely paid by the transaction."
+msgstr "الفاتورة %(display_name_html)s التي بها مبلغ مفتوح قيمته %(open_amount)s سيتم دفعها كاملة بواسطة المعاملة. "
+
+msgid "The invoice %(display_name_html)s with an open amount of %(open_amount)s will be reduced by %(amount)s."
+msgstr "الفاتورة %(display_name_html)s مع مبلغ مفتوح قدره %(open_amount)s سيتم تقليله بـ %(amount)s. "
+
+msgid "The invoices up to this date will not be taken into account as accounting entries"
+msgstr "لن يتم اعتبار الفواتير حتى هذا التاريخ كقيود محاسبية "
+
+msgid "The journal of the batch payment and of the payments it contains must be the same."
+msgstr "يجب أن يكون دفتر اليومية للدفعة المجمعة مطابقاً لدفتر اليومية لكافة عمليات السداد التي يحتويها. "
+
+msgid "The optional other currency if it is a multi-currency entry."
+msgstr "العملة الاختيارية الأخرى إذا كان القيد متعدد العملات."
+
+msgid "The original invoices that created the deferred entries"
+msgstr "الفواتير الأصلية التي قامت بإنشاء القيود المؤجلة "
+
+msgid "The payment method used by the payments in this batch."
+msgstr "طريقة السداد المستخدمة في عمليات السداد في هذه الدفعة."
+
+msgid "The system will try to predict the product on vendor bill lines based on the label of the line"
+msgstr "سيحاول النظام توقع المنتج في بنود فاتورة المورد بناءً على عنوان البند. "
+
+msgid "There are still draft entries in the period you want to lock.\\n                                You should either post or delete them."
+msgstr "لا تزال هناك قيود بحالة المسودة في الفترة التي تريد إقفالها.\\n                                عليك إما ترحيلها أو حذفها. "
+
+msgid "This bank transaction has been automatically validated using the reconciliation model '%s'."
+msgstr "هذه المعاملة البنكية قد تم تصديقها تلقائياً باستخدام نموذج التسوية '%s'. "
+
+msgid "This bank transaction is locked up tighter than a squirrel in a nut factory! You can't hit the reset button on it. So, do you want to \\\"unreconcile\\\" it instead?"
+msgstr "هذه المعاملة البنكية مغلقة بإحكام أكثر من السنجاب في مصنع الجوز! لا يمكنك الضغط على زر إعادة ضبطها. لذا، أترغب في \\\"إلغاءها\\\" عوضاً عن ذلك؟ "
+
+msgid "This can only be used on journal items"
+msgstr "يمكن استخدام ذلك فقط في عناصر اليومية "
+
+msgid "This reconciliation model can't be used in the manual reconciliation widget because its configuration is not adapted"
+msgstr "لا يمكن استخدام نموذج التسوية في أداة التسوية اليدوية لعدم اعتماد تهيئته "
+
+msgid "Tip: Bulk update journal items"
+msgstr "نصيحة: قم بتحديث قيود اليومية بالجملة "
+
+msgid "Tip: Find an Accountant or register your Accounting Firm"
+msgstr "نصيحة: ابحث عن محاسب أو قم بتسجيل شركتك المحاسبة الخاصة بك "
+
+msgid "To"
+msgstr "إلى"
+
+msgid "To Approve"
+msgstr "بانتظار الاعتماد"
+
+msgid "To Check"
+msgstr "للتحقق منه "
+
+msgid "To check"
+msgstr "للتحقق منه "
+
+msgid "To enhance authenticity, add a signature to your invoices"
+msgstr "لتعزيز صحة مستنداتك، أضف توقيعاً إلى فواتيرك "
+
+msgid "Todo Command"
+msgstr "أمر قائمة المهام "
+
+msgid "Total"
+msgstr "الإجمالي"
+
+msgid "Total Allocated"
+msgstr "إجمالي المخصص"
+
+msgid "Total Amount"
+msgstr "المبلغ الإجمالي"
+
+msgid "Total Balance"
+msgstr "الرصيد الكلي "
+
+msgid "Total Credit"
+msgstr "إجمالي الائتمان"
+
+msgid "Total Debit"
+msgstr "إجمالي الدين"
+
+msgid "Total Residual"
+msgstr "إجمالي المتبقي "
+
+msgid "Total Residual in Currency"
+msgstr "إجمالي المتبقي بالعملة "
+
+msgid "Transaction"
+msgstr "معاملة"
+
+msgid "Transaction Currency"
+msgstr "عملة المعاملة "
+
+msgid "Transaction Details"
+msgstr "تفاصيل المعاملة "
+
+msgid "Transactions"
+msgstr "المعاملات "
+
+msgid "Transfer from %s"
+msgstr "التحويل من %s"
+
+msgid "Transfer to %s"
+msgstr "التحويل إلى %s"
+
+msgid "True if and only if the options to remove the payments causing the errors or warnings from the batch should be shown"
+msgstr "تكون القيمة صحيحة فقط عندما يكون من الواجب إظهار الخيارات لإزالة المدفوعات المتسببة بالأخطاء أو التحذيرات "
+
+msgid "Try to reconcile automatically your statement lines"
+msgstr "حاول تسوية بنود كشف حسابك تلقائياً "
+
+msgid "Type of the exception activity on record."
+msgstr "نوع النشاط المستثنى في السجل. "
+
+msgid "Unallocated Amount"
+msgstr "المبلغ غير المخصص"
+
+msgid "Under Collection"
+msgstr "تحت التحصيل"
+
+msgid "Unreconciled"
+msgstr "غير المسواة"
+
+msgid "Unreconciled statements lines"
+msgstr "بنود كشف الحساب غير المسواة "
+
+msgid "User"
+msgstr "المستخدم"
+
+msgid "Valid"
+msgstr "صالح"
+
+msgid "Validate"
+msgstr "تصديق "
+
+msgid "Vendor"
+msgstr "مورد"
+
+msgid "Vendor Batch Payments"
+msgstr "دفعات الموردين المجمعة"
+
+msgid "View"
+msgstr "أداة العرض"
+
+msgid "View Lozan Voucher"
+msgstr "عرض سند لوزان"
+
+msgid "View Reconciled Entries"
+msgstr "عرض القيود المسواة "
+
+msgid "View Voucher"
+msgstr "عرض السند"
+
+msgid "View models"
+msgstr "عرض النماذج "
+
+msgid "Voucher"
+msgstr "السند"
+
+msgid "Voucher Approval Log"
+msgstr "سجل اعتماد السند"
+
+msgid "Voucher Approval Policy"
+msgstr "سياسة اعتماد السندات"
+
+msgid "Voucher Approval Rule"
+msgstr "قاعدة اعتماد السند"
+
+msgid "Voucher Approval Rules"
+msgstr "قواعد اعتماد السندات"
+
+msgid "Voucher Audit Logs"
+msgstr "سجلات مراجعة السندات"
+
+msgid "Voucher Auditor"
+msgstr "مراجع السندات"
+
+msgid "Voucher Cashier"
+msgstr "أمين صندوق السندات"
+
+msgid "Voucher Invoice Allocation"
+msgstr "تخصيص فواتير السند"
+
+msgid "Voucher Manager"
+msgstr "مدير السندات"
+
+msgid "Voucher Mismatch"
+msgstr "عدم تطابق السند"
+
+msgid "Voucher No."
+msgstr "رقم السند"
+
+msgid "Voucher No:"
+msgstr "رقم السند:"
+
+msgid "Voucher Number"
+msgstr "رقم السند"
+
+msgid "Voucher Policies & Controls"
+msgstr "سياسات وضوابط السندات"
+
+msgid "Voucher Settings"
+msgstr "إعدادات السندات"
+
+msgid "Voucher Type"
+msgstr "نوع السند"
+
+msgid "Voucher User"
+msgstr "مستخدم السندات"
+
+msgid "Vouchers"
+msgstr "السندات"
+
+msgid "Vouchers Settings"
+msgstr "إعدادات السندات"
+
+msgid "Wallet"
+msgstr "محفظة إلكترونية"
+
+msgid "Warning Line"
+msgstr "بند التحذير "
+
+msgid "Warning Wizard"
+msgstr "مُعالج التحذير "
+
+msgid "Website Messages"
+msgstr "رسائل الموقع الإلكتروني "
+
+msgid "Website communication history"
+msgstr "سجل تواصل الموقع الإلكتروني "
+
+msgid "Whether or not this batch payment should display the 'Generate File' button instead of 'Print' in form view."
+msgstr "إذا ما كان ينبغي عرض زر 'إنشاء ملف' في واجهة الدفعة المجمعة عوضاً عن زر 'طباعة' أم لا. "
+
+msgid "With residual"
+msgstr "مع متبقي "
+
+msgid "Wizard"
+msgstr "المعالج"
+
+msgid "Wizard Company Currency"
+msgstr "معالج عملة الشركة "
+
+msgid "Write-Off"
+msgstr "شطب"
+
+msgid "Write-Off Entry"
+msgstr "شطب القيد "
+
+msgid "You can not have an overlap between two fiscal years, please correct the start and/or end dates of your fiscal years."
+msgstr "لا يمكن أن يكون هناك تداخل بين سنتين ماليتين، الرجاء تصحيح تواريخ بدء و/أو انتهاء سنواتك المالية. "
+
+msgid "You can only reconcile entries with up to two different accounts: %s"
+msgstr "يمكنك فقط تسوية القيود حتى حسابين مختلفين: %s"
+
+msgid "You can't hit the reset button on a secured bank transaction."
+msgstr "لا يمكنك الضغط على زر إعادة الضبط في معاملة بنكية مؤمَّنة. "
+
+msgid "You cannot add payments that are already sent."
+msgstr "لا يمكنك إضافة مدفوعات تم إرسالها بالفعل. "
+
+msgid "You cannot add payments that are not posted."
+msgstr "لا يمكنك إضافة المدفوعات التي لم يتم نشرها."
+
+msgid "You cannot add payments with zero amount in a Batch Payment."
+msgstr "لا يمكنك إضافة مدفوعات قيمتها صفر في دفعة مجمعة "
+
+msgid "You cannot add the same payment to multiple batches."
+msgstr "لا يمكنك إضافة عدة مدفوعات إلى عدة دفعات. "
+
+msgid "You cannot change the account for a deferred line in %(move_name)s if it has already been deferred."
+msgstr "لا يمكنك تغيير الحساب للبند المؤجل %(move_name)s إذا كان مؤجلاً بالفعل. "
+
+msgid "You cannot create a batch with payments that are already in another batch."
+msgstr "لا يمكنك إنشاء دفعة بها مدفوعات موجودة بالفعل في دفعة أخرى. "
+
+msgid "You cannot create a deferred entry with a start date but no end date."
+msgstr "لا يمكنك إنشاء قيد مؤجل مع تاريخ بدء ودون تاريخ انتهاء. "
+
+msgid "You cannot create a deferred entry with a start date later than the end date."
+msgstr "لا يمكنك إنشاء قيد مؤجل مع تاريخ بدء أبعد من تاريخ انتهاء. "
+
+msgid "You cannot create batches with overlapping payments."
+msgstr "لا يمكنك إنشاء دفعات بها مدفوعات متداخلة. "
+
+msgid "You cannot generate deferred entries for a miscellaneous journal entry."
+msgstr "لا يمكنك إنشاء قيود مؤجلة لقيد يومية من المتفرقات. "
+
+msgid "You cannot have a fiscal year on a child company."
+msgstr "لا يمكن أن يكون لديك عام مالي في شركة تابعة. "
+
+msgid "You cannot reset to draft an invoice that is grouped in deferral entry. You can create a credit note instead."
+msgstr "لا يمكنك إعادة تعيين فاتورة قد تم تجميعها في قيد مؤجل إلى حالة المسودة. يمكنك إنشاء إشعار دائن عوضاً عن ذلك. "
+
+msgid "You cannot set a Lock Date in the future."
+msgstr "لا يمكنك تعيين تاريخ إقفال في المستقبل. "
+
+msgid "You might want to %(btn_start)sfully reconcile%(btn_end)s the document."
+msgstr "قد ترغب بإجراء %(btn_start)sالتسوية الكلية%(btn_end)s للمستند.  "
+
+msgid "You might want to make a %(btn_start)spartial reconciliation%(btn_end)s instead."
+msgstr "قد ترغب بإجراء %(btn_start)sالتسوية الجزئية%(btn_end)s عوضاً عن ذلك. "
+
+msgid "You might want to record a %(btn_start)spartial payment%(btn_end)s."
+msgstr "قد ترغب بتسجيل %(btn_start)sالتسوية الجزئية%(btn_end)s. "
+
+msgid "You might want to set the invoice as %(btn_start)sfully paid%(btn_end)s."
+msgstr "قد ترغب بتعيين الفاتورة كـ %(btn_start)sمدفوعة بالكامل%(btn_end)s. "
+
+msgid "You need to select a duration for the exception."
+msgstr "عليك تحديد مدة للاستثناء. "
+
+msgid "You need to select who the exception applies to."
+msgstr "عليك تحديد الأفراد الذين ينطبق عليهم الاستثناء. "
+
+msgid "You reconciled"
+msgstr "لقد قمت بتسوية "
+
+msgid "batches have been removed."
+msgstr "تمت إزالة الدفعات."
+
+msgid "e.g. Bank Fees"
+msgstr "مثال: الرسوم البنكية "
+
+msgid "for 1 hour"
+msgstr "لمدة ساعة واحدة "
+
+msgid "for 15 minutes"
+msgstr "لمدة 15 دقيقة "
+
+msgid "for 24 hours"
+msgstr "لمدة 24 ساعة "
+
+msgid "for 5 minutes"
+msgstr "لمدة 5 دقائق "
+
+msgid "for everyone"
+msgstr "للجميع "
+
+msgid "for me"
+msgstr "لي "
+
+msgid "forever"
+msgstr "للأبد "
+
+msgid "in"
+msgstr "في"
+
+msgid "liquidity"
+msgstr "السيولة "
+
+msgid "manual"
+msgstr "اليدوية "
+
+msgid "payments from"
+msgstr "المدفوعات من"
+
+msgid "payments from the batch have been removed."
+msgstr "تمت إزالة المدفوعات من الدفعة. "
+
+msgid "seconds per transaction."
+msgstr "ثوان لكل معاملة. "
+
+msgid "to check"
+msgstr "للتفقد"
+
+msgid "to reconcile"
+msgstr "بانتظار التسوية "
+
+msgid "transaction in"
+msgstr "معاملة في "
+
+msgid "transactions in"
+msgstr "معاملات في "
+

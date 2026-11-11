@@ -1,0 +1,17 @@
+<?xml version='1.0' encoding='utf-8'?>
+<odoo>
+    <menuitem id="menu_account_reconcile" name="Reconcile" parent="account.menu_finance_entries" action="action_move_line_posted_unreconciled" sequence="65" groups="account.group_account_user"/>
+    <menuitem id="account_tag_menu" parent="account.account_account_menu" action="account_tag_action" groups="base.group_no_one"/>
+    <menuitem id="menu_account_group" parent="account.account_account_menu" action="action_account_group_tree" groups="base.group_no_one"/>
+    <menuitem id="menu_account_fiscal_year" parent="account.account_account_menu" action="actions_account_fiscal_year" groups="am_account_kit.group_fiscal_year"/>
+    <menuitem id="menu_payment_approval_rule" name="Payment Approval Rules" parent="account.account_account_menu" action="action_payment_approval_rule" sequence="50" groups="account.group_account_manager"/>
+    <menuitem id="menu_payment_approval_log" name="Payment Audit Logs" parent="account.account_account_menu" action="action_payment_approval_log" sequence="51" groups="account.group_account_manager"/>
+
+    <!-- Hide Cybrosys Bulk Payments in favor of standard Batch Payments -->
+    <record id="base_accounting_kit.menu_account_bulk_payment" model="ir.ui.menu">
+        <field name="active" eval="False"/>
+    </record>
+    <record id="base_accounting_kit.action_add_payments_to_bulk" model="ir.actions.server">
+        <field name="binding_model_id" eval="False"/>
+    </record>
+</odoo>

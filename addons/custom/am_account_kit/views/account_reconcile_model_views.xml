@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="account_reconcile_model_form_inherit_am_account_kit" model="ir.ui.view">
+            <field name="name">account.reconcile.model.form.inherit.am_account_kit</field>
+            <field name="model">account.reconcile.model</field>
+            <field name="inherit_id" ref="account.view_account_reconcile_model_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//header" position="inside">
+                    <button name="run_auto_reconciliation"
+                            invisible="trigger != 'auto_reconcile'"
+                            type="object"
+                            class="btn-secondary"
+                            string="Run Manually"/>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>
