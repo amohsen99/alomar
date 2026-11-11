@@ -4,10 +4,10 @@
     'version': '19.0.1.0.0',
     'category': 'Accounting/Accounting',
     'sequence': 30,
-    'summary': 'Enterprise Accounting Dashboard and Bank Matching / Reconciliation UI for Odoo 18',
-    'icon': '/account/static/description/icon.png',
+    'summary': 'Enterprise Accounting Dashboard and Bank Matching / Reconciliation UI for Odoo 19',
     'author': 'Alomar',
     'license': 'LGPL-3',
+    'images': ['static/description/icon.png'],
     'depends': [
         'account',
         'base_accounting_kit',
